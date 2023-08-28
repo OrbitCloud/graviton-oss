@@ -12,6 +12,8 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.11"
+pulumi = "^3.79.0"
+pulumi-azure-native = "^2.4.0"
 
 
 [tool.poetry.group.dev.dependencies]

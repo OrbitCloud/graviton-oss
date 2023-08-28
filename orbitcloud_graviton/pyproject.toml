@@ -5,10 +5,17 @@ description = ""
 authors = ["Orbit Team <admin@orbit.is>"]
 license = "MIT"
 readme = "README.md"
+packages = [
+    { include = "orbitcloud_graviton/azure_loganalytics_workspace", from = "components" },
+    { include = "orbitcloud_graviton/azure_resource_group", from = "components" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
 
 [build-system]
 requires = ["poetry-core"]

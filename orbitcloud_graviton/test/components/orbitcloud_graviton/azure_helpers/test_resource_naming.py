@@ -3,7 +3,7 @@ import pytest
 from pulumi_azure_native import resources
 from pulumi_azure_native import operationalinsights
 
-from orbitcloud_graviton.azure_helpers.core import (
+from orbitcloud_graviton.azure_helpers import (
     resource_namer,
     resource_prefix,
     location_abbr,

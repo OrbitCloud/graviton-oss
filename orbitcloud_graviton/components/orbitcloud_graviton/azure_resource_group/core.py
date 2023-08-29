@@ -1,30 +1,32 @@
 """Azure ResourceGroup Component"""
 
-from typing import Optional, Mapping
+from typing import Optional, Dict
 
 import pulumi
 from pulumi_azure_native import resources
 
-from orbitcloud_graviton.azure_helpers.core import resource_namer
+from orbitcloud_graviton.azure_helpers import resource_namer
 
 
 def resource_group(
     workload_name: str,
     location: str,
-    env: str = "dev",
-    tags: Optional[Mapping[str, str]] = None,
+    env: str,
+    tags: Optional[Dict[str, str]] = None,
     opts: Optional[pulumi.ResourceOptions] = None,
 ) -> resources.ResourceGroup:
     """Create an Azure ResourceGroup"""
 
     resource_name = resource_namer(
-        resources.ResourceGroup, workload_name, env, location
+        resource_type=resources.ResourceGroup,
+        workload_name=workload_name,
+        env=env,
+        location=location,
     )
 
     if tags is None:
-        tags = {"env": env}
-    elif tags is not None and tags.get("env") is None:
-        tags.update({"env": env})
+        tags = {}
+    tags.setdefault("env", env)
 
     return resources.ResourceGroup(
         resource_name,

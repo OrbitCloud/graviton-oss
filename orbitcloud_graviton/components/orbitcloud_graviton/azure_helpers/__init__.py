@@ -1,4 +1,9 @@
-from orbitcloud_graviton.azure_helpers import core
+""" Azure helper functions for OrbitCloud Graviton """
 
-__all__ = ["core"]
+from .naming import (
+    resource_namer,
+    location_abbr,
+    resource_prefix,
+)
 
+__all__ = ["resource_namer", "location_abbr", "resource_prefix"]

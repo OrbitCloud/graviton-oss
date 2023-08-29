@@ -6,9 +6,11 @@ authors = ["Orbit Team <admin@orbit.is>"]
 license = "MIT"
 readme = "README.md"
 packages = [
+    { include = "orbitcloud_graviton/pulumi_mocks", from = "components" },
     { include = "orbitcloud_graviton/azure_helpers", from = "components" },
     { include = "orbitcloud_graviton/azure_loganalytics_workspace", from = "components" },
     { include = "orbitcloud_graviton/azure_resource_group", from = "components" },
+    { include = "orbitcloud_graviton/azure_loganalytics", from = "bases" },
 ]
 
 [tool.poetry.dependencies]

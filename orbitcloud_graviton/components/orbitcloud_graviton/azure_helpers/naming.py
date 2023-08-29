@@ -18,12 +18,12 @@ def resource_namer(
     resource_type, workload_name, env, location, instance_number: str = "01"
 ) -> str:
     """Return a resource name for a given resource type"""
-    prefix = resource_prefix(resource_type)
-    location_short = location_abbr(location)
+    prefix = resource_prefix(resource_type=resource_type)
+    location_short = location_abbr(location=location)
     return f"{prefix}-{workload_name}-{env}-{location_short}-{instance_number}"
 
 
-def location_abbr(location: str) -> str:
+def location_abbr(location) -> str:
     """Return a location abbreviation for a given location"""
     abbr = LOCATION_ABBR.get(location)
     if not abbr:

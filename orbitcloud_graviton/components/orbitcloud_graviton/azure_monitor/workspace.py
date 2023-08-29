@@ -2,8 +2,7 @@
 from typing import Mapping, Optional
 
 import pulumi
-
-from pulumi_azure_native import resources, operationalinsights
+from pulumi_azure_native import operationalinsights, resources
 
 from orbitcloud_graviton.azure_helpers import resource_namer
 

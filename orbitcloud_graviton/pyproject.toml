@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [
     { include = "orbitcloud_graviton/pulumi_mocks", from = "components" },
     { include = "orbitcloud_graviton/azure_helpers", from = "components" },
-    { include = "orbitcloud_graviton/azure_loganalytics_workspace", from = "components" },
+    { include = "orbitcloud_graviton/azure_monitor", from = "components" },
     { include = "orbitcloud_graviton/azure_resource_group", from = "components" },
     { include = "orbitcloud_graviton/azure_loganalytics", from = "bases" },
 ]
@@ -21,8 +21,14 @@ pulumi-azure-native = "^2.4.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
-mypy = "^1.5.1"
 pytest-cov = "^4.1.0"
+pyright = "^1.1.324"
+isort = "^5.12.0"
+black = "^23.7.0"
+
+[tools.pyright]
+reportMissingTypeArgument = true  # Report generic classes used without type arguments
+strictListInference = true  # Use union types when inferring types of lists elements, instead of Any
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,0 +1,19 @@
+name: ${PROJECT}
+description: ${DESCRIPTION}
+runtime:
+  name: python
+options:
+  refresh: always
+template:
+  description: Orbit template for new Python + pulumi_azure_native projects
+  config:
+    workload_name:
+      description: Name of the workload
+    azure-native:location:
+      description: Azure region to deploy to
+      default: northeurope
+    env:
+      description: Environment name
+      default: dev
+    
+    

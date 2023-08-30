@@ -30,8 +30,23 @@ pytest-cov = "^4.1.0"
 pyright = "^1.1.324"
 isort = "^5.12.0"
 black = "^23.7.0"
+dunamai = "^1.18.0"
+commitizen = "^3.7.0"
 
-[tools.pyright]
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"
+version_files = [
+    "VERSION",
+    "pyproject.toml:^version",
+    ]
+update_changelog_on_bump = true
+changelog_incremental = true
+bump_message = "bump: $current_version → $new_version"
+major_version_zero = true # Remove when we hit 1.0.0
+
+[tool.pyright]
 reportMissingTypeArgument = true  # Report generic classes used without type arguments
 strictListInference = true  # Use union types when inferring types of lists elements, instead of Any
 

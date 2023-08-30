@@ -1,0 +1,21 @@
+{
+    "folders": [
+      {
+        "path": "../orbitcloud_graviton"
+      },
+      {
+        "name": "pulumi_templates",
+        "path": "../pulumi_templates"
+      },
+      {
+        "name": "ROOT",
+        "path": "../",
+      },
+    ],
+    "settings": {
+      "files.exclude": {
+        "orbitcloud_graviton/": true,
+      },
+    },
+  }
+  

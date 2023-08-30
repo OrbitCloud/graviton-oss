@@ -22,7 +22,7 @@ Taken from: https://github.com/aaronsteers/aj-dataops-personal/blob/a5455eac8268
 
 import json
 from os import environ
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 import pulumi
 

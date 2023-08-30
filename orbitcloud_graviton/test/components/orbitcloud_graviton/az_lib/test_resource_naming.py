@@ -1,13 +1,7 @@
 import pytest
+from pulumi_azure_native import operationalinsights, resources
 
-from pulumi_azure_native import resources
-from pulumi_azure_native import operationalinsights
-
-from orbitcloud_graviton.azure_helpers import (
-    resource_namer,
-    resource_prefix,
-    location_abbr,
-)
+from orbitcloud_graviton.az_lib import location_abbr, resource_namer, resource_prefix
 
 
 def test_resource_prefixer():

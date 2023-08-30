@@ -1,8 +1,7 @@
-import pytest
-import unittest
-from pprint import pprint
 import pulumi
-from orbitcloud_graviton.azure_resource_group.core import resource_group
+import pytest
+
+from orbitcloud_graviton.az_resources import az_resource_group
 
 
 class MyMocks(pulumi.runtime.Mocks):
@@ -22,7 +21,7 @@ pulumi.runtime.set_mocks(
 
 
 def test_exists():
-    assert resource_group is not None, "resource_group is not defined"
+    assert az_resource_group is not None, "resource_group is not defined"
 
 
 @pulumi.runtime.test
@@ -34,7 +33,7 @@ def test_exists():
     ],
 )
 def test_resource_group(workload_name, env, location, tags):
-    rg_test = resource_group(workload_name, location, env, tags)
+    rg_test = az_resource_group(workload_name, location, env, tags)
 
     def check_parameters(args):
         rg_location, rg_tags = args

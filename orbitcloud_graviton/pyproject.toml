@@ -6,11 +6,16 @@ authors = ["Orbit Team <admin@orbit.is>"]
 license = "MIT"
 readme = "README.md"
 packages = [
+    # Lib and helpers
     { include = "orbitcloud_graviton/pulumi_mocks", from = "components" },
-    { include = "orbitcloud_graviton/azure_helpers", from = "components" },
-    { include = "orbitcloud_graviton/azure_monitor", from = "components" },
-    { include = "orbitcloud_graviton/azure_resource_group", from = "components" },
-    { include = "orbitcloud_graviton/azure_loganalytics", from = "bases" },
+    { include = "orbitcloud_graviton/az_lib", from = "components" },
+
+    # Azure Components
+    { include = "orbitcloud_graviton/az_monitor", from = "components" },
+    { include = "orbitcloud_graviton/az_resources", from = "components" },
+
+    # Bases
+    { include = "orbitcloud_graviton/loganalytics", from = "bases" },
 ]
 
 [tool.poetry.dependencies]

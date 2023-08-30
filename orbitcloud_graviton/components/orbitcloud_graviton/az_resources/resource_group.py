@@ -1,14 +1,14 @@
 """Azure ResourceGroup Component"""
 
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 import pulumi
 from pulumi_azure_native import resources
 
-from orbitcloud_graviton.azure_helpers import resource_namer
+from orbitcloud_graviton.az_lib import resource_namer
 
 
-def resource_group(
+def az_resource_group(
     workload_name: str,
     location: str,
     env: str,

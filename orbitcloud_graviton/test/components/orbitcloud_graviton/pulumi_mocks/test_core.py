@@ -1,5 +1,5 @@
-from orbitcloud_graviton.pulumi_mocks import core
+from orbitcloud_graviton.pulumi_mocks import set_mocks
 
 
-def test_sample():
-    assert core is not None
+def test_pulumi_mocks():
+    assert set_mocks is not None

@@ -1,0 +1,18 @@
+{
+    "folders": [
+      {
+        "name": "orbitcloud_graviton",
+        "path": "../orbitcloud_graviton"
+      },
+      {
+        "name": "ROOT",
+        "path": "../",
+      },
+    ],
+    "settings": {
+      "files.exclude": {
+        "orbitcloud_graviton/": true,
+      },
+    },
+  }
+  

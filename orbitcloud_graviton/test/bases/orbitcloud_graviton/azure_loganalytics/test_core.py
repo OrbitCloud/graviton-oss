@@ -1,4 +1,4 @@
-from orbitcloud_graviton.pulumi_mocks.core import set_mocks
+from orbitcloud_graviton.pulumi_mocks import set_mocks
 
 set_mocks(
     {
@@ -9,8 +9,8 @@ set_mocks(
 )
 
 # pylint: disable=wrong-import-position
-from orbitcloud_graviton.azure_loganalytics import core
+from orbitcloud_graviton.loganalytics import loganalytics_base
 
 
 def test_existance():
-    assert core is not None
+    assert loganalytics_base is not None

@@ -4,10 +4,10 @@ from typing import Mapping, Optional
 import pulumi
 from pulumi_azure_native import operationalinsights, resources
 
-from orbitcloud_graviton.azure_helpers import resource_namer
+from orbitcloud_graviton.az_lib import resource_namer
 
 
-def loganalytics_workspace(
+def az_logworkspace(
     resource_group: resources.ResourceGroup,
     workload_name: str,
     env: str,

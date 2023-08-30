@@ -1,4 +1,3 @@
-from orbitcloud_graviton.pulumi_mocks import core
+from .testing import set_mocks
 
-__all__ = ["core"]
-
+__all__ = ["set_mocks"]

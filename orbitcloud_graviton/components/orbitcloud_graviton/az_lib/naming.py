@@ -14,6 +14,8 @@ LOCATION_ABBR = {
 }
 
 
+# TODO: Add support for naming resources with name restrictions
+# i.e. some resources can only have lowercase characters
 def resource_namer(
     resource_type, workload_name, env, location, instance_number: str = "01"
 ) -> str:

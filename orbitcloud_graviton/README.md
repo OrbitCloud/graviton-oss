@@ -1,6 +1,7 @@
 # A Python Polylith repo
 
 ## Docs
+
 The official Polylith documentation:
 [high-level documentation](https://polylith.gitbook.io/polylith)
 

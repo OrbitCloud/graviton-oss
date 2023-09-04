@@ -23,7 +23,10 @@
     "python.analysis.exclude": ["ROOT", "pulumi_templates"],
     "python.languageServer": "Pylance",
     // "python.analysis.logLevel": "Trace",
-    "python.testing.autoTestDiscoverOnSaveEnabled": false
+    "python.testing.autoTestDiscoverOnSaveEnabled": false,
+    "workbench.colorCustomizations": {
+      "titleBar.activeBackground": "#7458e8"
+    }
   },
   "extensions": {
     "recommendations": ["bierner.github-markdown-preview"]

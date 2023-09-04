@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 echo "Running 01onCreate.sh"
 
 echo "export PATH=$PATH:/sbin:/bin:/usr/bin:/usr/sbin" >> ~vscode/.bashrc

@@ -24,5 +24,8 @@
     "python.languageServer": "Pylance",
     "python.analysis.logLevel": "Trace",
     "python.testing.autoTestDiscoverOnSaveEnabled": false
+  },
+  "extensions": {
+    "recommendations": ["bierner.github-markdown-preview"]
   }
 }

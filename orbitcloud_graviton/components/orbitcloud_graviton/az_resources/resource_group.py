@@ -10,8 +10,8 @@ from orbitcloud_graviton.az_lib import resource_namer
 
 def az_resource_group(
     workload_name: str,
-    location: str,
     env: str,
+    location: str,
     tags: Optional[Dict[str, str]] = None,
     opts: Optional[pulumi.ResourceOptions] = None,
 ) -> resources.ResourceGroup:

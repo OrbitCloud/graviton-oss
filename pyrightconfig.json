@@ -1,0 +1,4 @@
+{
+  "exclude": ["orbitcloud_graviton", "pulumi_templates"],
+  "typeCheckingMode": "off",
+}

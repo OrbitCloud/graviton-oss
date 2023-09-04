@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "orbitcloud-graviton"
-version = "0.2.0"
+version = "0.4.0"
 description = ""
 authors = ["Orbit Team <admin@orbit.is>"]
 license = "MIT"
@@ -19,9 +19,9 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-pulumi = "^3.79.0"
-pulumi-azure-native = "^2.4.0"
+python = "^3.10"
+pulumi = "^3.80"
+pulumi-azure-native = "^2.5"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -32,10 +32,11 @@ isort = "^5.12.0"
 black = "^23.7.0"
 dunamai = "^1.18.0"
 commitizen = "^3.7.0"
+pytest-xdist = "^3.3.1"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.2.0"
+version = "0.4.0"
 tag_format = "v$version"
 version_files = [
     "VERSION",
@@ -45,10 +46,6 @@ update_changelog_on_bump = true
 changelog_incremental = true
 bump_message = "bump: $current_version → $new_version"
 major_version_zero = true # Remove when we hit 1.0.0
-
-[tool.pyright]
-reportMissingTypeArgument = true  # Report generic classes used without type arguments
-strictListInference = true  # Use union types when inferring types of lists elements, instead of Any
 
 [build-system]
 requires = ["poetry-core"]

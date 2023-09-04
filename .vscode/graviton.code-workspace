@@ -1,21 +1,34 @@
 {
-    "folders": [
-      {
-        "path": "../orbitcloud_graviton"
-      },
-      {
-        "name": "pulumi_templates",
-        "path": "../pulumi_templates"
-      },
-      {
-        "name": "ROOT",
-        "path": "../",
-      },
-    ],
-    "settings": {
-      "files.exclude": {
-        "orbitcloud_graviton/": true,
-      },
+  "folders": [
+    {
+      "path": "../orbitcloud_graviton"
     },
+    {
+      "name": "pulumi_templates",
+      "path": "../pulumi_templates"
+    },
+    {
+      "name": "ROOT",
+      "path": "../",
+      "settings": {
+        "python.analysis.typeCheckingMode": "off"
+      }
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "orbitcloud_graviton/": true,
+      "**/__pycache__": true
+    },
+    "python.analysis.exclude": ["ROOT", "pulumi_templates"],
+    "python.languageServer": "Pylance",
+    // "python.analysis.logLevel": "Trace",
+    "python.testing.autoTestDiscoverOnSaveEnabled": false,
+    "workbench.colorCustomizations": {
+      "titleBar.activeBackground": "#7458e8"
+    }
+  },
+  "extensions": {
+    "recommendations": ["bierner.github-markdown-preview"]
   }
-  
+}

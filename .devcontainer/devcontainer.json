@@ -1,0 +1,93 @@
+{
+  "name": "Graviton",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
+  "workspaceFolder": "/workspaces",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind,consistency=cached",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/poetry:2": {
+      "version": "latest"
+    },
+    "ghcr.io/guiyomh/features/vim": {},
+    "ghcr.io/devcontainers-contrib/features/zsh-plugins:0.0.4": {
+      "plugins": "virtualenv zsh-autosuggestions autoswitch_virtualenv",
+      "omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions.git https://github.com/MichaelAquilina/zsh-autoswitch-virtualenv.git",
+      "username": "vscode"
+    },
+    "ghcr.io/devcontainers/features/azure-cli:1": {
+      "installBicep": true,
+      "installUsingPython": true,
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers-contrib/features/pulumi:1": {
+      "bashCompletion": true,
+      "version": "latest"
+    }
+  },
+  // "initializeCommand": "",
+  "onCreateCommand": "bash -i ${containerWorkspaceFolder}/.devcontainer/01onCreate.sh",
+  "updateContentCommand": "bash -i ${containerWorkspaceFolder}/.devcontainer/02onContentUpdate.sh",
+  "postCreateCommand": "bash -i ${containerWorkspaceFolder}/.devcontainer/03postCreate.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.inheritEnv": false,
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "task.saveBeforeRun": "prompt",
+        // "task.autoDetect": "off",
+        // "task.allowAutomaticTasks": "off",
+        "typescript.tsc.autoDetect": "off",
+        "grunt.autoDetect": "off",
+        "jake.autoDetect": "off",
+        "gulp.autoDetect": "off",
+        "npm.autoDetect": "off",
+        "yarn.autoDetect": "off",
+        "editor.formatOnType": true,
+        "logViewer.showStatusBarItemOnChange": true,
+        "logViewer.followTailMode": "auto",
+        "todo-tree.general.rootFolder": "/workspaces",
+        "todo-tree.tree.showCountsInTree": true,
+        "todo-tree.regex.enableMultiLine": true,
+        "todo-tree.general.tags": [
+          "TODO",
+          "FIXME",
+          "REVIEW",
+          "HACK",
+          "REF",
+          "WARN"
+        ],
+        "todo-tree.filtering.includeGlobs": [
+          "**/*.py",
+          "**/*.sql",
+          "**/*.json",
+          "**/*.yml",
+          "**/*.yaml",
+          "**/*.xml",
+          "**/*.md"
+        ],
+        "todo-tree.regex.regex": "(--|//|#|<!--|;|/\\*|^|^[ \\t]*(-|\\d+.))\\s*($TAGS)"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "wayou.vscode-todo-highlight",
+        "Gruntfuggly.todo-tree",
+        "eamodio.gitlens",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ninoseki.vscode-pylens",
+        "tamasfe.even-better-toml",
+        "ms-python.isort",
+        "esbenp.prettier-vscode",
+        "GitHub.vscode-pull-request-github"
+      ]
+    },
+    "devpod": {
+      "prebuildRepository": "ghcr.io/orbitcloud/python3-devpod"
+    }
+  },
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true
+}

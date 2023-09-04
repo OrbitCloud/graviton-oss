@@ -2,22 +2,9 @@ import pulumi
 import pytest
 
 from orbitcloud_graviton.az_resources import az_resource_group
+from orbitcloud_graviton.pulumi_mocks import set_mocks
 
-
-class MyMocks(pulumi.runtime.Mocks):
-    """Mocks for Pulumi resources"""
-
-    def new_resource(self, args: pulumi.runtime.MockResourceArgs):
-        return [args.name + "_id", args.inputs]
-
-    def call(self, args: pulumi.runtime.MockCallArgs):
-        return {}
-
-
-pulumi.runtime.set_mocks(
-    MyMocks(),
-    preview=False,  # Sets the flag `dry_run`, which is true at runtime during a preview.
-)
+set_mocks()
 
 
 def test_exists():
@@ -28,12 +15,16 @@ def test_exists():
 @pytest.mark.parametrize(
     "workload_name, env, location, tags",
     [
-        ("demoworkload", "dev", "westeurope", None),
-        ("demoworkload", "dev", "westeurope", {"sometag": "somevalue"}),
+        ("resourcegroup", "dev", "westeurope", None),
+        ("resourcegroup", "dev", "westeurope", {"sometag": "somevalue"}),
     ],
 )
-def test_resource_group(workload_name, env, location, tags):
-    rg_test = az_resource_group(workload_name, location, env, tags)
+def test_resource_group(
+    workload_name: str, env: str, location: str, tags: dict[str, str] | None
+) -> pulumi.Output:
+    rg_test = az_resource_group(
+        workload_name=workload_name, env=env, location=location, tags=tags
+    )
 
     def check_parameters(args):
         rg_location, rg_tags = args

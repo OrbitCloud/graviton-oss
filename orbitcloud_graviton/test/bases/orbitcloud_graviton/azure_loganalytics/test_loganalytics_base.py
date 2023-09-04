@@ -3,7 +3,7 @@ from orbitcloud_graviton.pulumi_mocks import set_mocks
 set_mocks(
     {
         "azure-native:location": "northeurope",
-        "mock-project:workload_name": "mock",
+        "mock-project:workload_name": "loganalytics-base",
         "mock-project:env": "dev",
     },
 )

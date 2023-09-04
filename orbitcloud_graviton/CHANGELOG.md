@@ -1,3 +1,9 @@
+## v0.4.0 (2023-09-04)
+
+### Feat
+
+- **Devcontainer-and-monorepo-workspace-settings-added**: Had to split up devcontainer.json into different settings.json, configured Pyright and various other things
+
 ## v0.3.0 (2023-09-04)
 
 ### BREAKING CHANGE

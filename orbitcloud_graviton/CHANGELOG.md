@@ -1,3 +1,13 @@
+## v0.3.0 (2023-09-04)
+
+### BREAKING CHANGE
+
+- Changed the parameter order in az_resource_group
+
+### Refactor
+
+- **Improved-tests-and-testability-within-components**: Added the capability to run pytest tests in parallel workers
+
 ## v0.2.0 (2023-08-30)
 
 ### Feat

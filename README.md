@@ -11,5 +11,5 @@ Orbit's IaC SDK and devtools – the center of gravity all our projects are bas
     - [ ] What should live in various `**/settings.json`
     - [ ] What should live in various `**/pyrightconfig.json`
     - [ ] What should live in [orbitcloud_graviton/pytest.ini](orbitcloud_graviton/pytest.ini)
-
+- [ ] Explore something like [aexpy](https://pypi.org/project/aexpy/) for detecting breaking changes in the API
 

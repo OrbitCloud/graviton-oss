@@ -1,9 +1,108 @@
-.venv
-venv/
-__pycache__
-.mypy_cache
-.pytest_cache
-dist
-.coverage
+# General
+*.swp
+*.*~
+.DS_Store
+project.lock.json
+
+# Python specific
 *.pyc
-node_modules
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python packaging & distribution
+build/
+dist/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Python testing & coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Python frameworks
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+.scrapy
+celerybeat-schedule
+celerybeat.pid
+
+# Python documentation & notebooks
+docs/_build/
+.ipynb_checkpoints
+
+# Python tools
+.spyderproject
+.spyproject
+.ropeproject
+.pdm.toml
+__pypackages__/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.pybuilder/
+target/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# C# specific
+nupkg/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# C# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# IDEs and editors
+.vs/
+.vscode
+.idea

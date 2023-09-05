@@ -104,5 +104,4 @@ msbuild.wrn
 
 # IDEs and editors
 .vs/
-.vscode
 .idea

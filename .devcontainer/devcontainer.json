@@ -4,9 +4,6 @@
   "workspaceFolder": "/workspaces",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind,consistency=cached",
   "features": {
-    "ghcr.io/devcontainers-contrib/features/poetry:2": {
-      "version": "latest"
-    },
     "ghcr.io/guiyomh/features/vim": {},
     "ghcr.io/devcontainers-contrib/features/zsh-plugins:0.0.4": {
       "plugins": "virtualenv zsh-autosuggestions autoswitch_virtualenv",
@@ -26,9 +23,10 @@
     }
   },
   // "initializeCommand": "",
-  "onCreateCommand": "bash -i ${containerWorkspaceFolder}/.devcontainer/01onCreate.sh",
-  "updateContentCommand": "bash -i ${containerWorkspaceFolder}/.devcontainer/02onContentUpdate.sh",
-  "postCreateCommand": "bash -i ${containerWorkspaceFolder}/.devcontainer/03postCreate.sh",
+  "onCreateCommand": "zsh ${containerWorkspaceFolder}/.devcontainer/01onCreate.sh",
+  "updateContentCommand": "zsh ${containerWorkspaceFolder}/.devcontainer/02onContentUpdate.sh",
+  "postCreateCommand": "zsh ${containerWorkspaceFolder}/.devcontainer/03postCreate.sh",
+  "postStartCommand": "zsh ${containerWorkspaceFolder}/.devcontainer/04postStart.sh",
   "customizations": {
     "vscode": {
       "settings": {

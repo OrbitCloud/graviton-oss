@@ -3,6 +3,7 @@ echo "Running 01onCreate.sh"
 
 echo "export PATH=$PATH:/sbin:/bin:/usr/bin:/usr/sbin" >> ~vscode/.bashrc
 
+curl -sSL https://install.python-poetry.org | python3 -
 poetry self add poetry-multiproject-plugin
 poetry self add poetry-polylith-plugin
 

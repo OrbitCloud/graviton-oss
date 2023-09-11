@@ -1,10 +1,7 @@
-from dataclasses import asdict, dataclass, field, fields, is_dataclass, make_dataclass
-import pprint
-import types
+from dataclasses import dataclass, field
 from typing import (
     List,
     Optional,
-    TypedDict,
 )
 from inspect import get_annotations
 import pulumi
@@ -26,10 +23,6 @@ class LandingZoneConfig(BaseConfig):
 def deploy() -> None:
     config = StackConfig(LandingZoneConfig).get_config
 
-    for property in dir(config):
-        if not property.startswith("_"):
-            print(property, getattr(config, property))
-
     rg_shared: resources.ResourceGroup = az_resource_group(
         workload_name=config.workload_name,
         env=config.env,
@@ -37,7 +30,7 @@ def deploy() -> None:
         tags=config.tags,
     )
 
-    cr: containerregistry.Registry = az_containerregistry(
+    containerregistry: containerregistry.Registry = az_containerregistry(
         workload_name=config.workload_name,
         env=config.env,
         location=config.location,
@@ -47,4 +40,4 @@ def deploy() -> None:
     )
 
     pulumi.export("resource_group_name", rg_shared.name)
-    pulumi.export("containerregistry_server", cr.login_server)
+    pulumi.export("containerregistry_server", containerregistry.login_server)

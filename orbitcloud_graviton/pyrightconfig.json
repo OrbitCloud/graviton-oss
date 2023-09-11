@@ -3,5 +3,11 @@
         "./",
         "./components/",
         "./bases/"
+    ],
+    "exclude": [
+        "**/__pycache__/**",
+        "**/.git/**",
+        "**/.venv",
     ]
+
 }

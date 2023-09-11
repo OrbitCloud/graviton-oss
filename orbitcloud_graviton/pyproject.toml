@@ -11,26 +11,27 @@ packages = [
     { include = "orbitcloud_graviton/az_lib", from = "components" },
 
     # Azure Components
+    { include = "orbitcloud_graviton/az_acr", from = "components" },
     { include = "orbitcloud_graviton/az_monitor", from = "components" },
     { include = "orbitcloud_graviton/az_resources", from = "components" },
 
     # Bases
-    { include = "orbitcloud_graviton/loganalytics", from = "bases" },
+    { include = "orbitcloud_graviton/landing_zone", from = "bases" },
 ]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pulumi = "^3.80"
-pulumi-azure-native = "^2.5"
+pulumi = "^3.81"
+pulumi-azure-native = "^2.6"
 
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
-pyright = "^1.1.324"
-isort = "^5.12.0"
-black = "^23.7.0"
-dunamai = "^1.18.0"
+# pyright = "^1.1.324"
+# isort = "^5.12.0"
+# black = "^23.7.0"
+# dunamai = "^1.18.0"
 commitizen = "^3.7.0"
 pytest-xdist = "^3.3.1"
 

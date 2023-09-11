@@ -1,0 +1,4 @@
+disable=
+    too-many-instance-attributes,
+    too-many-arguments,
+    missing-docstring

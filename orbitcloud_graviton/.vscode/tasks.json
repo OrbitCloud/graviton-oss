@@ -1,164 +1,138 @@
 {
-    "version": "2.0.0",
-    "options": {
-        "cwd": "${workspaceFolder}/orbitcloud_graviton"
+  "version": "2.0.0",
+  // "options": {
+  //     "cwd": "${workspaceFolder}/orbitcloud_graviton"
+  // },
+  "tasks": [
+    {
+      "label": "Initilize Project",
+      "type": "process",
+      "command": "",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Poly - Create Workspace",
+        "Poetry - Init",
+        "Poetry - Install"
+      ]
     },
-    "tasks": [
-        {
-            "label": "Initilize Project",
-            "type": "process",
-            "command": "",
-            "dependsOrder": "sequence",
-            "dependsOn": [
-                "Poly - Create Workspace",
-                "Poetry - Init",
-                "Poetry - Install"
-            ],
-        },
-        {
-            "label": "Poly - Create Workspace",
-            "type": "process",
-            "command": "poetry",
-            "args": [
-                "poly",
-                "create",
-                "workspace",
-                "--name=${input:workspaceName}",
-                "--theme=${input:workspaceTheme}"
-            ],
-            "promptOnClose": false,
-            "hide": true,
-        },
-        {
-            "label": "Poetry - Init",
-            "type": "shell",
-            "command": "${workspaceFolder}/.devcontainer/initialize_workspace.sh",
-            "args": [
-                "${input:workspaceName}",
-                "${input:projectDescription}",
-                "${input:projectLicense}"
-            ],
-            "promptOnClose": false,
-            "hide": true
-        },
-        {
-            "label": "Poetry - Install",
-            "type": "process",
-            "command": "poetry",
-            "args": [
-                "install"
-            ],
-            "promptOnClose": false,
-            "suppressTaskName": true,
-            "hide": true
-        },
-        {
-            "label": "Poly Sync",
-            "type": "process",
-            "command": "poetry",
-            "args": [
-                "poly",
-                "sync"
-            ]
-        },
-        {
-            "label": "Poly Information",
-            "type": "process",
-            "command": "poetry",
-            "args": [
-                "poly",
-                "info"
-            ]
-        },
-        {
-            "label": "Poly - Create Component",
-            "type": "process",
-            "command": "poetry",
-            "args": [
-                "poly",
-                "create",
-                "component",
-                "--name=${input:componentName}"
-            ]
-        },
-        {
-            "label": "Poly - Create Base",
-            "type": "process",
-            "command": "poetry",
-            "args": [
-                "poly",
-                "create",
-                "base",
-                "--name=${input:baseName}"
-            ]
-        },
-        {
-            "label": "Poly - Create Project",
-            "type": "process",
-            "command": "poetry",
-            "args": [
-                "poly",
-                "create",
-                "project",
-                "--name=${input:projectName}"
-            ]
-        }
-    ],
-    "inputs": [
-        {
-            "id": "componentName",
-            "type": "promptString",
-            "description": "Component Name",
-            "default": "az_"
-        },
-        {
-            "id": "baseName",
-            "type": "promptString",
-            "description": "Base Name"
-        },
-        {
-            "id": "projectName",
-            "type": "promptString",
-            "description": "Project Name"
-        },
-        {
-            "id": "workspaceName",
-            "type": "promptString",
-            "description": "Workspace Name"
-        },
-        {
-            "id": "workspaceTheme",
-            "type": "pickString",
-            "options": [
-                "loose",
-                "tdd"
-            ],
-            "description": "Workspace Theme",
-            "default": "loose"
-        },
-        {
-            "id": "projectDescription",
-            "type": "promptString",
-            "description": "Project Description"
-        },
-        {
-            "id": "projectLicense",
-            "type": "pickString",
-            "options": [
-                "MIT",
-                "BSD-3-Clause",
-                "BSD-2-Clause",
-                "Apache-2.0",
-                "GPL-3.0",
-                "LGPL-3.0",
-                "AGPL-3.0",
-                "MPL-2.0",
-                "CDDL-1.0",
-                "EPL-2.0",
-                "Proprietary",
-                "Other"
-            ],
-            "description": "Project License",
-        }
-    ],
+    {
+      "label": "Poly - Create Workspace",
+      "type": "process",
+      "command": "poetry",
+      "args": [
+        "poly",
+        "create",
+        "workspace",
+        "--name=${input:workspaceName}",
+        "--theme=${input:workspaceTheme}"
+      ],
+      "promptOnClose": false,
+      "hide": true
+    },
+    {
+      "label": "Poetry - Init",
+      "type": "shell",
+      "command": "${workspaceFolder}/.devcontainer/initialize_workspace.sh",
+      "args": [
+        "${input:workspaceName}",
+        "${input:projectDescription}",
+        "${input:projectLicense}"
+      ],
+      "promptOnClose": false,
+      "hide": true
+    },
+    {
+      "label": "Poetry - Install",
+      "type": "process",
+      "command": "poetry",
+      "args": ["install"],
+      "promptOnClose": false,
+      "suppressTaskName": true,
+      "hide": true
+    },
+    {
+      "label": "Poly Sync",
+      "type": "process",
+      "command": "poetry",
+      "args": ["poly", "sync"]
+    },
+    {
+      "label": "Poly Information",
+      "type": "process",
+      "command": "poetry",
+      "args": ["poly", "info"]
+    },
+    {
+      "label": "Poly - Create Component",
+      "type": "process",
+      "command": "poetry",
+      "args": ["poly", "create", "component", "--name=${input:componentName}"]
+    },
+    {
+      "label": "Poly - Create Base",
+      "type": "process",
+      "command": "poetry",
+      "args": ["poly", "create", "base", "--name=${input:baseName}"]
+    },
+    {
+      "label": "Poly - Create Project",
+      "type": "process",
+      "command": "poetry",
+      "args": ["poly", "create", "project", "--name=${input:projectName}"]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "componentName",
+      "type": "promptString",
+      "description": "Component Name",
+      "default": "az_"
+    },
+    {
+      "id": "baseName",
+      "type": "promptString",
+      "description": "Base Name"
+    },
+    {
+      "id": "projectName",
+      "type": "promptString",
+      "description": "Project Name"
+    },
+    {
+      "id": "workspaceName",
+      "type": "promptString",
+      "description": "Workspace Name"
+    },
+    {
+      "id": "workspaceTheme",
+      "type": "pickString",
+      "options": ["loose", "tdd"],
+      "description": "Workspace Theme",
+      "default": "loose"
+    },
+    {
+      "id": "projectDescription",
+      "type": "promptString",
+      "description": "Project Description"
+    },
+    {
+      "id": "projectLicense",
+      "type": "pickString",
+      "options": [
+        "MIT",
+        "BSD-3-Clause",
+        "BSD-2-Clause",
+        "Apache-2.0",
+        "GPL-3.0",
+        "LGPL-3.0",
+        "AGPL-3.0",
+        "MPL-2.0",
+        "CDDL-1.0",
+        "EPL-2.0",
+        "Proprietary",
+        "Other"
+      ],
+      "description": "Project License"
+    }
+  ]
 }

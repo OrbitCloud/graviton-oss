@@ -1,7 +1,8 @@
 {
   "python.terminal.activateEnvInCurrentTerminal": true,
   "python.terminal.activateEnvironment": true,
-  "python.testing.pytestArgs": ["test"],
+  "python.testing.pytestArgs": ["--rootdir", "."],
+  "python.testing.pytestPath": ".venv/bin/pytest",
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
   "python.analysis.extraPaths": ["bases", "components"],
@@ -10,7 +11,7 @@
   "python.analysis.inlayHints.functionReturnTypes": true,
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.indexing": true,
-  "python.analysis.inlayHints.callArgumentNames": true,
+  "python.analysis.inlayHints.callArgumentNames": "partial",
   "python.analysis.inlayHints.variableTypes": true,
   "python.analysis.inlayHints.pytestParameters": true,
   "python.defaultInterpreterPath": "./.venv/bin/python"

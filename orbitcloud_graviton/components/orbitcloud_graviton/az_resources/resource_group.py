@@ -17,16 +17,12 @@ def az_resource_group(
 ) -> resources.ResourceGroup:
     """Create an Azure ResourceGroup"""
 
-    resource_name = resource_namer(
+    resource_name: str = resource_namer(
         resource_type=resources.ResourceGroup,
         workload_name=workload_name,
         env=env,
         location=location,
     )
-
-    if tags is None:
-        tags = {}
-    tags.setdefault("env", env)
 
     return resources.ResourceGroup(
         resource_name,

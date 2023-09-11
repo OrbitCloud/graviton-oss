@@ -1,8 +1,5 @@
 {
   "version": "2.0.0",
-  // "options": {
-  //     "cwd": "${workspaceFolder}/orbitcloud_graviton"
-  // },
   "tasks": [
     {
       "label": "Initilize Project",

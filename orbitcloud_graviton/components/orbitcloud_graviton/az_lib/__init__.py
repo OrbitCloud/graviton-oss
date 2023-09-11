@@ -3,7 +3,15 @@
 from .naming import (
     resource_namer,
     location_abbr,
-    resource_prefix,
+    resource_opts,
 )
 
-__all__ = ["resource_namer", "location_abbr", "resource_prefix"]
+from .config import BaseConfig, StackConfig
+
+__all__ = [
+    "resource_namer",
+    "location_abbr",
+    "resource_opts",
+    "BaseConfig",
+    "StackConfig",
+]

@@ -1,18 +1,21 @@
 import pytest
-from pulumi_azure_native import operationalinsights, resources
+import unittest
+from pulumi_azure_native import operationalinsights, resources, containerregistry
 
-from orbitcloud_graviton.az_lib import location_abbr, resource_namer, resource_prefix
+from orbitcloud_graviton.az_lib import location_abbr, resource_namer, resource_opts
 
 
-def test_resource_prefixer():
-    assert resource_prefix(resources.ResourceGroup) == "rg"
-    assert resource_prefix(operationalinsights.Workspace) == "log"
+def test_resource_opts() -> None:
+    assert resource_opts(resources.ResourceGroup).get("prefix") == "rg"
+    assert resource_opts(operationalinsights.Workspace).get("prefix") == "log"
+    assert resource_opts(containerregistry.Registry).get("prefix") == "Cr"
+    assert resource_opts(containerregistry.Registry).get("alphanumeric") == True
     # assert a value error is raised when the resource type is not found
     with pytest.raises(ValueError):
-        resource_prefix(object)
+        resource_opts(object)
 
 
-def test_location_abbr():
+def test_location_abbr() -> None:
     assert location_abbr("westeurope") == "weu"
     assert location_abbr("northeurope") == "neu"
     assert location_abbr("norwayeast") == "noe"
@@ -22,7 +25,7 @@ def test_location_abbr():
         location_abbr("not_a_location")
 
 
-def test_resource_namer():
+def test_resource_namer() -> None:
     assert (
         resource_namer(resources.ResourceGroup, "test", "dev", "westeurope")
         == "rg-test-dev-weu-01"
@@ -34,6 +37,11 @@ def test_resource_namer():
     assert (
         resource_namer(operationalinsights.Workspace, "test", "dev", "northeurope")
         == "log-test-dev-neu-01"
+    )
+
+    assert (
+        resource_namer(containerregistry.Registry, "test", "dev", "westeurope")
+        == "CrTestDevWeu01"
     )
 
     # assert a value error is raised when the resource type is not found

@@ -1,4 +1,4 @@
-from orbitcloud_graviton.landing_zone import deploy
+from orbitcloud_graviton.landing_site import deploy
 
 
 def test_existance():

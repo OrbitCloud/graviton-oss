@@ -1,7 +1,7 @@
 {
   "python.terminal.activateEnvInCurrentTerminal": true,
   "python.terminal.activateEnvironment": true,
-  "python.testing.pytestArgs": ["--rootdir", "."],
+  "python.testing.pytestArgs": ["test"],
   "python.testing.pytestPath": ".venv/bin/pytest",
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,

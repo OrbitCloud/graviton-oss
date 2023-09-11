@@ -8,7 +8,7 @@ from orbitcloud_graviton.az_lib import location_abbr, resource_namer, resource_o
 def test_resource_opts() -> None:
     assert resource_opts(resources.ResourceGroup).get("prefix") == "rg"
     assert resource_opts(operationalinsights.Workspace).get("prefix") == "log"
-    assert resource_opts(containerregistry.Registry).get("prefix") == "Cr"
+    assert resource_opts(containerregistry.Registry).get("prefix") == "cr"
     assert resource_opts(containerregistry.Registry).get("alphanumeric") == True
     # assert a value error is raised when the resource type is not found
     with pytest.raises(ValueError):

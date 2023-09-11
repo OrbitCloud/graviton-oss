@@ -9,7 +9,7 @@ RESOURCE_NAMING: Dict[str, Any] = {
         "prefix": "log",
     },
     "pulumi_azure_native.containerregistry.registry": {
-        "prefix": "Cr",
+        "prefix": "cr",
         "alphanumeric": True,
     },
     "pulumi_azure_native.insights.diagnosticsetting": {
@@ -17,6 +17,13 @@ RESOURCE_NAMING: Dict[str, Any] = {
     },
     "pulumi_azure_native.web.app_service_plan": {
         "prefix": "asp",
+    },
+    "pulumi_azure_native.web.app_service": {
+        "prefix": "app",
+    },
+    "pulumi_azure_native.keyvault.vault": {
+        "prefix": "kv",
+        "alphanumeric": True,
     },
 }
 
@@ -44,11 +51,11 @@ def resource_namer(
 ) -> str:
     """Return a resource name for a given resource type"""
     opts: Dict[str, Any] = resource_opts(resource_type=resource_type)
-    prefix: Any | None = opts.get("prefix")
+    prefix: str | Any = opts.get("prefix")
     location_short: str = location_abbr(location=location)
 
     if opts.get("alphanumeric"):
-        return f"{prefix}{workload_name.capitalize()}{env.capitalize()}{location_short.capitalize()}{instance_number}"
+        return f"{prefix.capitalize()}{workload_name.capitalize()}{env.capitalize()}{location_short.capitalize()}{instance_number}"
 
     return f"{prefix}-{workload_name}-{env}-{location_short}-{instance_number}"
 

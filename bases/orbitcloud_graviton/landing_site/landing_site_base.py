@@ -12,7 +12,7 @@ from orbitcloud_graviton.az_acr import az_containerregistry
 
 
 @dataclass
-class LandingZoneConfig(BaseConfig):
+class LandingSiteConfig(BaseConfig):
     cr_ip_allow_list: Optional[List[str]] = field(default_factory=list)
     cr_public_network_access: Optional[str] = field(
         default=containerregistry.PublicNetworkAccess.DISABLED
@@ -20,7 +20,7 @@ class LandingZoneConfig(BaseConfig):
 
 
 def deploy() -> None:
-    config = StackConfig(LandingZoneConfig).get_config
+    config = StackConfig(LandingSiteConfig).get_config
 
     az_rg: resources.ResourceGroup = az_resource_group(
         workload_name=config.workload_name,

@@ -1,3 +1,3 @@
-from .landing_zone_base import deploy
+from .landing_site_base import deploy
 
 __all__ = ["deploy"]

@@ -12,7 +12,7 @@ from pulumi_azure_native import resources, containerregistry
 from orbitcloud_graviton.az_lib import BaseConfig
 from orbitcloud_graviton.az_lib.config import StackConfig
 from orbitcloud_graviton.az_resources import az_resource_group
-from orbitcloud_graviton.az_acr import az_containerregistry, ContainerRegistryExtraArgs
+from orbitcloud_graviton.az_acr import az_containerregistry
 
 
 @dataclass

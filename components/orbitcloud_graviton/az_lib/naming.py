@@ -12,6 +12,12 @@ RESOURCE_NAMING: Dict[str, Any] = {
         "prefix": "Cr",
         "alphanumeric": True,
     },
+    "pulumi_azure_native.insights.diagnosticsetting": {
+        "prefix": "diag",
+    },
+    "pulumi_azure_native.web.app_service_plan": {
+        "prefix": "asp",
+    },
 }
 
 LOCATION_ABBR: Dict[str, str] = {

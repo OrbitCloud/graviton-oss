@@ -10,5 +10,21 @@
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.formatOnType": true
-  }
+  },
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "python.terminal.activateEnvironment": true,
+  "python.testing.pytestArgs": ["test"],
+  "python.testing.pytestPath": ".venv/bin/pytest",
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "python.analysis.extraPaths": ["bases", "components"],
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.completeFunctionParens": true,
+  "python.analysis.inlayHints.functionReturnTypes": true,
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.indexing": true,
+  "python.analysis.inlayHints.callArgumentNames": "partial",
+  "python.analysis.inlayHints.variableTypes": true,
+  "python.analysis.inlayHints.pytestParameters": true,
+  "python.defaultInterpreterPath": "./.venv/bin/python"
 }

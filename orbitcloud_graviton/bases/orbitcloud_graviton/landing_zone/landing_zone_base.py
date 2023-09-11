@@ -3,7 +3,6 @@ from typing import (
     List,
     Optional,
 )
-from inspect import get_annotations
 import pulumi
 from pulumi_azure_native import resources, containerregistry
 from orbitcloud_graviton.az_lib import BaseConfig
@@ -23,21 +22,21 @@ class LandingZoneConfig(BaseConfig):
 def deploy() -> None:
     config = StackConfig(LandingZoneConfig).get_config
 
-    rg_shared: resources.ResourceGroup = az_resource_group(
+    az_rg: resources.ResourceGroup = az_resource_group(
         workload_name=config.workload_name,
         env=config.env,
         location=config.location,
         tags=config.tags,
     )
 
-    containerregistry: containerregistry.Registry = az_containerregistry(
+    az_cr: containerregistry.Registry = az_containerregistry(
         workload_name=config.workload_name,
         env=config.env,
         location=config.location,
-        resource_group=rg_shared,
+        resource_group=az_rg,
         ip_allow_list=config.cr_ip_allow_list,
         public_network_access=config.cr_public_network_access,
     )
 
-    pulumi.export("resource_group_name", rg_shared.name)
-    pulumi.export("containerregistry_server", containerregistry.login_server)
+    pulumi.export("resource_group_name", az_rg.name)
+    pulumi.export("containerregistry_server", az_cr.login_server)

@@ -1,6 +1,4 @@
-from typing import Any, Optional
-from dataclasses import asdict, dataclass, field
-import pulumi
+from typing import Dict, Optional
 from pulumi_azure_native import resources, containerregistry
 from orbitcloud_graviton.az_lib import resource_namer
 
@@ -10,7 +8,7 @@ def az_containerregistry(
     workload_name: str,
     env: str,
     location: str,
-    tags: Optional[dict[str, str]] = None,
+    tags: Optional[Dict[str, str]] = None,
     ip_allow_list: Optional[list[str]] = None,
     public_network_access: Optional[str] = None,
 ) -> containerregistry.Registry:

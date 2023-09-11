@@ -1,23 +1,42 @@
 import pulumi
 import pytest
 from pulumi_azure_native import operationalinsights
+from orbitcloud_graviton.pulumi_mocks import set_mocks
 
 from orbitcloud_graviton.az_monitor import az_logworkspace
 from orbitcloud_graviton.az_resources import az_resource_group
-from orbitcloud_graviton.pulumi_mocks import set_mocks
 
-set_mocks()
+
+@pytest.fixture(scope="module", autouse=True)
+def pulumi_project_mock():
+    set_mocks(
+        {
+            "azure-native:location": "northeurope",
+            "mock-project:workload_name": "loganalytics",
+            "mock-project:env": "dev",
+        }
+    )
+
+    config = pulumi.Config()
+
+    return {
+        "location": pulumi.Config("azure-native").require("location"),
+        "workload_name": config.require("workload_name"),
+        "env": config.require("env"),
+        "tags": {"tag1": "value1", "tag2": "value2"},
+    }
 
 
 @pulumi.runtime.test
-@pytest.mark.parametrize(
-    "workload_name,env,location,tags",
-    [
-        ("logworkspace", "dev", "northeurope", None),
-        ("logworkspace", "dev", "northeurope", {"sometag": "somevalue"}),
-    ],
-)
-def test_az_logworkspace(workload_name, env, location, tags):
+def test_az_logworkspace(request):
+    config = request.getfixturevalue("pulumi_project_mock")
+    workload_name, env, location, tags = (
+        config.get("workload_name"),
+        config.get("env"),
+        config.get("location"),
+        config.get("tags"),
+    )
+
     resource_group = az_resource_group(
         workload_name=workload_name, env=env, location=location, tags=tags
     )

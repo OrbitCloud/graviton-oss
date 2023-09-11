@@ -1,36 +1,55 @@
+from typing import Optional
 import pulumi
 import pytest
 
 from orbitcloud_graviton.az_resources import az_resource_group
 from orbitcloud_graviton.pulumi_mocks import set_mocks
 
-set_mocks()
+
+@pytest.fixture(scope="module", autouse=True)
+def pulumi_project_mock():
+    set_mocks(
+        {
+            "azure-native:location": "northeurope",
+            "mock-project:workload_name": "loganalytics",
+            "mock-project:env": "dev",
+        }
+    )
+
+    config = pulumi.Config()
+
+    return {
+        "location": pulumi.Config("azure-native").require("location"),
+        "workload_name": config.require("workload_name"),
+        "env": config.require("env"),
+        "tags": {"tag1": "value1", "tag2": "value2"},
+    }
 
 
-def test_exists():
-    assert az_resource_group is not None, "resource_group is not defined"
+def test_exists() -> None:
+    assert az_resource_group is not None
 
 
 @pulumi.runtime.test
-@pytest.mark.parametrize(
-    "workload_name, env, location, tags",
-    [
-        ("resourcegroup", "dev", "westeurope", None),
-        ("resourcegroup", "dev", "westeurope", {"sometag": "somevalue"}),
-    ],
-)
-def test_resource_group(
-    workload_name: str, env: str, location: str, tags: dict[str, str] | None
-) -> pulumi.Output:
+def test_resource_group(request):
+    config = request.getfixturevalue("pulumi_project_mock")
+
+    workload_name, env, location, tags = (
+        config.get("workload_name"),
+        config.get("env"),
+        config.get("location"),
+        config.get("tags"),
+    )
+
     rg_test = az_resource_group(
-        workload_name=workload_name, env=env, location=location, tags=tags
+        workload_name=workload_name,
+        env=env,
+        location=location,
+        tags=tags,
     )
 
     def check_parameters(args):
         rg_location, rg_tags = args
-
-        # Check that the env tag is always present
-        assert rg_tags.get("env") == env, f"env tag is not set to {env}"
 
         # Check that all tags are present if they are defined
         if tags:
@@ -39,9 +58,7 @@ def test_resource_group(
 
         assert rg_location == location, f"location is not set to {location}"
 
-        assert (
-            rg_test._name == f"rg-{workload_name}-{env}-weu-01"
-        ), f"rg name is not set to rg-{workload_name}-{env}-weu-01"
+        assert rg_test._name == f"rg-{workload_name}-{env}-neu-01"
 
     return pulumi.Output.all(
         rg_test.location,

@@ -1,9 +1,9 @@
-import pulumi
 from importlib import resources
 from typing import Dict, Optional
-from pulumi_azure_native import keyvault, resources
 
+import pulumi
 from orbitcloud_graviton.az_lib.naming import resource_namer
+from pulumi_azure_native import keyvault, resources
 
 
 # TODO:

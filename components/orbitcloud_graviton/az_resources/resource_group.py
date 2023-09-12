@@ -3,9 +3,8 @@
 from typing import Dict, Optional
 
 import pulumi
-from pulumi_azure_native import resources
-
 from orbitcloud_graviton.az_lib import resource_namer
+from pulumi_azure_native import resources
 
 
 def az_resource_group(

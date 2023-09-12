@@ -1,5 +1,6 @@
-from typing import Annotated, Dict, Optional, Any, Type, get_args, get_origin
 from dataclasses import dataclass, field, fields, is_dataclass, make_dataclass
+from typing import Annotated, Any, Dict, Optional, Type, get_args, get_origin
+
 import pulumi
 
 

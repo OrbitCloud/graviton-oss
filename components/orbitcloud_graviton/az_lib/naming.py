@@ -2,7 +2,6 @@
 
 from typing import Any, Dict
 
-
 RESOURCE_NAMING: Dict[str, Any] = {
     "pulumi_azure_native.resources.resource_group": {"prefix": "rg"},
     "pulumi_azure_native.operationalinsights.workspace": {

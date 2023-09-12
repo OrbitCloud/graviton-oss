@@ -1,7 +1,8 @@
 from typing import Any, List, Optional
+
 import pulumi
-from pulumi_azure_native import insights, operationalinsights, resources
 from orbitcloud_graviton.az_lib import resource_namer
+from pulumi_azure_native import insights, operationalinsights, resources
 
 
 def az_diagnosticsetting(

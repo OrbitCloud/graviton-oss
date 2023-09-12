@@ -1,14 +1,12 @@
 from dataclasses import dataclass, field
-from typing import (
-    List,
-    Optional,
-)
+from typing import List, Optional
+
 import pulumi
-from pulumi_azure_native import authorization, resources, containerregistry, keyvault
-from orbitcloud_graviton.az_lib import BaseConfig, StackConfig
-from orbitcloud_graviton.az_resources import az_resource_group
 from orbitcloud_graviton.az_acr import az_containerregistry
 from orbitcloud_graviton.az_keyvault import az_keyvault
+from orbitcloud_graviton.az_lib import BaseConfig, StackConfig
+from orbitcloud_graviton.az_resources import az_resource_group
+from pulumi_azure_native import authorization, containerregistry, keyvault, resources
 
 
 @dataclass

@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 import pulumi
-from orbitcloud_graviton.az_lib import resource_namer, BaseConfig
+from orbitcloud_graviton.az_lib import BaseConfig, resource_namer
 from orbitcloud_graviton.az_monitor import az_diagnosticsetting
-from pulumi_azure_native import web, resources, operationalinsights, insights
+from pulumi_azure_native import insights, operationalinsights, resources, web
 
 
 @dataclass

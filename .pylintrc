@@ -1,4 +1,26 @@
+[MASTER]
+ignore-paths=
+    .venv,
+    development
+reports=no
+
+[MESSAGE CONTROL]
 disable=
     too-many-instance-attributes,
     too-many-arguments,
-    missing-docstring
+    missing-docstring,
+    fixme
+
+[FORMAT]
+max-line-length=120
+
+[VARIABLES]
+init-import=yes
+
+[DESIGN]
+# Maximum number of locals for function / method body
+max-locals=25
+max-attributes=10
+
+[SIMILARITIES]
+min-similarity-lines=10

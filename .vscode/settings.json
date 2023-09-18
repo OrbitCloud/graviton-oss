@@ -9,31 +9,54 @@
   },
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
     "editor.formatOnType": true,
-    "editor.formatOnSave": true
+    "editor.rulers": [
+      120
+    ]
   },
-  "black-formatter.interpreter": [".venv/bin/python"],
-  "black-formatter.path": [".venv/bin/black"],
-  "pylint.interpreter": [".venv/bin/python"],
-  "pylint.path": ["./venv/bin/pylint"],
+  "black-formatter.interpreter": [
+    ".venv/bin/python"
+  ],
+  "black-formatter.path": [
+    ".venv/bin/black"
+  ],
+  "isort.args": [
+    "--profile black"
+  ],
+  "isort.interpreter": [
+    ".venv/bin/python"
+  ],
+  "isort.path": [
+    ".venv/bin/isort"
+  ],
+  "pylint.interpreter": [
+    ".venv/bin/python"
+  ],
+  "pylint.path": [
+    "./venv/bin/pylint"
+  ],
   "python.analysis.autoImportCompletions": true,
   "python.analysis.completeFunctionParens": true,
   "python.analysis.diagnosticMode": "workspace",
+  "python.analysis.extraPaths": [
+    "bases",
+    "components"
+  ],
   "python.analysis.indexing": true,
   "python.analysis.inlayHints.callArgumentNames": "partial",
   "python.analysis.inlayHints.functionReturnTypes": true,
   "python.analysis.inlayHints.pytestParameters": true,
   "python.analysis.inlayHints.variableTypes": true,
   "python.analysis.typeCheckingMode": "basic",
-  "python.autoComplete.extraPaths": ["bases", "components"],
+  "python.autoComplete.extraPaths": [
+    "bases",
+    "components"
+  ],
   "python.defaultInterpreterPath": ".venv/bin/python",
   "python.terminal.activateEnvInCurrentTerminal": true,
   "python.terminal.activateEnvironment": true,
   "python.testing.pytestEnabled": true,
   "python.testing.pytestPath": ".venv/bin/pytest",
-  "python.testing.unittestEnabled": false,
-  "python.analysis.extraPaths": ["bases", "components"],
-  "isort.args": ["--profile black"],
-  "isort.interpreter": [".venv/bin/python"],
-  "isort.path": [".venv/bin/isort"]
+  "python.testing.unittestEnabled": false
 }

@@ -87,15 +87,14 @@ jobs:
           changelog_increment_filename: body.md
       - id: check-tag
         name: Check if tag exists
+        continue-on-error: true
         run: |
           RELEASE=$(gh release view "$RELEASE_TAG" --json id,name,tagName)
           if [ ! -z "$RELEASE" ]; then
             printf "Release for tag %s already exists: %s\\n" "$RELEASE_TAG" "$RELEASE"
             echo "IS_NEW_TAG=false" >> $GITHUB_ENV
-            exit 0
           else
             echo "IS_NEW_TAG=true" >> $GITHUB_ENV
-            exit 0
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

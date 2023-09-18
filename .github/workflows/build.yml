@@ -11,7 +11,7 @@ jobs:
 
       # If you wanted to use multiple Python versions, you'd have specify a matrix in the job and
       # reference the matrixe python version here.
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
@@ -21,7 +21,7 @@ jobs:
       # manually if/when you want to upgrade Poetry, or if something goes wrong. This could be
       # mildly cleaner by using an environment variable, but I don't really care.
       - name: cache poetry install
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.local
           key: poetry-1.6.1-0
@@ -46,7 +46,7 @@ jobs:
       # them in the cache key. I'm not, so it can be simple and just depend on the poetry.lock.
       - name: cache deps
         id: cache-deps
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: .venv
           key: pydeps-${{ hashFiles('**/poetry.lock') }}

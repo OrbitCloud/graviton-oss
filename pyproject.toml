@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "orbitcloud-graviton"
-version = "0.4.0"
+version = "0.5.0"
 description = ""
 authors = ["Orbit Team <admin@orbit.is>"]
 license = "MIT"
@@ -12,17 +12,21 @@ packages = [
 
     # Azure Components
     { include = "orbitcloud_graviton/az_acr", from = "components" },
+    { include = "orbitcloud_graviton/az_appservice", from = "components" },
+    { include = "orbitcloud_graviton/az_keyvault", from = "components" },
     { include = "orbitcloud_graviton/az_monitor", from = "components" },
     { include = "orbitcloud_graviton/az_resources", from = "components" },
 
     # Bases
-    { include = "orbitcloud_graviton/landing_zone", from = "bases" },
+    { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
+    { include = "orbitcloud_graviton/landing_site", from = "bases" },
 ]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 pulumi = "^3.81"
 pulumi-azure-native = "^2.6"
+beartype = "^0.15.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -34,10 +38,16 @@ pytest-cov = "^4.1.0"
 # dunamai = "^1.18.0"
 commitizen = "^3.7.0"
 pytest-xdist = "^3.3.1"
+tabulate = "^0.9.0"
+pyright = "^1.1.327"
+pylint = "^2.17.5"
+pre-commit = "^3.4.0"
+black = "^23.9.1"
+flake8 = "^6.1.0"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.4.0"
+version = "0.5.0"
 tag_format = "v$version"
 version_files = [
     "VERSION",

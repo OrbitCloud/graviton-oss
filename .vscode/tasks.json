@@ -76,6 +76,17 @@
       "type": "process",
       "command": "poetry",
       "args": ["poly", "create", "project", "--name=${input:projectName}"]
+    },
+
+    {
+      "label": "pytest-file",
+      "type": "shell",
+      "command": "pytest ${file} -s"
+    },
+    {
+      "label": "pytest-test",
+      "type": "shell",
+      "command": "pytest ${file} -k ${selectedText} -s"
     }
   ],
   "inputs": [

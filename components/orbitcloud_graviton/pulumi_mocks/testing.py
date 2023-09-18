@@ -17,7 +17,6 @@ def test_something():
     ...
 ```
 
-Taken from: https://github.com/aaronsteers/aj-dataops-personal/blob/a5455eac82685990189bb726ea0a7ca28755b49c/infra/pulumi-meltano-lib/pulumi_meltano/mocks.py#L59
 """
 
 import json
@@ -43,8 +42,8 @@ def mock_pulumi_settings(settings: Dict) -> None:
     https://github.com/pulumi/pulumi/issues/4472#issuecomment-1015818376
     """
     pulumi_settings: Dict[str, str] = {}
-    for k, v in settings.items():
-        pulumi_settings[k] = v
+    for key, val in settings.items():
+        pulumi_settings[key] = val
     pulumi_settings_str = json.dumps(pulumi_settings)
     environ["PULUMI_CONFIG"] = pulumi_settings_str
 

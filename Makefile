@@ -1,46 +1,56 @@
-.PHONY: test
+.PHONY: test lint outdated update flake8 isort pytest-cov pytest black pylint pyright
 
-pre:
-	poetry run pulumi preview --refresh
+default: all
 
-prediff:
-	poetry run pulumi preview --refresh --diff
-
-up:
-	poetry run pulumi up --refresh
-
-updiff:
-	poetry run pulumi up --refresh --diff
-
-select:
-	poetry run pulumi stack select
-
-ls:
-	poetry run pulumi stack ls
-
-output:
-	poetry run pulumi stack output
-
-destroy:
-	poetry run pulumi destroy
-
-test-cov:
-	poetry run pytest --cov=orbitcloud_graviton --cov-report=term-missing
+all:
+	@make test
+	@make lint
 
 test:
-	poetry run pytest -s --verbose test/
+	@make pytest-cov
+	@make pytest
 
-# test:
-# 	@make test-black
-# 	@make test-pylint
-# 	@make test-mypy
-# 	@make test-pytest-cov
+lint:
+	@make isort-check
+	@make black-check
+	@make pyright
+	@make pylint
+	@make flake8
 
-test-black:
-	poetry run black --check .
+install:
+	poetry install
 
-test-pylint:
-	poetry run pylint --rcfile=pylintrc .
+install-precommit:
+	pre-commit install
 
-test-mypy:
-	poetry run mypy --config-file=mypy.ini .
+format:
+	isort --profile=black .
+	black .
+
+outdated:
+	poetry show --outdated --top-level
+
+update:
+	poetry update
+	pre-commit autoupdate
+
+flake8:
+	flake8
+
+isort-check:
+	isort --check-only --profile=black .
+
+black-check:
+	black --check .
+
+pytest-cov:
+	pytest --cov=. --cov-report=term-missing
+
+pytest:
+	pytest -s --verbose test/
+
+pylint:
+	pylint --rcfile=.pylintrc --recursive yes .
+
+pyright:
+	pyright .

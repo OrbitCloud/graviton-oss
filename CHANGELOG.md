@@ -1,3 +1,9 @@
+## v0.5.0 (2023-09-18)
+
+### Feat
+
+- **Lots-of-additions,-including-breaking-changes**: New components and bases added. Project structure refactored. Improved dev tooling
+
 ## v0.4.0 (2023-09-04)
 
 ### Feat

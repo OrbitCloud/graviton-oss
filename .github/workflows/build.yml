@@ -91,15 +91,16 @@ jobs:
           RELEASE=$(gh release view "$RELEASE_TAG" --json id,name,tagName)
           if [ ! -z "$RELEASE" ]; then
             printf "Release for tag %s already exists: %s\\n" "$RELEASE_TAG" "$RELEASE"
+            echo "IS_NEW_TAG=false" >> $GITHUB_ENV
           else
-            echo "NEW_TAG=true" >> $GITHUB_ENV
+            echo "IS_NEW_TAG=true" >> $GITHUB_ENV
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.commitizen.outputs.version }}
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: ${{ steps.check-tag.outputs.NEW_TAG }}
+        if: ${{ steps.check-tag.outputs.IS_NEW_TAG }}
         with:
           body_path: "body.md"
           tag_name: ${{ steps.commitizen.outputs.version }}

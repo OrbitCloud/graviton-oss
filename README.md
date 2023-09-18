@@ -29,6 +29,9 @@ make outdated
 # Update dependencies (runs poetry update and pre-commit autoupdate)
 make update
 
+# Use commitizen style git commits:
+cz commit
+
 ```
 
 - Structure based on [Polylith](https://polylith.gitbook.io/polylith/) & [python-polylith](https://github.com/DavidVujic/python-polylith).

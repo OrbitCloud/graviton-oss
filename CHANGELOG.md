@@ -1,3 +1,9 @@
+## v0.9.0 (2023-09-18)
+
+### Feat
+
+- **build.yml**: Fixing tag-check version bump
+
 ## v0.8.0 (2023-09-18)
 
 ### Feat

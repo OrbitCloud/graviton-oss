@@ -1,0 +1,44 @@
+repos:
+  -   repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.4.0
+      hooks:
+      -   id: check-yaml
+      -   id: check-json
+      -   id: check-toml
+      -   id: end-of-file-fixer
+      -   id: trailing-whitespace
+      -   id: pretty-format-json
+      -   id: check-added-large-files
+      -   id: check-merge-conflict
+      -   id: detect-private-keys
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+  
+  - repo: https://github.com/psf/black
+    rev: 23.9.1
+    hooks:
+      - id: black
+        args: [--safe, --quiet]
+        
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: make pylint
+        language: python
+        always_run: true
+        pass_filenames: false
+      - id: flake8
+        name: flake8
+        entry: make flake8
+        language: python
+        always_run: true
+        pass_filenames: false
+      - id: black
+        name: black
+        entry: make black
+        language: system
+        always_run: true
+        pass_filenames: false

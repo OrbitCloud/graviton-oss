@@ -1,9 +1,9 @@
-from importlib import resources
 from typing import Dict, Optional
 
 import pulumi
+from orbitcloud_graviton.az_lib.config import StackConfig
 from orbitcloud_graviton.az_lib.naming import resource_namer
-from pulumi_azure_native import keyvault, resources
+from pulumi_azure_native import authorization, keyvault, resources
 
 
 # TODO:
@@ -12,13 +12,12 @@ from pulumi_azure_native import keyvault, resources
 #   - public_network_access
 #   - Azure RBAC
 #   - access policies
-#   - enable soft delete
 #   - purge protection
 def az_keyvault(
     workload_name: str,
     env: str,
     location: str,
-    resource_group: resources.ResourceGroup,
+    resource_group: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult,
     tenant_id: str,
     tags: Optional[Dict[str, str]] = None,
     opts: Optional[pulumi.ResourceOptions] = None,
@@ -43,6 +42,25 @@ def az_keyvault(
             access_policies=[],
             soft_delete_retention_in_days=90,
         ),
+        tags=tags,
+        opts=opts,
     )
 
     return vault
+
+
+def az_keyvault_from_config(
+    resource_group: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult,
+    config: StackConfig,
+) -> keyvault.Vault:
+    provider_client: authorization.GetClientConfigResult = (
+        authorization.get_client_config()
+    )
+
+    return az_keyvault(
+        workload_name=config.workload_name,
+        env=config.env,
+        location=config.location,
+        resource_group=resource_group,
+        tenant_id=provider_client.tenant_id,
+    )

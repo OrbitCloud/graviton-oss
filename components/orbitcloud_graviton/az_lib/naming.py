@@ -37,12 +37,12 @@ LOCATION_ABBR: Dict[str, str] = {
 
 def resource_opts(resource_type) -> Dict[str, Any]:
     """Return a resource prefix for a given resource type"""
-    resource_opts: Any | None = RESOURCE_NAMING.get(resource_type.__module__)
+    opts: Any | None = RESOURCE_NAMING.get(resource_type.__module__)
 
-    if not resource_opts:
+    if not opts:
         raise ValueError(f"Resource type has not been defined: {resource_type}")
 
-    return resource_opts
+    return opts
 
 
 def resource_namer(
@@ -54,7 +54,10 @@ def resource_namer(
     location_short: str = location_abbr(location=location)
 
     if opts.get("alphanumeric"):
-        return f"{prefix.capitalize()}{workload_name.capitalize()}{env.capitalize()}{location_short.capitalize()}{instance_number}"
+        return (
+            f"{prefix.capitalize()}{workload_name.capitalize()}"
+            f"{env.capitalize()}{location_short.capitalize()}{instance_number}"
+        )
 
     return f"{prefix}-{workload_name}-{env}-{location_short}-{instance_number}"
 

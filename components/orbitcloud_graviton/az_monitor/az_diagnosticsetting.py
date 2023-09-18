@@ -1,15 +1,13 @@
 from typing import Any, List, Optional
 
-import pulumi
-from orbitcloud_graviton.az_lib import resource_namer
-from pulumi_azure_native import insights, operationalinsights, resources
+from pulumi_azure_native import insights, operationalinsights
 
 
 def az_diagnosticsetting(
     resource: Any,
     log_workspace: operationalinsights.Workspace,
-    log_categories: List[str] = [],
-    metric_categories: List[str] = ["AllMetrics"],
+    log_categories: Optional[List[str]] = None,
+    metric_categories: Optional[List[str]] = None,
     opts=None,
 ) -> insights.DiagnosticSetting:
     if not hasattr(resource, "id"):
@@ -18,6 +16,9 @@ def az_diagnosticsetting(
     if not hasattr(resource, "name"):
         raise ValueError("target resource must have a name attribute")
 
+    metric_categories = metric_categories or ["AllMetrics"]
+
+    # pylint: disable=protected-access
     diag_name: str = "diag-" + resource._name
 
     settings = insights.DiagnosticSetting(
@@ -30,14 +31,18 @@ def az_diagnosticsetting(
                 enabled=True,
             )
             for category in metric_categories
-        ],
+        ]
+        if metric_categories
+        else None,
         logs=[
             insights.LogSettingsArgs(
                 category=category,
                 enabled=True,
             )
             for category in log_categories
-        ],
+        ]
+        if log_categories
+        else None,
         opts=opts,
     )
     return settings

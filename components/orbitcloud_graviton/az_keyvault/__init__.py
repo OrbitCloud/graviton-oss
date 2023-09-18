@@ -1,3 +1,3 @@
-from .keyvault import az_keyvault
+from .keyvault import az_keyvault, az_keyvault_from_config
 
-__all__ = ["az_keyvault"]
+__all__ = ["az_keyvault", "az_keyvault_from_config"]

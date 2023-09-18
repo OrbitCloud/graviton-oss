@@ -1,7 +1,5 @@
-from typing import Optional
 import pulumi
 import pytest
-
 from orbitcloud_graviton.az_resources import az_resource_group
 from orbitcloud_graviton.pulumi_mocks import set_mocks
 
@@ -58,6 +56,7 @@ def test_resource_group(request):
 
         assert rg_location == location, f"location is not set to {location}"
 
+        # pylint: disable=protected-access
         assert rg_test._name == f"rg-{workload_name}-{env}-neu-01"
 
     return pulumi.Output.all(

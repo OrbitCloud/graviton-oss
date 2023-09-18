@@ -1,16 +1,19 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import pulumi
 from orbitcloud_graviton.az_acr import az_containerregistry
 from orbitcloud_graviton.az_keyvault import az_keyvault
-from orbitcloud_graviton.az_lib import BaseConfig, StackConfig
-from orbitcloud_graviton.az_resources import az_resource_group
+from orbitcloud_graviton.az_lib import Confy, StackConfig
+from orbitcloud_graviton.az_resources.resource_group import (
+    az_resource_group_from_config,
+)
 from pulumi_azure_native import authorization, containerregistry, keyvault, resources
 
 
-@dataclass
-class LandingSiteConfig(BaseConfig):
+@dataclass(kw_only=True, frozen=True)
+class LandingSiteConfig(StackConfig):
+    tags: Optional[Dict[str, str]] = None
     cr_ip_allow_list: Optional[List[str]] = field(default_factory=list)
     cr_public_network_access: Optional[str] = field(
         default=containerregistry.PublicNetworkAccess.DISABLED
@@ -18,13 +21,10 @@ class LandingSiteConfig(BaseConfig):
 
 
 def deploy() -> None:
-    config = StackConfig(LandingSiteConfig).get_config
+    config: LandingSiteConfig = Confy(LandingSiteConfig).populate()
 
-    az_rg: resources.ResourceGroup = az_resource_group(
-        workload_name=config.workload_name,
-        env=config.env,
-        location=config.location,
-        tags=config.tags,
+    az_rg: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult = (
+        az_resource_group_from_config(config=config)
     )
 
     az_cr: containerregistry.Registry = az_containerregistry(

@@ -34,4 +34,15 @@ cz commit
 
 ```
 
+## Adding components
+
+```bash
+# Create a new component
+poetry poly create component --name <component_name>
+
+# Create a new base
+poetry poly create base --name <base_name>
+
+```
+
 - Structure based on [Polylith](https://polylith.gitbook.io/polylith/) & [python-polylith](https://github.com/DavidVujic/python-polylith).

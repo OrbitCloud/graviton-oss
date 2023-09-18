@@ -42,7 +42,7 @@ flake8 = "^6.1.0"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.5.0"
+version = "0.6.0"
 tag_format = "v$version"
 version_files = [
     "VERSION",

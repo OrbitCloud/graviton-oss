@@ -34,7 +34,7 @@ cz commit
 
 ```
 
-## Adding components
+## Adding components & bases
 
 ```bash
 # Create a new component

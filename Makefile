@@ -17,10 +17,13 @@ lint:
 	@make pylint
 	@make flake8
 
+install:
+	poetry install
+
 install-precommit:
 	pre-commit install
 
-lint-fix:
+format:
 	isort --profile=black .
 	black .
 
@@ -29,6 +32,7 @@ outdated:
 
 update:
 	poetry update
+	pre-commit autoupdate
 
 flake8:
 	flake8

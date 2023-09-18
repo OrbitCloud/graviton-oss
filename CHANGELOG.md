@@ -1,3 +1,9 @@
+## v0.8.0 (2023-09-18)
+
+### Feat
+
+- **build.yml**: Intentional version bump test
+
 ## v0.7.0 (2023-09-18)
 
 ### BREAKING CHANGE

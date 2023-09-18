@@ -17,6 +17,9 @@ lint:
 	@make pylint
 	@make flake8
 
+install-precommit:
+	pre-commit install
+
 lint-fix:
 	isort --profile=black .
 	black .

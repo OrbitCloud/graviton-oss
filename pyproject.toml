@@ -12,8 +12,8 @@ packages = [
 
     # Azure Components
     { include = "orbitcloud_graviton/az_acr", from = "components" },
-    { include = "orbitcloud_graviton/az_keyvault", from = "components" },
     { include = "orbitcloud_graviton/az_appservice", from = "components" },
+    { include = "orbitcloud_graviton/az_keyvault", from = "components" },
     { include = "orbitcloud_graviton/az_monitor", from = "components" },
     { include = "orbitcloud_graviton/az_resources", from = "components" },
 

@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Optional, Protocol, Type
+from typing import Dict, Optional
 
 import pulumi
-from orbitcloud_graviton.az_lib import StackConfig, resource_namer
-from orbitcloud_graviton.az_lib.config import ConfigProtocol
+from orbitcloud_graviton.az_lib import resource_namer
 from orbitcloud_graviton.az_monitor import az_diagnosticsetting
 from pulumi_azure_native import insights, operationalinsights, resources, web
 
@@ -53,7 +52,7 @@ class AppServicePlanStackSchema:
     plan_instance_count_min: Optional[int] = 2
     plan_instance_count_max: Optional[int] = 2
     plan_zone_redundant: Optional[bool] = False
-    # plan_log_workspace: Optional[operationalinsights.Workspace] = None
+    plan_log_workspace_ref: Optional[str] = None
 
     @property
     def plan_sku_args(self) -> web.SkuDescriptionArgs:

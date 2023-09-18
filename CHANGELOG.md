@@ -1,3 +1,16 @@
+## v0.7.0 (2023-09-18)
+
+### BREAKING CHANGE
+
+- Intentional
+- Intentionally marked as breaking change
+
+### Feat
+
+- **Manually-updating-cz-version**: Bumping version to trigger build workflow release
+- **Bump-version-manually-to-0.6**: Attempt to figure out release error
+- **Update-readme,-triggering-version-bump**: N/a
+
 ## v0.5.0 (2023-09-18)
 
 ### Feat

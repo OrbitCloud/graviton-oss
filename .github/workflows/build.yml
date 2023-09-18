@@ -85,14 +85,23 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           changelog_increment_filename: body.md
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - id: check-tag
+        name: Check if tag exists
+        run: |
+          RELEASE=$(gh release view "$RELEASE_TAG" --repo "Graviton" --json id,name,tagName)
+          if [ ! -z "$RELEASE" ]; then
+            printf "Release for tag %s already exists: %s\\n" "$RELEASE_TAG" "$RELEASE"
+          else
+            echo "NEW_TAG=true" >> $GITHUB_ENV
+          fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.commitizen.outputs.version }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ steps.check-tag.outputs.NEW_TAG }}
         with:
-          tag_name: ${{ steps.commitizen.outputs.version }}
-          release_name: Release ${{ steps.commitizen.outputs.version }}
           body_path: "body.md"
-          draft: false
-          prerelease: false
+          tag_name: ${{ steps.commitizen.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

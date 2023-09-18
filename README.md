@@ -36,6 +36,8 @@ cz commit
 
 ## Adding components & bases
 
+- Structure based on [Polylith](https://polylith.gitbook.io/polylith/) & [python-polylith](https://github.com/DavidVujic/python-polylith).
+
 ```bash
 # Create a new component
 poetry poly create component --name <component_name>
@@ -45,4 +47,27 @@ poetry poly create base --name <base_name>
 
 ```
 
-- Structure based on [Polylith](https://polylith.gitbook.io/polylith/) & [python-polylith](https://github.com/DavidVujic/python-polylith).
+## Versioning & Commit messages
+
+Releases are automatically created by commitizen in the build workflow when a
+commit is pushed to the `main` branch. To communicate the intent of your changes
+to the release process, please use the following prefixes:
+
+- `feat:` New feature - will trigger a minor version bump
+- `fix:` Bug fix - will trigger a patch version bump
+- `test:` Adding or updating tests
+- `refactor:` Code refactor
+- `style:` Code style update
+- `chore:` Maintenance task (e.g. bumping dependencies)
+- `docs:` Documentation update
+- `ci`: CI/CD related changes
+
+### Breaking changes
+
+When commitizen sees `BREAKING CHANGE` in the commit message, it will trigger a
+major version bump – `cz commit` is your friend here and will automatically
+include the breaking changes in the changelog and release message.
+
+Right now we've set `major_version_zero = true` in `pyproject.toml` which means
+that we're still in v0.x.x and breaking changes will not trigger a major version
+as all versions are considered unstable.

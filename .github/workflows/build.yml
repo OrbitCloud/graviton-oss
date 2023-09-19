@@ -101,6 +101,7 @@ jobs:
           RELEASE_TAG: ${{ steps.commitizen.outputs.version }}
       - name: Release
         uses: softprops/action-gh-release@v1
+        continue-on-error: true
         if: ${{ steps.check-tag.outputs.IS_NEW_TAG == 'true' }}
         with:
           body_path: "body.md"

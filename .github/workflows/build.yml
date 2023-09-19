@@ -97,8 +97,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.commitizen.outputs.version }}
-      - run: |
-          echo "IS_NEW_TAG=${{ steps.check-tag.outputs.IS_NEW_TAG }}"
       - name: Release
         uses: softprops/action-gh-release@v1
         continue-on-error: true

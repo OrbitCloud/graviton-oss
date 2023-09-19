@@ -1,3 +1,9 @@
+## v0.12.0 (2023-09-19)
+
+### Feat
+
+- **build.yml**: Triggering version bump
+
 ## v0.11.0 (2023-09-19)
 
 ### Feat

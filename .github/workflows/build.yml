@@ -85,13 +85,12 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           changelog_increment_filename: body.md
-          prerelease: ${{ (github.ref == 'refs/heads/main') && '' || 'rc' }}
       - id: check-tag
         name: Check if tag exists
         continue-on-error: true
         run: |
-          RELEASE=$(gh release view "$RELEASE_TAG" --json id,name,tagName || false)
-          if [ "$RELEASE" = false ]; then
+          RELEASE=$(gh release view "$RELEASE_TAG" --json id,name,tagName || true)
+          if [ -n "$RELEASE" ]; then
             echo "IS_NEW_TAG=true"
             exit 0
           fi

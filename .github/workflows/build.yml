@@ -90,12 +90,10 @@ jobs:
         name: Check if tag exists
         continue-on-error: true
         run: |
-          RELEASE=$(gh release view "$RELEASE_TAG" --json id,name,tagName)
-          if [ ! -z "$RELEASE" ]; then
-            printf "Release for tag %s already exists: %s\\n" "$RELEASE_TAG" "$RELEASE"
-            echo "IS_NEW_TAG=false" >> $GITHUB_OUTPUT
-          else
-            echo "IS_NEW_TAG=true" >> $GITHUB_OUTPUT
+          RELEASE=$(gh release view "$RELEASE_TAG" --json id,name,tagName || false)
+          if [ "$RELEASE" = false ]; then
+            echo "IS_NEW_TAG=true"
+            exit 0
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

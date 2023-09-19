@@ -70,7 +70,7 @@ jobs:
       - run: poetry run make lint
       - run: poetry run make test
   release:
-    if: ${{ !startsWith(github.event.head_commit.message, 'bump:') && github.ref == 'refs/heads/main' }}
+    if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
     runs-on: ubuntu-latest-xl
     needs: test
     name: Release
@@ -85,6 +85,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           changelog_increment_filename: body.md
+          prerelease: ${{ (github.ref == 'refs/heads/main') && '' || 'rc' }}
       - id: check-tag
         name: Check if tag exists
         continue-on-error: true
@@ -99,6 +100,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.commitizen.outputs.version }}
+      - run: |
+          echo "IS_NEW_TAG=${{ steps.check-tag.outputs.IS_NEW_TAG }}"
       - name: Release
         uses: softprops/action-gh-release@v1
         continue-on-error: true

@@ -1,3 +1,9 @@
+## v0.11.0 (2023-09-19)
+
+### Feat
+
+- **actionlint**: Adding actionlint config
+
 ## v0.10.0 (2023-09-18)
 
 ### Feat

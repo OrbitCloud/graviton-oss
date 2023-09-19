@@ -11,8 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # If you wanted to use multiple Python versions, you'd have specify a matrix in the job and
-      # reference the matrixe python version here.
       - uses: actions/setup-python@v4
         with:
           python-version: 3.11
@@ -28,12 +26,6 @@ jobs:
           path: ~/.local
           key: poetry-1.6.1-0
 
-      # Install Poetry. You could do this manually, or there are several actions that do this.
-      # `snok/install-poetry` seems to be minimal yet complete, and really just calls out to
-      # Poetry's default install script, which feels correct. I pin the Poetry version here
-      # because Poetry does occasionally change APIs between versions and I don't want my
-      # actions to break if it does.
-      #
       # The key configuration value here is `virtualenvs-in-project: true`: this creates the
       # venv as a `.venv` in your testing directory, which allows the next step to easily
       # cache it.
@@ -43,9 +35,6 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      # Cache your dependencies (i.e. all the stuff in your `pyproject.toml`). Note the cache
-      # key: if you're using multiple Python versions, or multiple OSes, you'd need to include
-      # them in the cache key. I'm not, so it can be simple and just depend on the poetry.lock.
       - name: cache deps
         id: cache-deps
         uses: actions/cache@v3
@@ -65,8 +54,6 @@ jobs:
       # they'll be installed and working.
       - run: poetry install --no-interaction
 
-      # And finally run tests. I'm using pytest and all my pytest config is in my `pyproject.toml`
-      # so this line is super-simple. But it could be as complex as you need.
       - run: poetry run make lint
       - run: poetry run make test
   release:
@@ -87,7 +74,6 @@ jobs:
           changelog_increment_filename: body.md
       - id: check-tag
         name: Check if tag exists
-        continue-on-error: true
         run: |
           RELEASE=$(gh release view "$RELEASE_TAG" --json id,name,tagName || true)
           if [ -z "$RELEASE" ]; then
@@ -99,7 +85,6 @@ jobs:
           RELEASE_TAG: ${{ steps.commitizen.outputs.version }}
       - name: Release
         uses: softprops/action-gh-release@v1
-        continue-on-error: true
         if: ${{ steps.check-tag.outputs.IS_NEW_TAG == 'true' }}
         with:
           body_path: "body.md"

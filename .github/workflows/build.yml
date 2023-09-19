@@ -70,7 +70,7 @@ jobs:
       - run: poetry run make lint
       - run: poetry run make test
   release:
-    if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
+    if: ${{ !startsWith(github.event.head_commit.message, 'bump:') && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest-xl
     needs: test
     name: Release
@@ -90,8 +90,8 @@ jobs:
         continue-on-error: true
         run: |
           RELEASE=$(gh release view "$RELEASE_TAG" --json id,name,tagName || true)
-          if [ -n "$RELEASE" ]; then
-            echo "IS_NEW_TAG=true"
+          if [ -z "$RELEASE" ]; then
+            echo "IS_NEW_TAG=true" >> $GITHUB_OUTPUT
             exit 0
           fi
         env:

@@ -32,7 +32,7 @@ beartype = "^0.16.2"
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
-commitizen = "^3.7.0"
+commitizen = "^3.10.1"
 pytest-xdist = "^3.3.1"
 pyright = "^1.1.327"
 pylint = "^3.0.1"

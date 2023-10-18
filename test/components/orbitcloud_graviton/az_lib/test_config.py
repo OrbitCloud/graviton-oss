@@ -9,20 +9,6 @@ from orbitcloud_graviton.az_lib import Confy, StackConfig
 from orbitcloud_graviton.pulumi_mocks import set_mocks
 
 
-@pytest.fixture(scope="module")
-def pulumi_project_mock():
-    set_mocks(
-        {
-            "azure-native:location": "northeurope",
-            "mock-project:workload_name": "test-workload",
-            "mock-project:env": "dev",
-            "mock-project:some_other_string": "some_other_value",
-            "mock-project:some_other_int": 5,
-            "mock-project:tags": json.dumps({"test-tag": "test-value"}),
-        }
-    )
-
-
 @dataclass(kw_only=True)
 class DummyDataclass:
     string_field: str
@@ -35,6 +21,8 @@ class DummyDataclass:
     int_field_optional_with_default: Optional[int] = 1
     bool_field: bool
     bool_field_with_default: bool = True
+    bool_field_with_default_true: bool = False
+    bool_field_with_default_false: bool = False
     bool_field_optional: Optional[bool] = None
     bool_field_optional_with_default: Optional[bool] = True
     dict_field: dict
@@ -82,6 +70,25 @@ class DummyDataclass:
 
 
 @pytest.fixture(scope="module")
+def pulumi_project_mock():
+    set_mocks(
+        {
+            "azure-native:location": "northeurope",
+            "mock-project:workload_name": "test-workload",
+            "mock-project:env": "dev",
+            "mock-project:some_other_string": "some_other_value",
+            "mock-project:some_other_int": 5,
+            "mock-project:some_false_bool": "false",
+            "mock-project:some_true_bool": "true",
+            "mock-project:some_optional_false_bool": "false",
+            "mock-project:some_optional_true_bool_set_false": "false",
+            "mock-project:some_optional_true_bool": "true",
+            "mock-project:tags": json.dumps({"test-tag": "test-value"}),
+        }
+    )
+
+
+@pytest.fixture(scope="module")
 def config_fields() -> dict[str, Field[Any]]:
     dcfields_dict: dict[str, Field[Any]] = {
         dcfield.name: dcfield for dcfield in fields(DummyDataclass)
@@ -98,6 +105,12 @@ def test_confy_stack() -> None:
         some_other_string: str
         some_other_int: int = 1
         some_other_optional_int: Optional[int] = 1
+        some_false_bool: bool = False
+        some_true_bool: bool = True
+        some_optional_false_bool: Optional[bool] = False
+        some_optional_true_bool: Optional[bool] = True
+        some_optional_unset_bool: Optional[bool] = None
+        some_optional_true_bool_set_false: Optional[bool] = True
 
     stack_config: TestBaseConfig = Confy(dataclass_obj=TestBaseConfig).populate()
 
@@ -107,6 +120,14 @@ def test_confy_stack() -> None:
     assert stack_config.resource_group_name == "test-resource-group"
     assert stack_config.some_other_string == "some_other_value"
     assert stack_config.some_other_optional_int == 1
+
+    assert stack_config.some_false_bool is False
+    assert stack_config.some_true_bool is True
+    assert stack_config.some_optional_false_bool is False
+    assert stack_config.some_optional_true_bool is True
+    assert stack_config.some_optional_unset_bool is None
+
+    assert stack_config.some_optional_true_bool_set_false is False
 
 
 @pytest.mark.usefixtures("config_fields")

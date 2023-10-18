@@ -154,7 +154,10 @@ class Confy:
                 config=config_instance,
             )
 
-            field_value = getter_func(dcfield.name) or self.default_value(dcfield)
+            field_value = getter_func(dcfield.name)
+
+            if field_value is None:
+                field_value = self.default_value(dcfield)
 
             self.dckwargs.update({dcfield.name: field_value})
 

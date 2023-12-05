@@ -9,6 +9,7 @@ To use this module in its simplest form, you only need to provide a name for the
 config:
   azure-native:location: northeurope
   storageaccount:workload_name: myStorageAccount
+  storageaccount:env: dev
 ```
 
 ## Configuration Options

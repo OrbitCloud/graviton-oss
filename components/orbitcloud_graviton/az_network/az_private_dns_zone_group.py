@@ -4,9 +4,10 @@ from pulumi_azure_native import resources
 
 # PrivateDNSZoneGroup & PrivateZone are from different API versions so we need to import them separately for now
 from pulumi_azure_native.network import v20230201 as network
-from pulumi_azure_native.network.v20200601 import AwaitableGetPrivateZoneResult
-from pulumi_azure_native.network.v20200601 import PrivateZone
-
+from pulumi_azure_native.network.v20200601 import (
+    AwaitableGetPrivateZoneResult,
+    PrivateZone,
+)
 
 # Private DNS Zone Groups are used to associate a private endpoint with a private DNS zone
 

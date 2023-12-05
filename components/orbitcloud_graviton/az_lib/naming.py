@@ -1,7 +1,7 @@
 """ Helper functions for creating Azure related resources """
 
-from typing import Any, Dict
 import re
+from typing import Any, Dict
 
 RESOURCE_NAMING: Dict[str, Any] = {
     "pulumi_azure_native.resources.resource_group": {"prefix": "rg"},

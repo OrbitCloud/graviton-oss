@@ -1,12 +1,10 @@
+from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
-from dataclasses import dataclass
-
-from pulumi_azure_native.network import v20230201 as network
 from pulumi_azure_native import resources
+from pulumi_azure_native.network import v20230201 as network
 
 from .az_private_dns_zone_group import az_privatednszonegroup
-
 
 # TODO: Decide on how to accept subnet, only network.Subnet object or subnet id string or both. Current implementation accepts both. Stack reference?
 # TODO: Consider verifying if target_resource_type is valid

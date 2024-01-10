@@ -1,3 +1,9 @@
+## v0.16.0 (2024-01-10)
+
+### Feat
+
+- **ruff**: Replaces pylint, black & flake8 with Ruff
+
 ## v0.15.0 (2023-09-19)
 
 ### Feat

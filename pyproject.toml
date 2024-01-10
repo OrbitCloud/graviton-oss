@@ -24,21 +24,41 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pulumi = "^3.88"
-pulumi-azure-native = "^2.11"
-beartype = "^0.16.2"
+pulumi = "^3.101"
+pulumi-azure-native = "^2.24"
+beartype = "^0.16.4"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
+pytest = "^7.4.4"
 pytest-cov = "^4.1.0"
-commitizen = "^3.10.1"
-pytest-xdist = "^3.3.1"
+commitizen = "^3.13.0"
+pytest-xdist = "^3.5.0"
 pyright = "^1.1.331"
-pylint = "^3.0.1"
-pre-commit = "^3.4.0"
-black = "^23.9.1"
-flake8 = "^6.1.0"
+pre-commit = "^3.6.0"
+ruff = "^0.1.11"
+
+[tool.ruff]
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "I",  # isort
+]
+ignore = [
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+    "W191", # indentation contains tabs
+]
+extend-exclude = [
+    "development/*",
+    "tests/*",
+]
 
 [tool.commitizen]
 name = "cz_conventional_commits"

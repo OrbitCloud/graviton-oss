@@ -66,18 +66,23 @@ def resource_namer(
     prefix: str | Any = opts.get("prefix")
     location_short: str = location_abbr(location=location)
 
-    if opts.get("alphanumeric") and opts.get("lowercase"):
-        return (
-            f"{prefix.lower()}{workload_name.lower()}"
-            f"{env.lower()}{location_short.lower()}{instance_number}"
-        )
-    elif opts.get("alphanumeric"):
-        return (
-            f"{prefix.capitalize()}{workload_name.capitalize()}"
-            f"{env.capitalize()}{location_short.capitalize()}{instance_number}"
+    name_elements = [
+        prefix,
+        workload_name,
+        env,
+        location_short,
+        instance_number,
+    ]
+
+    if opts.get("alphanumeric"):
+        return "".join(
+            [
+                element.lower() if opts.get("lowercase") else element.capitalize()
+                for element in name_elements
+            ]
         )
 
-    return f"{prefix}-{workload_name}-{env}-{location_short}-{instance_number}"
+    return "-".join(name_elements)
 
 
 def location_abbr(location) -> str:

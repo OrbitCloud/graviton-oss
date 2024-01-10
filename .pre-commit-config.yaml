@@ -2,50 +2,32 @@ default_stages:
   - "pre-commit"
 repos:
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: 3.9.0
+    rev: v3.13.0
     hooks:
       - id: commitizen
   -   repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.4.0
+      rev: v4.5.0
       hooks:
-      -   id: check-yaml
-      -   id: check-json
-      -   id: check-toml
-      -   id: end-of-file-fixer
-      -   id: mixed-line-ending
-      -   id: trailing-whitespace
-      -   id: check-added-large-files
-      -   id: check-merge-conflict
-      -   id: detect-private-key
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-
-  - repo: https://github.com/psf/black
-    rev: 23.9.1
-    hooks:
-      - id: black
-        args: [--safe, --quiet]
-
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: detect-private-key
 
   - repo: local
     hooks:
-      - id: pylint
-        name: pylint
-        entry: make pylint
+      - id: ruff
+        name: Format with Ruff
+        entry: make fmt
         language: system
-        always_run: true
-        pass_filenames: false
-      - id: flake8
-        name: flake8
-        entry: make flake8
+        types: [python]
+
+      - id: pyright
+        name: Validate types with pyright
+        entry: make pyright
         language: system
-        always_run: true
+        types: [python]
         pass_filenames: false
-      - id: pytest
-        name: pytest
-        entry: pytest
-        language: system
-        pass_filenames: false
-        always_run: true

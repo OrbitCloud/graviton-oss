@@ -693,13 +693,13 @@ six = ">=1.12,<2.0"
 
 [[package]]
 name = "pulumi-azure-native"
-version = "2.24.0"
+version = "2.25.0"
 description = "A native Pulumi package for creating and managing Azure resources."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pulumi_azure_native-2.24.0-py3-none-any.whl", hash = "sha256:e2931a6aaca8a6612369b83a49505b3ba92fa76245fa755c121a759d01082013"},
-    {file = "pulumi_azure_native-2.24.0.tar.gz", hash = "sha256:6f29f1eda16892299501c9cf8609c02bbc9deb4e71f3657915edc59e6670b67d"},
+    {file = "pulumi_azure_native-2.25.0-py3-none-any.whl", hash = "sha256:33bdceb91a9a4f4bb45636767661d31cfc70e15e70e6a90280ec7970cff51b37"},
+    {file = "pulumi_azure_native-2.25.0.tar.gz", hash = "sha256:53fca1a3253bc1941131cdd8861bb796ddf975cc5a3006faf733c081021894fe"},
 ]
 
 [package.dependencies]
@@ -1007,4 +1007,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "99dd3caf463aca1fdc999854f4491e693e9b72bf430c9581f3fce70c13633910"
+content-hash = "40033208b5458154793b2303dec5fa3a44706fdd326eb60b5b665aaae9b880ea"

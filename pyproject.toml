@@ -25,7 +25,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.10"
 pulumi = "^3.101"
-pulumi-azure-native = "^2.24"
+pulumi-azure-native = "^2.25"
 beartype = "^0.16.4"
 
 

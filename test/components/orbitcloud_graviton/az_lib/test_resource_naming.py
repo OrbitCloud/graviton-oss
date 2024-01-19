@@ -1,6 +1,12 @@
 import pytest
 from orbitcloud_graviton.az_lib import location_abbr, resource_namer, resource_opts
-from pulumi_azure_native import containerregistry, operationalinsights, resources
+from pulumi_azure_native import (
+    containerregistry,
+    network,
+    operationalinsights,
+    resources,
+    storage
+)
 
 
 def test_resource_opts() -> None:

@@ -33,15 +33,13 @@ def az_containerregistry(
         network_rule_set=containerregistry.NetworkRuleSetArgs(
             default_action="Deny",
             # For all ip_allow_list, add ip address to network rules
-            ip_rules=list(
-                map(
-                    lambda ip: containerregistry.IPRuleArgs(
-                        action="Allow",
-                        i_p_address_or_range=ip,
-                    ),
-                    ip_allow_list,
+            ip_rules=[
+                containerregistry.IPRuleArgs(
+                    action="Allow",
+                    i_p_address_or_range=ip,
                 )
-            )
+                for ip in ip_allow_list
+            ]
             if ip_allow_list is not None
             else [],
         ),

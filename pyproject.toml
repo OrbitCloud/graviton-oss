@@ -60,6 +60,10 @@ extend-exclude = [
     "tests/*",
 ]
 
+[tool.ruff.lint.isort]
+known-third-party = ["pulumi_azure_native", "pulumi_azuread", "pulumi"]
+known-first-party = ["orbitcloud_graviton"]
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 version = "0.16.0"

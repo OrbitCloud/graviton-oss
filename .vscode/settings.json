@@ -17,6 +17,23 @@
       "source.fixAll": "explicit"
     }
   },
+  "python.analysis.packageIndexDepths": [
+    {
+      "name": "pulumi",
+      "depth": 3
+    },
+    {
+      "name": "pulumi_azure_native",
+      "depth": 4
+    },
+    {
+      "name": "pulumi_azuread",
+      "depth": 3
+    }
+  ],
+  "terminal.integrated.profiles.osx": {
+    "zsh": { "path": "/bin/zsh", "args": ["-l", "-i"] }
+  },
   "files.insertFinalNewline": true,
   "python.analysis.autoImportCompletions": true,
   "python.analysis.completeFunctionParens": true,

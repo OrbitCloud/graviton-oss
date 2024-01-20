@@ -1,5 +1,6 @@
 """ Helper functions for creating Azure related resources """
 
+import re
 from typing import Any, Dict
 
 RESOURCE_NAMING: Dict[str, Any] = {
@@ -24,6 +25,14 @@ RESOURCE_NAMING: Dict[str, Any] = {
         "prefix": "kv",
         "alphanumeric": True,
     },
+    "pulumi_azure_native.storage.storage_account": {
+        "prefix": "st",
+        "alphanumeric": True,
+        "lowercase": True,
+    },
+    "pulumi_azure_native.network.private_dns_zone_group": {
+        "prefix": "pdzg",
+    },
 }
 
 LOCATION_ABBR: Dict[str, str] = {
@@ -37,7 +46,11 @@ LOCATION_ABBR: Dict[str, str] = {
 
 def resource_opts(resource_type) -> Dict[str, Any]:
     """Return a resource prefix for a given resource type"""
-    opts: Any | None = RESOURCE_NAMING.get(resource_type.__module__)
+    # Extract the base module path without the version
+    base_module_path = re.sub(r"\.v\d{8}", "", resource_type.__module__)
+
+    # Try to get the options using the base module path
+    opts: Any | None = RESOURCE_NAMING.get(base_module_path)
 
     if not opts:
         raise ValueError(f"Resource type has not been defined: {resource_type}")
@@ -53,13 +66,23 @@ def resource_namer(
     prefix: str | Any = opts.get("prefix")
     location_short: str = location_abbr(location=location)
 
+    name_elements = [
+        prefix,
+        workload_name,
+        env,
+        location_short,
+        instance_number,
+    ]
+
     if opts.get("alphanumeric"):
-        return (
-            f"{prefix.capitalize()}{workload_name.capitalize()}"
-            f"{env.capitalize()}{location_short.capitalize()}{instance_number}"
+        return "".join(
+            [
+                element.lower() if opts.get("lowercase") else element.capitalize()
+                for element in name_elements
+            ]
         )
 
-    return f"{prefix}-{workload_name}-{env}-{location_short}-{instance_number}"
+    return "-".join(name_elements)
 
 
 def location_abbr(location) -> str:

@@ -23,6 +23,7 @@ RESOURCE_NAMING: Dict[str, Any] = {
     "pulumi_azure_native.keyvault.vault": {
         "prefix": "kv",
         "alphanumeric": True,
+        "max_length": 24,
     },
 }
 
@@ -46,7 +47,7 @@ def resource_opts(resource_type) -> Dict[str, Any]:
 
 
 def resource_namer(
-    resource_type, workload_name, env, location, instance_number: str = "01"
+    resource_type, workload_name: str, env, location, instance_number: str = "01"
 ) -> str:
     """Return a resource name for a given resource type"""
     opts: Dict[str, Any] = resource_opts(resource_type=resource_type)
@@ -54,8 +55,14 @@ def resource_namer(
     location_short: str = location_abbr(location=location)
 
     if opts.get("alphanumeric"):
+        workload_name = (
+            "".join([word.title() for word in workload_name.split("-")])
+            if "-" in workload_name
+            else workload_name.title()
+        )
+
         return (
-            f"{prefix.capitalize()}{workload_name.capitalize()}"
+            f"{prefix.capitalize()}{workload_name}"
             f"{env.capitalize()}{location_short.capitalize()}{instance_number}"
         )
 

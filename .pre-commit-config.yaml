@@ -24,6 +24,7 @@ repos:
         entry: make fmt
         language: system
         types: [python]
+        pass_filenames: false
 
       - id: pyright
         name: Validate types with pyright

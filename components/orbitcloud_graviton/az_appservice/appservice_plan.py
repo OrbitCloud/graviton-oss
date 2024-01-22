@@ -3,9 +3,10 @@ from enum import Enum
 from typing import Dict, Optional
 
 import pulumi
+from pulumi_azure_native import insights, operationalinsights, resources, web
+
 from orbitcloud_graviton.az_lib import resource_namer
 from orbitcloud_graviton.az_monitor import az_diagnosticsetting
-from pulumi_azure_native import insights, operationalinsights, resources, web
 
 
 class PlanSkuTiers(str, Enum):
@@ -77,7 +78,7 @@ def az_appservice_plan(
     workload_name: str,
     env: str,
     location: str,
-    resource_group: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult,
+    resource_group: resources.ResourceGroup,
     kind: Optional[str] = "Linux",
     per_site_scaling: Optional[bool] = True,
     zone_redundant: Optional[bool] = False,
@@ -125,9 +126,7 @@ def az_appservice_plan(
 
 def az_appservice_plan_from_config(
     config,
-    resource_group: Optional[
-        resources.ResourceGroup | resources.AwaitableGetResourceGroupResult
-    ] = None,
+    resource_group: Optional[resources.ResourceGroup] = None,
 ) -> web.AppServicePlan:
     if not resource_group and not config.resource_group:
         raise ValueError("Either resource_group or resource_group_name must be set")

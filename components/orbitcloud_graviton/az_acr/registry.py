@@ -1,17 +1,20 @@
 from typing import Dict, Optional
 
-from orbitcloud_graviton.az_lib import resource_namer
+import pulumi
 from pulumi_azure_native import containerregistry, resources
+
+from orbitcloud_graviton.az_lib import resource_namer
 
 
 def az_containerregistry(
-    resource_group: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult,
+    resource_group: resources.ResourceGroup,
     workload_name: str,
     env: str,
     location: str,
     tags: Optional[Dict[str, str]] = None,
     ip_allow_list: Optional[list[str]] = None,
     public_network_access: Optional[str] = None,
+    opts: Optional[pulumi.ResourceOptions] = None,
 ) -> containerregistry.Registry:
     """Create container registry"""
 
@@ -46,4 +49,5 @@ def az_containerregistry(
         sku=containerregistry.SkuArgs(
             name="Premium",
         ),
+        opts=opts,
     )

@@ -3,8 +3,9 @@
 from typing import Dict, Optional
 
 import pulumi
-from orbitcloud_graviton.az_lib import StackConfig, resource_namer
 from pulumi_azure_native import resources
+
+from orbitcloud_graviton.az_lib import StackConfig, resource_namer
 
 
 def az_resource_group(
@@ -33,12 +34,17 @@ def az_resource_group(
 
 def az_resource_group_from_config(
     config: StackConfig,
-) -> resources.ResourceGroup | resources.AwaitableGetResourceGroupResult:
+) -> resources.ResourceGroup:
     """Create or get an Azure ResourceGroup from a ConfigProtocol"""
 
     if config.resource_group_name:
-        return resources.get_resource_group(
-            resource_group_name=config.resource_group_name
+        existing_rg = resources.get_resource_group(
+            resource_group_name=config.resource_group_name,
+        )
+
+        return resources.ResourceGroup.get(
+            id=existing_rg.id,
+            resource_name=existing_rg.name,
         )
 
     return az_resource_group(

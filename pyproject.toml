@@ -9,17 +9,16 @@ packages = [
     # Lib and helpers
     { include = "orbitcloud_graviton/pulumi_mocks", from = "components" },
     { include = "orbitcloud_graviton/az_lib", from = "components" },
-
     # Azure Components
     { include = "orbitcloud_graviton/az_acr", from = "components" },
     { include = "orbitcloud_graviton/az_appservice", from = "components" },
     { include = "orbitcloud_graviton/az_keyvault", from = "components" },
     { include = "orbitcloud_graviton/az_monitor", from = "components" },
     { include = "orbitcloud_graviton/az_resources", from = "components" },
-
     # Bases
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
     { include = "orbitcloud_graviton/landing_site", from = "bases" },
+    {include = "orbitcloud_graviton/landing_zone",from = "bases"},
 ]
 
 [tool.poetry.dependencies]
@@ -27,6 +26,7 @@ python = "^3.10"
 pulumi = "^3.101"
 pulumi-azure-native = "^2.25"
 beartype = "^0.16.4"
+pulumi-azuread = "^5.47.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -37,6 +37,7 @@ pytest-xdist = "^3.5.0"
 pyright = "^1.1.347"
 pre-commit = "^3.6.0"
 ruff = "^0.1.13"
+debugpy = "^1.8.0"
 
 [tool.ruff]
 line-length = 88

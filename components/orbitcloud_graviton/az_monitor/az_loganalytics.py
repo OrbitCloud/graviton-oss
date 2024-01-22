@@ -2,8 +2,9 @@
 from typing import Dict, Optional
 
 import pulumi
-from orbitcloud_graviton.az_lib import resource_namer
 from pulumi_azure_native import operationalinsights, resources
+
+from orbitcloud_graviton.az_lib import resource_namer
 
 
 def az_logworkspace(

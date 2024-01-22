@@ -4,6 +4,7 @@ from typing import Annotated, Any, Collection, Optional
 
 import pulumi
 import pytest
+
 from orbitcloud_graviton.az_lib import Confy, StackConfig
 from orbitcloud_graviton.pulumi_mocks import set_mocks
 

@@ -15,10 +15,15 @@ packages = [
     { include = "orbitcloud_graviton/az_keyvault", from = "components" },
     { include = "orbitcloud_graviton/az_monitor", from = "components" },
     { include = "orbitcloud_graviton/az_resources", from = "components" },
+    {include = "orbitcloud_graviton/az_storage",from = "components"},
+    {include = "orbitcloud_graviton/az_iam",from = "components"},
+    {include = "orbitcloud_graviton/az_network",from = "components"},
+    {include = "orbitcloud_graviton/entra_app",from = "components"},
+    {include = "orbitcloud_graviton/pulumi_lib",from = "components"},
     # Bases
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
-    { include = "orbitcloud_graviton/landing_site", from = "bases" },
     {include = "orbitcloud_graviton/landing_zone",from = "bases"},
+    {include = "orbitcloud_graviton/landing_site",from = "bases"},
 ]
 
 [tool.poetry.dependencies]

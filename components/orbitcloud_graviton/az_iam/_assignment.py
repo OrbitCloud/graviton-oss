@@ -2,12 +2,12 @@ from typing import Optional
 
 from pulumi import ResourceOptions
 from pulumi_azure_native import authorization
-from pulumi_azuread import Application, User
+from pulumi_azuread import ServicePrincipal, User
 
 
 def role_assignment(
     principal_name: str,
-    principal: Application | User,
+    principal: ServicePrincipal | User,
     role_definition_id: str,
     scope: str,
     opts: Optional[ResourceOptions] = None,
@@ -28,6 +28,9 @@ def role_assignment(
     return authorization.RoleAssignment(
         resource_name=role_assignment_name,
         principal_id=principal.object_id,
+        principal_type="ServicePrincipal"
+        if isinstance(principal, ServicePrincipal)
+        else "User",
         role_definition_id=role_definition_id,
         scope=scope,
         opts=opts,

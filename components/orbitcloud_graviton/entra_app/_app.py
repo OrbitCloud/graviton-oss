@@ -74,11 +74,11 @@ def oidc_app(
         opts=pulumi.ResourceOptions(parent=app),
     )
     role_assignment(
-        principal=app,
+        principal=sp,
         principal_name=app_name,
         role_definition_id=role_definition_id,
         scope=scope,
-        opts=pulumi.ResourceOptions(parent=app),
+        opts=pulumi.ResourceOptions(parent=sp),
     )
 
     return app, sp, cred

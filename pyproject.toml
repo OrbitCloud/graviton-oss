@@ -23,8 +23,8 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pulumi = "^3.101"
-pulumi-azure-native = "^2.25"
+pulumi = "^3.102"
+pulumi-azure-native = "^2.26"
 beartype = "^0.16.4"
 pulumi-azuread = "^5.47.0"
 
@@ -34,10 +34,10 @@ pytest = "^7.4.4"
 pytest-cov = "^4.1.0"
 commitizen = "^3.13.0"
 pytest-xdist = "^3.5.0"
-pyright = "^1.1.347"
+pyright = "^1.1.348"
 pre-commit = "^3.6.0"
-ruff = "^0.1.13"
 debugpy = "^1.8.0"
+ruff = "^0.1.14"
 
 [tool.ruff]
 line-length = 88

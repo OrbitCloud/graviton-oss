@@ -25,6 +25,16 @@ def print_pulumi_esc_oidc_yaml(args: List[Any]):
                 "ARM_OIDC_TOKEN": "${azure.login.oidc.token}",
                 "ARM_SUBSCRIPTION_ID": "${azure.login.subscriptionId}",
             },
+            "pulumniConfig": {
+                "azure-native": {
+                    "useOidc": "true",
+                    "clientId": "${azure.login.clientId}",
+                    "tenantId": "${azure.login.tenantId}",
+                    "subscriptionId": "${azure.login.subscriptionId}",
+                    "oidcToken": "${azure.login.oidc.token}",
+                },
+                "azuread": {"tenantId": "${azure.login.tenantId}"},
+            },
         }
     }
 

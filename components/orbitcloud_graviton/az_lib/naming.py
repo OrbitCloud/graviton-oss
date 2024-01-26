@@ -33,6 +33,10 @@ RESOURCE_NAMING: Dict[str, Any] = {
     "pulumi_azure_native.network.private_dns_zone_group": {
         "prefix": "pdzg",
     },
+    "pulumi_azure_native.app.managed_environment": {
+        "prefix": "cae",
+        "max_length": 60,
+    },
 }
 
 LOCATION_ABBR: Dict[str, str] = {

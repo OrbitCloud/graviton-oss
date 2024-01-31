@@ -7,26 +7,32 @@ from orbitcloud_graviton.az_acr.registry import (
     ContainerRegistryConfig,
     container_registry,
 )
-from orbitcloud_graviton.az_keyvault import KeyVaultConfig, az_keyvault
+from orbitcloud_graviton.az_keyvault import KeyVaultConfig, key_vault
 from orbitcloud_graviton.entra_app import deployment_oidc_app
 from orbitcloud_graviton.pulumi_lib import PulumiConfig, get_azure_stack, print_pulumi_esc_oidc_yaml
 
 
 class LandingZoneConfig(PulumiConfig):
-    containerregistry: Optional[ContainerRegistryConfig]
-    keyvault: Optional[KeyVaultConfig]
+    containerregistry: Optional[ContainerRegistryConfig] = ContainerRegistryConfig()
+    keyvault: Optional[KeyVaultConfig] = KeyVaultConfig()
+
+    has_keyvault: Optional[bool] = True
+    has_containerregistry: Optional[bool] = True
 
 
 def deploy_landing_zone() -> None:
     config: LandingZoneConfig = LandingZoneConfig.model_validate({})
 
+    print(config)
+
     # Get Azure Stack and export resource group
     stack = get_azure_stack()
+
     pulumi.export("resource_group_id", stack.resource_group.id)
     pulumi.export("resource_group_name", stack.resource_group.name)
 
     # Container Registry
-    if config.containerregistry:
+    if config.has_containerregistry and config.containerregistry:
         az_cr: containerregistry.Registry = container_registry(
             stack=stack,
             config=config.containerregistry,
@@ -35,13 +41,11 @@ def deploy_landing_zone() -> None:
         pulumi.export("containerregistry_server", az_cr.login_server)
         pulumi.export("containerregistry_id", az_cr.id)
 
-    if config.keyvault:
-        az_kv: keyvault.Vault = az_keyvault(
-            workload_name=stack.workload_name,
-            env=stack.env,
-            location=stack.location,
-            resource_group=stack.resource_group,
-            tenant_id=str(stack.tenant_id),
+    # Key Vault
+    if config.has_keyvault and config.keyvault:
+        az_kv: keyvault.Vault = key_vault(
+            stack=stack,
+            config=config.keyvault,
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
         pulumi.export("keyvault_name", az_kv.name)

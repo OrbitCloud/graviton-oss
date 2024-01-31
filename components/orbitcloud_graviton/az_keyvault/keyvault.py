@@ -3,8 +3,12 @@ from typing import Dict, Optional
 import pulumi
 from pulumi_azure_native import authorization, keyvault, resources
 
-from orbitcloud_graviton.az_lib.config import StackConfig
-from orbitcloud_graviton.az_lib.naming import resource_namer
+from orbitcloud_graviton.az_lib import StackConfig, resource_namer
+from orbitcloud_graviton.pulumi_lib import AzureBase
+
+
+class KeyVaultConfig(AzureBase):
+    public_network_access: keyvault.PublicNetworkAccess = keyvault.PublicNetworkAccess.DISABLED
 
 
 def az_keyvault(
@@ -29,6 +33,7 @@ def az_keyvault(
         resource_group_name=resource_group.name,
         location=location,
         properties=keyvault.VaultPropertiesArgs(
+            public_network_access=keyvault.PublicNetworkAccess.DISABLED,
             enable_rbac_authorization=True,
             tenant_id=tenant_id,
             sku=keyvault.SkuArgs(
@@ -48,9 +53,7 @@ def az_keyvault_from_config(
     resource_group: resources.ResourceGroup,
     config: StackConfig,
 ) -> keyvault.Vault:
-    provider_client: authorization.GetClientConfigResult = (
-        authorization.get_client_config()
-    )
+    provider_client: authorization.GetClientConfigResult = authorization.get_client_config()
 
     return az_keyvault(
         workload_name=config.workload_name,

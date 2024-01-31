@@ -43,13 +43,9 @@ def az_private_endpoint(
     elif isinstance(subnet, str):
         subnet_id = subnet
     else:
-        raise TypeError(
-            "subnet must be either a network.Subnet object or a subnet ID string"
-        )
+        raise TypeError("subnet must be either a network.Subnet object or a subnet ID string")
 
-    private_endpoint_name: str = (
-        "pep-" + resource._name + "-" + private_endpoint_config.target_resource_type
-    )
+    private_endpoint_name: str = "pep-" + resource._name + "-" + private_endpoint_config.target_resource_type
 
     private_endpoint: network.PrivateEndpoint = network.PrivateEndpoint(
         resource_name=private_endpoint_name,

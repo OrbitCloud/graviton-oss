@@ -37,9 +37,7 @@ def deployment_oidc_app(
     pulumi_org: str,
     subscription_id: str,
 ) -> tuple[Application, ServicePrincipal, ApplicationFederatedIdentityCredential]:
-    entra_oidc_app: tuple[
-        Application, ServicePrincipal, ApplicationFederatedIdentityCredential
-    ] = oidc_app(
+    entra_oidc_app: tuple[Application, ServicePrincipal, ApplicationFederatedIdentityCredential] = oidc_app(
         app_name=f"pulumi-{workload_name}",
         issuer="https://api.pulumi.com/oidc",
         audiences=[pulumi_org],
@@ -61,9 +59,7 @@ def oidc_app(
     description: str,
 ) -> tuple[Application, ServicePrincipal, ApplicationFederatedIdentityCredential]:
     app: Application = application(app_name)
-    sp: ServicePrincipal = service_principal(
-        app_name, app, opts=pulumi.ResourceOptions(parent=app)
-    )
+    sp: ServicePrincipal = service_principal(app_name, app, opts=pulumi.ResourceOptions(parent=app))
     cred: ApplicationFederatedIdentityCredential = federated_credentials(
         app=app,
         credential_name=app_name,

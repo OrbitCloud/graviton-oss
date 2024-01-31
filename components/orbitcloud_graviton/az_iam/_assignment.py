@@ -18,19 +18,13 @@ def role_assignment(
         "role-"
         + principal_name
         + "-"
-        + (
-            (principal.translate_input_property("urn") + scope + role_definition_id)
-            .encode("utf-8")
-            .hex()[:5]
-        )
+        + ((principal.translate_input_property("urn") + scope + role_definition_id).encode("utf-8").hex()[:5])
     )
 
     return authorization.RoleAssignment(
         resource_name=role_assignment_name,
         principal_id=principal.object_id,
-        principal_type="ServicePrincipal"
-        if isinstance(principal, ServicePrincipal)
-        else "User",
+        principal_type="ServicePrincipal" if isinstance(principal, ServicePrincipal) else "User",
         role_definition_id=role_definition_id,
         scope=scope,
         opts=opts,

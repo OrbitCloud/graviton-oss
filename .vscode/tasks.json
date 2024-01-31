@@ -5,7 +5,7 @@
       "label": "pulumi pre",
       "type": "shell",
       "isBackground": true,
-      "command": "pulumi pre",
+      "command": "DEBUG=true pulumi pre",
       "presentation": {
         "reveal": "silent"
       },
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "label": "Wait 30 seconds",
+      "label": "Wait 10 seconds",
       "type": "shell",
       "command": "sleep 10",
       "presentation": {

@@ -43,7 +43,9 @@
   },
   "files.exclude": {
     "**/*.pyc": true,
-    "**/__pycache__": true
+    "**/__pycache__": true,
+    "**/.ruff_cache": true,
+    "**/.pytest_cache": true
   },
   "files.insertFinalNewline": true,
   "python.languageServer": "Pylance",

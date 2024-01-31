@@ -42,7 +42,8 @@
     "**/.venv/**": true
   },
   "files.exclude": {
-    "**/*.pyc": true
+    "**/*.pyc": true,
+    "**/__pycache__": true
   },
   "files.insertFinalNewline": true,
   "python.languageServer": "Pylance",

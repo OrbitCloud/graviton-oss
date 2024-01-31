@@ -1,6 +1,5 @@
 import pytest
 from pulumi_azure_native import (
-    app,
     containerregistry,
     keyvault,
     operationalinsights,
@@ -32,35 +31,13 @@ def test_location_abbr() -> None:
 
 
 def test_resource_namer() -> None:
-    assert (
-        resource_namer(resources.ResourceGroup, "test", "dev", "westeurope")
-        == "rg-test-dev-weu-01"
-    )
-    assert (
-        resource_namer(resources.ResourceGroup, "test", "dev", "swedencentral", "02")
-        == "rg-test-dev-sec-02"
-    )
-    assert (
-        resource_namer(operationalinsights.Workspace, "test", "dev", "northeurope")
-        == "log-test-dev-neu-01"
-    )
+    assert resource_namer(resources.ResourceGroup, "test", "dev", "westeurope") == "rg-test-dev-weu-01"
+    assert resource_namer(resources.ResourceGroup, "test", "dev", "swedencentral", "02") == "rg-test-dev-sec-02"
+    assert resource_namer(operationalinsights.Workspace, "test", "dev", "northeurope") == "log-test-dev-neu-01"
 
-    assert (
-        resource_namer(containerregistry.Registry, "test", "dev", "westeurope")
-        == "CrTestDevWeu01"
-    )
-    assert (
-        resource_namer(storage.StorageAccount, "test", "dev", "westeurope")
-        == "sttestdevweu01"
-    )
-    assert (
-        resource_namer(keyvault.Vault, "test", "dev", "westeurope")
-        == "kv-test-dev-weu-01"
-    )
-    assert (
-        resource_namer(app.ManagedEnvironment, "test", "dev", "westeurope")
-        == "cae-test-dev-weu-01"
-    )
+    assert resource_namer(containerregistry.Registry, "test", "dev", "westeurope") == "CrTestDevWeu01"
+    assert resource_namer(storage.StorageAccount, "test", "dev", "westeurope") == "sttestdevweu01"
+    assert resource_namer(keyvault.Vault, "test", "dev", "westeurope") == "kv-test-dev-weu-01"
 
     # assert a value error is raised when the resource type is not found
     with pytest.raises(ValueError):

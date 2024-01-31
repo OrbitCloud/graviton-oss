@@ -60,9 +60,7 @@ def mock_resource(pulumi_projects_mock):
 
 
 @pulumi.runtime.test
-def test_az_private_endpoint(
-    pulumi_projects_mock, private_endpoint_config, mock_resource
-):
+def test_az_private_endpoint(pulumi_projects_mock, private_endpoint_config, mock_resource):
     workload_name, env, location, tags = (
         pulumi_projects_mock["workload_name"],
         pulumi_projects_mock["env"],
@@ -70,9 +68,7 @@ def test_az_private_endpoint(
         pulumi_projects_mock["tags"],
     )
 
-    resource_group = az_resource_group(
-        workload_name=workload_name, env=env, location=location, tags=tags
-    )
+    resource_group = az_resource_group(workload_name=workload_name, env=env, location=location, tags=tags)
 
     private_endpoint = az_private_endpoint(
         resource=mock_resource,
@@ -87,17 +83,13 @@ def test_az_private_endpoint(
         privateendpoint_location, privateendpoint_tags = args
 
         # Check that the location is correct
-        assert (
-            privateendpoint_location == location
-        ), "Private endpoint location mismatch"
+        assert privateendpoint_location == location, "Private endpoint location mismatch"
 
         # Check that all the tags are set correctly
         assert privateendpoint_tags == tags, "Private endpoint tags mismatch"
 
         # Check the private endpoint name prefix
-        assert private_endpoint._name.startswith(
-            "pep-"
-        ), "Private endpoint name mismatch"
+        assert private_endpoint._name.startswith("pep-"), "Private endpoint name mismatch"
 
     return pulumi.Output.all(
         private_endpoint.location,

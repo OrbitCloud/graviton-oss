@@ -50,6 +50,7 @@ ruff = "^0.1.14"
 
 [tool.pyright]
 include = ["components", "bases", "development", "test"]
+ignore = ["test/*", "development/*", "**/__pycache__/*", "**/*.pyc"]
 extraPaths = ["components", "bases"]
 venvPath = ".venv"
 

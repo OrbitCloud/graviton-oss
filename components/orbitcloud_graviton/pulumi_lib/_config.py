@@ -75,12 +75,13 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
     def __call__(self) -> Dict[str, Any]:
         pulumi_config_bag = getattr(self.settings_cls.model_config, "pulumi_config_bag", None)
 
-        d = {
-            field_name: self.get_field_value(field, field_name, pulumi_config_bag)
-            for field_name, field in self.settings_cls.model_fields.items()
-        }
+        values = {}
 
-        return d
+        for field_name, field in self.settings_cls.model_fields.items():
+            field_value, field_name, is_complex = self.get_field_value(field, field_name, pulumi_config_bag)
+            values.update({field_name: field_value})
+
+        return values
 
 
 class PulumiConfig(BaseSettings):

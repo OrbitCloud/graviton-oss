@@ -38,7 +38,7 @@ def deployment_oidc_app(
     subscription_id: str,
 ) -> tuple[Application, ServicePrincipal, ApplicationFederatedIdentityCredential]:
     entra_oidc_app: tuple[Application, ServicePrincipal, ApplicationFederatedIdentityCredential] = oidc_app(
-        app_name=f"pulumi-{workload_name}",
+        app_name=f"pulumi-{workload_name}-deployments",
         issuer="https://api.pulumi.com/oidc",
         audiences=[pulumi_org],
         description="Pulumi Deployment Credentials",

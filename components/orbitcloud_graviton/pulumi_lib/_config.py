@@ -30,14 +30,6 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
         config = pulumi.Config(bag)
         return config, alias
 
-    def is_model_class(self, field: FieldInfo) -> bool:
-        if not field.annotation:
-            return False
-        if inspect.isclass(field.annotation):
-            return issubclass(field.annotation, BaseModel)
-
-        return False
-
     def get_field_type(self, field_type: Type) -> Type:
         # Unwrap Optional[]
         field_type = get_args(field_type)[0] if field_type == Optional[field_type] else field_type
@@ -56,6 +48,9 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
         ]:
             return Collection
 
+        if inspect.isclass(field_type) and issubclass(field_type, BaseModel):
+            return BaseModel
+
         return field_type
 
     def get_field_value(
@@ -67,7 +62,7 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
         config, alias = self.config_path(field, field_name, config_bag)
         field_type = self.get_field_type(field.annotation) if field.annotation else None
 
-        if field_type is Collection or self.is_model_class(field):
+        if field_type is Collection or field_type is BaseModel:
             return config.get_object(alias), field_name, True
 
         return config.get(alias), field_name, False

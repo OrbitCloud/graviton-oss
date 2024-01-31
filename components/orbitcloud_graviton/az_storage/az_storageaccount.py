@@ -5,8 +5,7 @@ import pulumi
 from pulumi_azure_native import resources
 from pulumi_azure_native.storage import v20220901 as storage
 
-from orbitcloud_graviton.az_lib import is_public_ip, resource_namer
-from orbitcloud_graviton.az_lib.config import Confy, StackConfig
+from orbitcloud_graviton.az_lib import Confy, StackConfig, is_public_ip, resource_namer
 from orbitcloud_graviton.az_network import PrivateEndpointConfig, az_private_endpoint
 from orbitcloud_graviton.az_resources import az_resource_group_from_config
 
@@ -60,13 +59,9 @@ def az_storageaccount(
             for ip_rule in network_rules:
                 try:
                     if is_public_ip(ip_rule):
-                        ip_rules.append(
-                            storage.IPRuleArgs(i_p_address_or_range=ip_rule)
-                        )
+                        ip_rules.append(storage.IPRuleArgs(i_p_address_or_range=ip_rule))
                     else:
-                        pulumi.warn(
-                            f"The IP address or range {ip_rule} is private and will not be added."
-                        )
+                        pulumi.warn(f"The IP address or range {ip_rule} is private and will not be added.")
                 except ValueError as e:
                     pulumi.warn(str(e))
 
@@ -88,9 +83,7 @@ def az_storageaccount(
     else:
         # Only warn if the user has provided network rules or subnets
         if network_rules or virtual_network_subnets:
-            pulumi.warn(
-                "Public network access is disabled. Network rules will be ignored."
-            )
+            pulumi.warn("Public network access is disabled. Network rules will be ignored.")
 
     if use_managed_identity:
         identity = {"type": "SystemAssigned"}
@@ -183,14 +176,12 @@ def storageaccount_deploy() -> None:
     config: StorageAccountConfig = Confy(StorageAccountConfig).populate()
 
     # Resource Group
-    az_rg: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult = (
-        az_resource_group_from_config(config=config)
+    az_rg: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult = az_resource_group_from_config(
+        config=config
     )
 
     pulumi.export("resource_group_name", az_rg.name)
 
     # Storage Account
-    az_storageaccount = az_storageaccount_from_config(
-        config=config, resource_group=az_rg
-    )
+    az_storageaccount = az_storageaccount_from_config(config=config, resource_group=az_rg)
     pulumi.export("storageaccount_name", az_storageaccount.name)

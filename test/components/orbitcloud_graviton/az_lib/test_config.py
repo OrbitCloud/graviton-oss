@@ -36,15 +36,11 @@ class DummyDataclass:
     tuple_field: tuple
     tuple_field_with_default: tuple = field(default_factory=lambda: ())
     tuple_field_optional: Optional[tuple] = None
-    tuple_field_optional_with_default: Optional[tuple] = field(
-        default_factory=lambda: ()
-    )
+    tuple_field_optional_with_default: Optional[tuple] = field(default_factory=lambda: ())
     secret_str_field: Annotated[str, "secret"]
     secret_str_field_with_default: Annotated[str, "secret"] = "default"
     secret_str_field_optional: Optional[Annotated[str, "secret"]] = None
-    secret_str_field_optional_with_default: Optional[
-        Annotated[str, "secret"]
-    ] = "default"
+    secret_str_field_optional_with_default: Optional[Annotated[str, "secret"]] = "default"
     secret_int_field: Annotated[int, "secret"]
     secret_int_field_with_default: Annotated[int, "secret"] = 1
     secret_int_field_optional: Optional[Annotated[int, "secret"]] = None
@@ -54,19 +50,13 @@ class DummyDataclass:
     secret_bool_field_optional: Optional[Annotated[bool, "secret"]] = None
     secret_bool_field_optional_with_default: Optional[Annotated[bool, "secret"]] = True
     secret_dict_field: Annotated[dict, "secret"]
-    secret_dict_field_with_default: Annotated[dict, "secret"] = field(
-        default_factory=lambda: {}
-    )
+    secret_dict_field_with_default: Annotated[dict, "secret"] = field(default_factory=lambda: {})
     secret_dict_field_optional: Optional[Annotated[dict, "secret"]] = None
-    secret_dict_field_optional_with_default: Optional[
-        Annotated[dict, "secret"]
-    ] = field(default_factory=lambda: {})
+    secret_dict_field_optional_with_default: Optional[Annotated[dict, "secret"]] = field(default_factory=lambda: {})
     azure_native_str_field: Annotated[str, "azure-native"]
     azure_native_str_field_with_default: Annotated[str, "azure-native"] = "default"
     azure_native_str_field_optional: Optional[Annotated[str, "azure-native"]] = None
-    azure_native_str_field_optional_with_default: Optional[
-        Annotated[str, "azure-native"]
-    ] = "default"
+    azure_native_str_field_optional_with_default: Optional[Annotated[str, "azure-native"]] = "default"
 
 
 @pytest.fixture(scope="module")
@@ -90,9 +80,7 @@ def pulumi_project_mock():
 
 @pytest.fixture(scope="module")
 def config_fields() -> dict[str, Field[Any]]:
-    dcfields_dict: dict[str, Field[Any]] = {
-        dcfield.name: dcfield for dcfield in fields(DummyDataclass)
-    }
+    dcfields_dict: dict[str, Field[Any]] = {dcfield.name: dcfield for dcfield in fields(DummyDataclass)}
     return dcfields_dict
 
 
@@ -141,10 +129,7 @@ def test_config_getter_func_strings(request) -> None:
         ("string_field_optional", config.get),
         ("string_field_optional_with_default", config.get),
     ]:
-        assert (
-            Confy.config_getter_func(dcfield=dcfields[field_name], config=config)
-            == config_func
-        )
+        assert Confy.config_getter_func(dcfield=dcfields[field_name], config=config) == config_func
 
 
 @pytest.mark.usefixtures("config_fields")
@@ -157,10 +142,7 @@ def test_config_getter_func_ints(request) -> None:
         ("int_field_optional", config.get_int),
         ("int_field_optional_with_default", config.get_int),
     ]:
-        assert (
-            Confy.config_getter_func(dcfield=dcfields[field_name], config=config)
-            == config_func
-        )
+        assert Confy.config_getter_func(dcfield=dcfields[field_name], config=config) == config_func
 
 
 @pytest.mark.usefixtures("config_fields")
@@ -173,10 +155,7 @@ def test_config_getter_func_bools(request) -> None:
         ("bool_field_optional", config.get_bool),
         ("bool_field_optional_with_default", config.get_bool),
     ]:
-        assert (
-            Confy.config_getter_func(dcfield=dcfields[field_name], config=config)
-            == config_func
-        )
+        assert Confy.config_getter_func(dcfield=dcfields[field_name], config=config) == config_func
 
 
 @pytest.mark.usefixtures("config_fields")
@@ -229,7 +208,4 @@ def test_config_getter_func_dicts(request) -> None:
         ("dict_field_optional", config.get_object),
         ("dict_field_optional_with_default", config.get_object),
     ]:
-        assert (
-            Confy.config_getter_func(dcfield=dcfields[field_name], config=config)
-            == config_func
-        )
+        assert Confy.config_getter_func(dcfield=dcfields[field_name], config=config) == config_func

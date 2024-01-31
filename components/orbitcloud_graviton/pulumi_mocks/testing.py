@@ -29,10 +29,10 @@ import pulumi
 class MyPulumiMocks(pulumi.runtime.Mocks):
     """From https://www.pulumi.com/docs/guides/testing/unit/"""
 
-    def new_resource(self, args: pulumi.runtime.MockResourceArgs):
+    def new_resource(self, args: pulumi.runtime.MockResourceArgs):  # pyright: ignore
         return [args.name + "_id", args.inputs]
 
-    def call(self, args: pulumi.runtime.MockCallArgs):
+    def call(self, args: pulumi.runtime.MockCallArgs):  # pyright: ignore
         return {}
 
 
@@ -48,9 +48,7 @@ def mock_pulumi_settings(settings: Dict) -> None:
     environ["PULUMI_CONFIG"] = pulumi_settings_str
 
 
-def set_mocks(
-    settings: Optional[Dict] = None, arm_location: Optional[str] = ""
-) -> None:
+def set_mocks(settings: Optional[Dict] = None, arm_location: Optional[str] = "") -> None:
     """Set up Pulumi mocks.
 
     Args:

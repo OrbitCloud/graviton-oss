@@ -19,9 +19,7 @@ def federated_credentials(
     return ApplicationFederatedIdentityCredential(
         resource_name=f"oidc-{credential_name}",
         display_name=f"oidc-{credential_name}",
-        application_id=app.object_id.apply(
-            lambda object_id: f"/applications/{object_id}"
-        ),
+        application_id=app.object_id.apply(lambda object_id: f"/applications/{object_id}"),
         audiences=audiences,
         issuer=issuer,
         description=description,

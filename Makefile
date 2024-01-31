@@ -33,7 +33,7 @@ lint: ##@ Ruff formatter and linter (check mode)
 
 .PHONY: pyright
 pyright: ##@ Run Pyright type checker
-	pyright .
+	poetry run pyright -p .
 
 .PHONY: ruff-check
 ruff-check: ##@ Ruff formatter (check mode)

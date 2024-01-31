@@ -1,3 +1,11 @@
-from .resource_group import az_resource_group, az_resource_group_from_config
+from ._resource_group import (
+    az_resource_group,
+    az_resource_group_from_config,
+    resource_group,
+)
 
-__all__ = ["az_resource_group", "az_resource_group_from_config"]
+__all__ = [
+    "az_resource_group",
+    "az_resource_group_from_config",
+    "resource_group",
+]

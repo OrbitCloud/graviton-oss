@@ -27,11 +27,9 @@ def print_pulumi_esc_oidc_yaml(args: List[Any]):
             },
             "pulumniConfig": {
                 "azure-native": {
-                    "useOidc": "true",
-                    "clientId": "${azure.login.clientId}",
+                    "location": "northeurope",
                     "tenantId": "${azure.login.tenantId}",
                     "subscriptionId": "${azure.login.subscriptionId}",
-                    "oidcToken": "${azure.login.oidc.token}",
                 },
                 "azuread": {"tenantId": "${azure.login.tenantId}"},
             },

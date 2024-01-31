@@ -44,9 +44,7 @@ def az_managed_environment(
     zone_redundant: Optional[bool] = False,
     environment_type: Optional[str] = "WorkloadProfiles",
     workload_profiles: Optional[list[dict]] = None,
-    vnet_config_subnet: Optional[
-        network.Subnet | network.AwaitableGetSubnetResult | str
-    ] = None,
+    vnet_config_subnet: Optional[network.Subnet | network.AwaitableGetSubnetResult | str] = None,
     vnet_config_internal: Optional[bool] = True,
     tags: Optional[Dict[str, str]] = None,
 ) -> app.ManagedEnvironment:
@@ -61,16 +59,12 @@ def az_managed_environment(
     workload_profiles_args: list[app.WorkloadProfileArgs] = []
 
     if environment_type not in ["WorkloadProfiles", "ConsumptionOnly"]:
-        raise ValueError(
-            "environment_type must be either 'WorkloadProfiles' or 'ConsumptionOnly'"
-        )
+        raise ValueError("environment_type must be either 'WorkloadProfiles' or 'ConsumptionOnly'")
 
     if environment_type == "WorkloadProfiles":
         if workload_profiles is None:
             workload_profiles_args.append(
-                app.WorkloadProfileArgs(
-                    name="Consumption", workload_profile_type="Consumption"
-                )
+                app.WorkloadProfileArgs(name="Consumption", workload_profile_type="Consumption")
             )
         if workload_profiles is not None:
             for profile in workload_profiles:
@@ -90,9 +84,7 @@ def az_managed_environment(
 
     # If zone_redundant == True, VNET integration is required
     if zone_redundant and not vnet_config_subnet:
-        raise ValueError(
-            "VNET config required for Zone Redundancy. Please provide a subnet."
-        )
+        raise ValueError("VNET config required for Zone Redundancy. Please provide a subnet.")
 
     # Handle VNet Configuration
     vnet_config_args = None
@@ -104,9 +96,7 @@ def az_managed_environment(
         elif isinstance(subnet, str):
             subnet_id = subnet
         else:
-            raise TypeError(
-                "subnet must be either a network.Subnet object or a subnet ID string"
-            )
+            raise TypeError("subnet must be either a network.Subnet object or a subnet ID string")
         print(f"vnet_config_internal: {vnet_config_internal}")
         vnet_config_args = app.VnetConfigurationArgs(
             infrastructure_subnet_id=subnet_id,
@@ -167,13 +157,11 @@ def managed_environment_deploy() -> None:
     print(config)
 
     # Resource Group
-    az_rg: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult = (
-        az_resource_group_from_config(config=config)
+    az_rg: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult = az_resource_group_from_config(
+        config=config
     )
 
     pulumi.export("resource_group_name", az_rg.name)
 
-    az_managed_environment = az_managed_environment_from_config(
-        config=config, resource_group=az_rg
-    )
+    az_managed_environment = az_managed_environment_from_config(config=config, resource_group=az_rg)
     pulumi.export(name="managed_environment_name", value=az_managed_environment.name)

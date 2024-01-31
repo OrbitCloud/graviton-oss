@@ -24,8 +24,6 @@ packages = [
     # Bases
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
     {include = "orbitcloud_graviton/landing_zone",from = "bases"},
-    {include = "orbitcloud_graviton/landing_site",from = "bases"},
-    {include = "orbitcloud_graviton/network",from = "bases"},
 ]
 
 [tool.poetry.dependencies]

@@ -73,7 +73,10 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
         values = {}
 
         for field_name, field in self.settings_cls.model_fields.items():
-            field_value, field_name, is_complex = self.get_field_value(field, field_name, pulumi_config_bag)
+            field_value, field_name, _ = self.get_field_value(
+                field=field, field_name=field_name, config_bag=pulumi_config_bag
+            )
+
             values.update({field_name: field_value})
 
         return values

@@ -1,3 +1,4 @@
+from ._p2s_vpn import P2sVpnGw, P2sVpnGwConfig
 from ._types import PrivateIPv4Network
 from ._vnet import SubnetConfig, Vnet, VnetConfig
 from ._vwan import VirtualWan, VirtualWanConfig
@@ -14,4 +15,6 @@ __all__ = [
     "Vnet",
     "VirtualWan",
     "VirtualWanConfig",
+    "P2sVpnGw",
+    "P2sVpnGwConfig",
 ]

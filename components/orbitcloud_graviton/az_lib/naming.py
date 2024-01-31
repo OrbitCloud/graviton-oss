@@ -49,6 +49,12 @@ RESOURCE_NAMING: Dict[str, Any] = {
     "pulumi_azure_native.network.virtual_hub": {
         "prefix": "vhub",
     },
+    "pulumi_azure_native.network.vpn_server_configuration": {
+        "prefix": "vpnconf",
+    },
+    "pulumi_azure_native.network.p2s_vpn_gateway": {
+        "prefix": "vpng",
+    },
 }
 
 LOCATION_ABBR: Dict[str, str] = {

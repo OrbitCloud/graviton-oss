@@ -65,7 +65,8 @@ class Vnet(ComponentResource):
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
         self.stack = get_azure_stack()
-        super().__init__("Graviton:az_network:Vnet", name=self.stack.workload_name, props=None, opts=opts)
+        super().__init__("Graviton:az_network:Vnet", name=f"vnet-{self.stack.workload_name}", props=None, opts=opts)
+        self._opts = pulumi.ResourceOptions.merge(pulumi.ResourceOptions(parent=self), opts)
 
         self.config = config
 
@@ -93,13 +94,7 @@ class Vnet(ComponentResource):
                     address_prefixes=[str(x) for x in self.config.address_space],
                 ),
             ),
-            opts=pulumi.ResourceOptions(
-                parent=self.stack.resource_group,
-                # Workaround as pulumi thinks the subnets are to be removed
-                # when they're not defined as a parameter to the vnet
-                # https://github.com/pulumi/pulumi-azure-native/issues/3049
-                ignore_changes=["subnets"],
-            ),
+            opts=self._opts._merge_instance(pulumi.ResourceOptions(ignore_changes=["subnets"])),
         )
 
     def _subnets(self) -> list[network.Subnet]:
@@ -119,15 +114,6 @@ class Vnet(ComponentResource):
             )
             for subnet in self.config.subnets
         ]
-
-    def _subnet_nsg(self, subnet: SubnetConfig) -> network.NetworkSecurityGroup:
-        return network.NetworkSecurityGroup(
-            resource_name=self.stack.name_for(network.NetworkSecurityGroup, subnet.name),
-            # args=network.NetworkSecurityGroupInitArgs,
-            opts=pulumi.ResourceOptions(
-                parent=self.stack.resource_group,
-            ),
-        )
 
     def _subnet_delegation(self, subnet: SubnetConfig) -> list[network.DelegationArgs] | None:
         return (

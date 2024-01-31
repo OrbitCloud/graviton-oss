@@ -22,7 +22,8 @@ class VirtualWan(ComponentResource):
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
         self.stack = get_azure_stack()
-        super().__init__("Graviton:az_network:Vwan", name=self.stack.workload_name, props=None, opts=opts)
+        super().__init__("Graviton:az_network:Vwan", name=f"vwan-{self.stack.workload_name}", props=None, opts=opts)
+        self._opts = pulumi.ResourceOptions.merge(pulumi.ResourceOptions(parent=self), opts)
 
         self.config = config
 
@@ -35,6 +36,10 @@ class VirtualWan(ComponentResource):
         self.outputs = {
             "resource_group_name": self.stack.resource_group.name,
             "resource_group_id": self.stack.resource_group.id,
+            # "vwan_id": self.vwan.id,
+            # "vhub_id": self.vhub.id,
+            # "vhub_name": self.vhub.name,
+            # "vwan_name": self.vwan.name,
         }
         self.register_outputs(self.outputs)
 
@@ -46,6 +51,7 @@ class VirtualWan(ComponentResource):
             allow_branch_to_branch_traffic=False,
             location=self.stack.location,
             resource_group_name=self.stack.resource_group.name,
+            opts=self._opts,
         )
 
     def _vhub(self):
@@ -58,5 +64,6 @@ class VirtualWan(ComponentResource):
             virtual_wan=network.SubResourceArgs(
                 id=self.vwan.id.apply(lambda id: f"{id}"),
             ),
+            opts=self._opts._merge_instance(pulumi.ResourceOptions(ignore_changes=["virtual_router_ips"])),
         )
         return virtual_hub

@@ -4,33 +4,17 @@ from uuid import UUID
 import pulumi
 from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
-from pydantic import BaseModel, ConfigDict, HttpUrl, field_validator
+from pydantic import BaseModel, ConfigDict, computed_field, field_validator
 
 from orbitcloud_graviton.pulumi_lib import get_azure_stack
 
 from ._types import PrivateIPv4Network
 
 
-class P2SVpnEntraAuthConfig(BaseModel):
-    entra_tenant: HttpUrl
-    entra_issuer: HttpUrl
-    entra_audience: UUID
-
-    @field_validator("entra_issuer")
-    def has_trailing_slash(cls, v: HttpUrl) -> HttpUrl:
-        if not str(v).endswith("/"):
-            raise ValueError("AAD Issuer must end with a trailing slash (Azure docs)")
-        return v
-
-
-class P2SVpnCertAuthConfig(BaseModel):
-    client_root_cert: str
-
-
 class P2sVpnGwConfig(BaseModel):
     client_address_pool: PrivateIPv4Network
-    entra_auth: Optional[P2SVpnEntraAuthConfig] = None
-    cert_auth: Optional[P2SVpnCertAuthConfig] = None
+    entra_auth: Optional[bool] = None
+    cert_auth_root_cert: Optional[str] = None
 
     # Add validation for either entra_auth or cert_auth
     @field_validator("entra_auth")
@@ -38,6 +22,27 @@ class P2sVpnGwConfig(BaseModel):
         if not v and not values.get("cert_auth"):
             raise ValueError("Either entra_auth or cert_auth must be set")
         return v
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+class P2SVpnAzureVPNConfig(BaseModel):
+    tenant_id: UUID
+    entra_audience: UUID = UUID("41b23e61-6c1e-4545-b367-cd054e0ed4b4")
+
+    def entra_tenant(self) -> str:
+        return f"https://login.microsoftonline.com/{self.tenant_id}"
+
+    def entra_issuer(self) -> str:
+        return f"https://sts.windows.net/{self.entra_tenant}/"
+
+    @computed_field
+    def entra_auth_args(self) -> network.AadAuthenticationParametersArgs:
+        return network.AadAuthenticationParametersArgs(
+            aad_tenant=str(self.entra_tenant()),
+            aad_issuer=str(self.entra_issuer()),
+            aad_audience=str(self.entra_audience),
+        )
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -79,7 +84,7 @@ class P2sVpnGw(ComponentResource):
             auth_types.append("AAD")
             auth_protocols.append("OpenVPN")
 
-        if self.config.cert_auth:
+        if self.config.cert_auth_root_cert:
             auth_types.append("Certificate")
             auth_protocols.append("IKEv2")
 
@@ -88,22 +93,19 @@ class P2sVpnGw(ComponentResource):
             vpn_server_configuration_name=self.stack.name_for(network.VpnServerConfiguration),
             location=self.stack.location,
             resource_group_name=self.stack.resource_group.name,
-            aad_authentication_parameters=network.AadAuthenticationParametersArgs(
-                aad_tenant=str(self.config.entra_auth.entra_tenant),
-                aad_issuer=str(self.config.entra_auth.entra_issuer),
-                aad_audience=str(self.config.entra_auth.entra_audience),
-            )
+            aad_authentication_parameters=P2SVpnAzureVPNConfig.model_validate(
+                {"tenant_id": self.stack.tenant_id}
+            ).entra_auth_args()
             if self.config.entra_auth
             else None,
             vpn_authentication_types=auth_types,
             vpn_protocols=auth_protocols,
             vpn_client_root_certificates=[
                 network.VpnServerConfigVpnClientRootCertificateArgs(
-                    name="p2s-vpngw-client-root-cert",
-                    public_cert_data=self.config.cert_auth.client_root_cert,
+                    name="p2s-vpngw-client-root-cert", public_cert_data=self.config.cert_auth_root_cert
                 )
             ]
-            if self.config.cert_auth
+            if self.config.cert_auth_root_cert
             else None,
             opts=self._opts,
         )
@@ -114,13 +116,9 @@ class P2sVpnGw(ComponentResource):
             gateway_name=self.stack.name_for(network.P2sVpnGateway),
             location=self.stack.location,
             resource_group_name=self.stack.resource_group.name,
-            virtual_hub=network.SubResourceArgs(
-                id=self._vhub.id.apply(lambda id: f"{id}"),
-            ),
+            virtual_hub=network.SubResourceArgs(id=self._vhub.id.apply(lambda id: f"{id}")),
             vpn_gateway_scale_unit=1,
-            vpn_server_configuration=network.SubResourceArgs(
-                id=self.server_config.id.apply(lambda id: f"{id}"),
-            ),
+            vpn_server_configuration=network.SubResourceArgs(id=self.server_config.id.apply(lambda id: f"{id}")),
             p2_s_connection_configurations=[
                 network.P2SConnectionConfigurationArgs(
                     enable_internet_security=True,

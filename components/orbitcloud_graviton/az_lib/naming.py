@@ -43,6 +43,12 @@ RESOURCE_NAMING: Dict[str, Any] = {
     "pulumi_azure_native.network.subnet": {
         "prefix": "snet",
     },
+    "pulumi_azure_native.network.virtual_wan": {
+        "prefix": "vwan",
+    },
+    "pulumi_azure_native.network.virtual_hub": {
+        "prefix": "vhub",
+    },
 }
 
 LOCATION_ABBR: Dict[str, str] = {

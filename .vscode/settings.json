@@ -20,31 +20,42 @@
   "python.analysis.packageIndexDepths": [
     {
       "name": "pulumi",
-      "depth": 3
+      "depth": 5
     },
     {
       "name": "pulumi_azure_native",
-      "depth": 4
+      "depth": 5
     },
     {
       "name": "pulumi_azuread",
-      "depth": 3
+      "depth": 5
+    },
+    {
+      "name": "pydantic",
+      "depth": 5
     }
   ],
   "terminal.integrated.profiles.osx": {
     "zsh": { "path": "/bin/zsh", "args": ["-l", "-i"] }
   },
+  "search.exclude": {
+    "**/.venv/**": true
+  },
+  "files.exclude": {
+    "**/*.pyc": true
+  },
   "files.insertFinalNewline": true,
+  "python.languageServer": "Pylance",
   "python.analysis.autoImportCompletions": true,
   "python.analysis.completeFunctionParens": true,
   "python.analysis.diagnosticMode": "workspace",
-  "python.analysis.extraPaths": ["bases", "components"],
   "python.analysis.indexing": true,
   "python.analysis.inlayHints.callArgumentNames": "partial",
   "python.analysis.inlayHints.functionReturnTypes": true,
   "python.analysis.inlayHints.pytestParameters": true,
   "python.analysis.inlayHints.variableTypes": true,
   "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.useLibraryCodeForTypes": true,
   "python.autoComplete.extraPaths": ["bases", "components"],
   "python.defaultInterpreterPath": ".venv/bin/python",
   "python.terminal.activateEnvInCurrentTerminal": true,
@@ -53,5 +64,6 @@
   "python.testing.pytestPath": ".venv/bin/pytest",
   "python.testing.unittestEnabled": false,
   "ruff.path": [".venv/bin/ruff"],
-  "ruff.lint.run": "onType"
+  "ruff.lint.run": "onType",
+  "python.analysis.extraPaths": ["bases", "components"]
 }

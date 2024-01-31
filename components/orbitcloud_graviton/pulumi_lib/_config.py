@@ -77,7 +77,10 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
                 field=field, field_name=field_name, config_bag=pulumi_config_bag
             )
 
-            values.update({field_name: field_value})
+            if field_value:
+                values.update({field_name: field_value})
+            else:
+                values.update({field_name: field.default})
 
         return values
 

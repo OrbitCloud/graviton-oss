@@ -15,5 +15,3 @@ template:
     env:
       description: Environment name
       default: dev
-    
-    

@@ -6,7 +6,7 @@ from orbitcloud_graviton.az_acr.registry import (
     az_containerregistry,
 )
 from orbitcloud_graviton.az_keyvault import az_keyvault
-from orbitcloud_graviton.az_network import VnetConfig
+from orbitcloud_graviton.az_network._vnet import VnetConfig
 from orbitcloud_graviton.az_resources import az_resource_group_from_config
 from orbitcloud_graviton.entra_app import deployment_oidc_app
 from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack, print_pulumi_esc_oidc_yaml

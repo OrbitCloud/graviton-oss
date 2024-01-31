@@ -1,6 +1,5 @@
-from ._schema import SubnetConfig, VnetConfig
 from ._types import PrivateIPv4Network
-from ._vnet import Vnet
+from ._vnet import SubnetConfig, Vnet, VnetConfig
 from .az_private_dns_zone_group import az_privatednszonegroup
 from .az_private_endpoint import PrivateEndpointConfig, az_private_endpoint
 

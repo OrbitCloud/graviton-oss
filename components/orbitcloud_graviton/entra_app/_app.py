@@ -33,12 +33,10 @@ def service_principal(
 
 
 def deployment_oidc_app(
-    workload_name: str,
-    pulumi_org: str,
-    subscription_id: str,
+    workload_name: str, pulumi_org: str, subscription_id: str, env: str
 ) -> tuple[Application, ServicePrincipal, ApplicationFederatedIdentityCredential]:
     entra_oidc_app: tuple[Application, ServicePrincipal, ApplicationFederatedIdentityCredential] = oidc_app(
-        app_name=f"pulumi-{workload_name}-deployments",
+        app_name=f"pulumi-{workload_name}-{env}-deployments",
         issuer="https://api.pulumi.com/oidc",
         audiences=[pulumi_org],
         description="Pulumi Deployment Credentials",

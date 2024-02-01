@@ -9,7 +9,7 @@ from orbitcloud_graviton.az_acr.registry import (
 )
 from orbitcloud_graviton.az_keyvault import KeyVaultConfig, key_vault
 from orbitcloud_graviton.entra_app import deployment_oidc_app
-from orbitcloud_graviton.pulumi_lib import PulumiConfig, get_azure_stack, print_pulumi_esc_oidc_yaml
+from orbitcloud_graviton.pulumi_lib import EntraBase, PulumiConfig, get_azure_stack, print_pulumi_esc_oidc_yaml
 
 
 class LandingZoneConfig(PulumiConfig):
@@ -22,6 +22,7 @@ class LandingZoneConfig(PulumiConfig):
 
 def deploy_landing_zone() -> None:
     config: LandingZoneConfig = LandingZoneConfig.model_validate({})
+    entra_config = EntraBase.model_validate({})
 
     print(config)
 
@@ -56,5 +57,8 @@ def deploy_landing_zone() -> None:
         workload_name=stack.workload_name,
         pulumi_org=pulumi.get_organization(),
         subscription_id=str(stack.subscription_id),
+        env=stack.env,
     )
-    pulumi.Output.all(esc_app.client_id, stack.tenant_id, stack.subscription_id).apply(func=print_pulumi_esc_oidc_yaml)
+    pulumi.Output.all(esc_app.client_id, entra_config.tenant_id, stack.subscription_id).apply(
+        func=print_pulumi_esc_oidc_yaml
+    )

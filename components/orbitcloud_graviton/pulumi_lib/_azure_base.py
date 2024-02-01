@@ -2,6 +2,7 @@ from functools import lru_cache
 from typing import Dict, Optional, Type
 from uuid import UUID
 
+import pulumi
 from pulumi_azure_native import resources
 from pydantic import Field
 from pydantic_settings import SettingsConfigDict
@@ -30,6 +31,8 @@ class AzureBase(PulumiConfig):
             return self._resource_group
 
         self._resource_group = resource_group(self)
+        pulumi.export("resource_group_id", self._resource_group.id)
+        pulumi.export("resource_group_name", self._resource_group.name)
         return self._resource_group
 
     def name_for(self, resource_type: Type, workload_name: Optional[str] = None) -> str:
@@ -46,3 +49,8 @@ class AzureBase(PulumiConfig):
 @lru_cache
 def get_azure_stack() -> AzureBase:
     return AzureBase.model_validate({})
+
+
+class EntraBase(PulumiConfig):
+    tenant_id: UUID = Field(..., alias="azuread:tenantId")
+    model_config = SettingsConfigDict(populate_by_name=True)

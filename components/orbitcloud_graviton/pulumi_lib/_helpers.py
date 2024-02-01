@@ -11,9 +11,9 @@ def print_pulumi_esc_oidc_yaml(args: List[Any]):
             "azure": {
                 "login": {
                     "fn::open::azure-login": {
-                        "clientId": client_id,
-                        "tenantId": tenant_id,
-                        "subscriptionId": subscription_id,
+                        "clientId": str(client_id),
+                        "tenantId": str(tenant_id),
+                        "subscriptionId": str(subscription_id),
                         "oidc": True,
                     }
                 }
@@ -25,13 +25,11 @@ def print_pulumi_esc_oidc_yaml(args: List[Any]):
                 "ARM_OIDC_TOKEN": "${azure.login.oidc.token}",
                 "ARM_SUBSCRIPTION_ID": "${azure.login.subscriptionId}",
             },
-            "pulumniConfig": {
-                "azure-native": {
-                    "location": "northeurope",
-                    "tenantId": "${azure.login.tenantId}",
-                    "subscriptionId": "${azure.login.subscriptionId}",
-                },
-                "azuread": {"tenantId": "${azure.login.tenantId}"},
+            "pulumiConfig": {
+                "azure-native:location": "northeurope",
+                "azure-native:tenantId": "${azure.login.tenantId}",
+                "azure-native:subscriptionId": "${azure.login.subscriptionId}",
+                "azuread:tenantId": "${azure.login.tenantId}",
             },
         }
     }

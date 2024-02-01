@@ -23,6 +23,7 @@ RESOURCE_NAMING: Dict[str, Any] = {
     },
     "pulumi_azure_native.keyvault.vault": {
         "prefix": "kv",
+        "alphanumeric": True,
         "max_length": 24,
     },
     "pulumi_azure_native.storage.storage_account": {
@@ -42,6 +43,21 @@ RESOURCE_NAMING: Dict[str, Any] = {
     },
     "pulumi_azure_native.network.subnet": {
         "prefix": "snet",
+    },
+    "pulumi_azure_native.network.virtual_wan": {
+        "prefix": "vwan",
+    },
+    "pulumi_azure_native.network.virtual_hub": {
+        "prefix": "vhub",
+    },
+    "pulumi_azure_native.network.vpn_server_configuration": {
+        "prefix": "vpnconf",
+    },
+    "pulumi_azure_native.network.p2s_vpn_gateway": {
+        "prefix": "vpng",
+    },
+    "pulumi_azure_native.network.hub_virtual_network_connection": {
+        "prefix": "vhubc",
     },
 }
 

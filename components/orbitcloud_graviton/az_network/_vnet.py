@@ -65,7 +65,7 @@ class Vnet(ComponentResource):
         config: VnetConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
-        self.stack = stack
+        self.stack: AzureBase = stack
         super().__init__("Graviton:az_network:Vnet", name=f"vnet-{self.stack.workload_name}", props=None, opts=opts)
         self._opts = pulumi.ResourceOptions.merge(pulumi.ResourceOptions(parent=self), opts)
 
@@ -75,29 +75,6 @@ class Vnet(ComponentResource):
         self.subnets = self._subnets()
 
         self._outputs()
-
-    def _outputs(self) -> None:
-        self.register_outputs(
-            {
-                "vnet": self.vnet,
-                "subnets": self.subnets,
-            }
-        )
-
-        pulumi.export("vnet_id", self.vnet.id)
-        pulumi.export(
-            "subnets",
-            self.vnet.subnets.apply(
-                lambda args: {
-                    f"{subnet.name}": {
-                        "name": subnet.name,
-                        "id": subnet.id,
-                        "address_prefix": subnet.address_prefix,
-                    }
-                    for subnet in args
-                }
-            ),
-        )
 
     def _vnet(self) -> network.VirtualNetwork:
         return network.VirtualNetwork(
@@ -182,3 +159,26 @@ class Vnet(ComponentResource):
             opts=self._opts._merge_instance(pulumi.ResourceOptions(parent=self.vnet)),
         )
         return hub_virtual_network_connection
+
+    def _outputs(self) -> None:
+        self.register_outputs(
+            {
+                "vnet": self.vnet,
+                "subnets": self.subnets,
+            }
+        )
+
+        pulumi.export("vnet_id", self.vnet.id)
+        pulumi.export(
+            "subnets",
+            self.vnet.subnets.apply(
+                lambda args: {
+                    f"{subnet.name}": {
+                        "name": subnet.name,
+                        "id": subnet.id,
+                        "address_prefix": subnet.address_prefix,
+                    }
+                    for subnet in args
+                }
+            ),
+        )

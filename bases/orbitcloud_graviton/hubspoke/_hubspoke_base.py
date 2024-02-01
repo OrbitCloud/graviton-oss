@@ -8,7 +8,7 @@ from orbitcloud_graviton.az_network import (
     Vnet,
     VnetConfig,
 )
-from orbitcloud_graviton.pulumi_lib import PulumiConfig, get_azure_stack
+from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
 
 
 class NetworkBaseConfig(PulumiConfig):
@@ -18,9 +18,9 @@ class NetworkBaseConfig(PulumiConfig):
 
 
 def deploy_hub_spoke():
-    config = NetworkBaseConfig.model_validate({})
+    config: NetworkBaseConfig = NetworkBaseConfig.model_validate({})
 
-    stack = get_azure_stack()
+    stack: AzureBase = get_azure_stack()
 
     vnet = Vnet(
         stack=stack,
@@ -28,8 +28,15 @@ def deploy_hub_spoke():
     )
 
     if config.vwan:
-        vwan = VirtualWan(config.vwan)
+        vwan = VirtualWan(
+            stack=stack,
+            config=config.vwan,
+        )
         vnet.vhub_connection(vwan.vhub)
 
         if config.p2s_vpn:
-            P2sVpnGw(config.p2s_vpn, vwan.vhub)
+            P2sVpnGw(
+                stack=stack,
+                config=config.p2s_vpn,
+                vhub=vwan.vhub,
+            )

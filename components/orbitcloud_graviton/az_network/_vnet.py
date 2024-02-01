@@ -6,7 +6,7 @@ from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict, model_validator
 
 from orbitcloud_graviton.az_network._types import PrivateIPv4Network
-from orbitcloud_graviton.pulumi_lib import get_azure_stack
+from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
 class SubnetConfig(BaseModel):
@@ -61,10 +61,11 @@ class VnetConfig(BaseModel):
 class Vnet(ComponentResource):
     def __init__(
         self,
+        stack: AzureBase,
         config: VnetConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
-        self.stack = get_azure_stack()
+        self.stack = stack
         super().__init__("Graviton:az_network:Vnet", name=f"vnet-{self.stack.workload_name}", props=None, opts=opts)
         self._opts = pulumi.ResourceOptions.merge(pulumi.ResourceOptions(parent=self), opts)
 
@@ -76,13 +77,27 @@ class Vnet(ComponentResource):
         self._outputs()
 
     def _outputs(self) -> None:
-        self.outputs = {
-            "resource_group_name": self.stack.resource_group.name,
-            "resource_group_id": self.stack.resource_group.id,
-            "vnet": self.vnet,
-            "subnets": self.subnets,
-        }
-        self.register_outputs(self.outputs)
+        self.register_outputs(
+            {
+                "vnet": self.vnet,
+                "subnets": self.subnets,
+            }
+        )
+
+        pulumi.export("vnet_id", self.vnet.id)
+        pulumi.export(
+            "subnets",
+            self.vnet.subnets.apply(
+                lambda args: {
+                    f"{subnet.name}": {
+                        "name": subnet.name,
+                        "id": subnet.id,
+                        "address_prefix": subnet.address_prefix,
+                    }
+                    for subnet in args
+                }
+            ),
+        )
 
     def _vnet(self) -> network.VirtualNetwork:
         return network.VirtualNetwork(
@@ -94,7 +109,9 @@ class Vnet(ComponentResource):
                     address_prefixes=[str(x) for x in self.config.address_space],
                 ),
             ),
-            opts=self._opts._merge_instance(pulumi.ResourceOptions(ignore_changes=["subnets"])),
+            opts=self._opts._merge_instance(
+                pulumi.ResourceOptions(ignore_changes=["subnets", "virtual_network_peerings"])
+            ),
         )
 
     def _subnets(self) -> list[network.Subnet]:
@@ -128,3 +145,40 @@ class Vnet(ComponentResource):
             if subnet.delegation
             else None
         )
+
+    def vhub_connection(
+        self,
+        virtual_hub: network.VirtualHub,
+    ) -> network.HubVirtualNetworkConnection:
+        """Creates a Virtual Network Connection in virtual hub"""
+        hub_virtual_network_connection = network.HubVirtualNetworkConnection(
+            self.stack.name_for(network.HubVirtualNetworkConnection, workload_name=f"vnet-{self.stack.workload_name}"),
+            resource_group_name=self.stack.resource_group.name,
+            enable_internet_security=True,
+            remote_virtual_network=network.SubResourceArgs(
+                id=self.vnet.id.apply(lambda id: f"{id}"),
+            ),
+            virtual_hub_name=virtual_hub.name,
+            allow_hub_to_remote_vnet_transit=True,
+            allow_remote_vnet_to_use_hub_vnet_gateways=True,
+            # routing_configuration=network.RoutingConfigurationArgs(
+            #     associated_route_table=network.SubResourceArgs(
+            #         id=network.get_virtual_hub_route_table_v2(
+            #             resource_group_name=rg.name,
+            #             virtual_hub_name=vhub.name,
+            #             route_table_name="defaultRouteTable",
+            #         ).id,
+            #     ),
+            # ),
+            # propagated_route_tables={
+            #     "ids": [network.SubResourceArgs(
+            #         id=network.get_virtual_hub_route_table_v2(
+            #             resource_group_name=rg.name,
+            #             virtual_hub_name=vhub.name,
+            #             route_table_name="defaultRouteTable",
+            #         ).id,
+            #     )],
+            # },
+            opts=self._opts._merge_instance(pulumi.ResourceOptions(parent=self.vnet)),
+        )
+        return hub_virtual_network_connection

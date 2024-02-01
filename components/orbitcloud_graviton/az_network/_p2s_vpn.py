@@ -1,10 +1,9 @@
 from typing import Optional
-from uuid import UUID
 
 import pulumi
 from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
-from pydantic import BaseModel, ConfigDict, computed_field, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from orbitcloud_graviton.pulumi_lib import get_azure_stack
 
@@ -13,7 +12,7 @@ from ._types import PrivateIPv4Network
 
 class P2sVpnGwConfig(BaseModel):
     client_address_pool: PrivateIPv4Network
-    entra_auth: Optional[bool] = None
+    entra_auth: Optional[bool] = True
     cert_auth_root_cert: Optional[str] = None
 
     # Add validation for either entra_auth or cert_auth
@@ -22,27 +21,6 @@ class P2sVpnGwConfig(BaseModel):
         if not v and not values.get("cert_auth"):
             raise ValueError("Either entra_auth or cert_auth must be set")
         return v
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-
-class P2SVpnAzureVPNConfig(BaseModel):
-    tenant_id: UUID
-    entra_audience: UUID = UUID("41b23e61-6c1e-4545-b367-cd054e0ed4b4")
-
-    def entra_tenant(self) -> str:
-        return f"https://login.microsoftonline.com/{self.tenant_id}"
-
-    def entra_issuer(self) -> str:
-        return f"https://sts.windows.net/{self.entra_tenant}/"
-
-    @computed_field
-    def entra_auth_args(self) -> network.AadAuthenticationParametersArgs:
-        return network.AadAuthenticationParametersArgs(
-            aad_tenant=str(self.entra_tenant()),
-            aad_issuer=str(self.entra_issuer()),
-            aad_audience=str(self.entra_audience),
-        )
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -68,14 +46,6 @@ class P2sVpnGw(ComponentResource):
 
         self._outputs()
 
-    def _outputs(self) -> None:
-        self.outputs = {
-            "resource_group_name": self.stack.resource_group.name,
-            "resource_group_id": self.stack.resource_group.id,
-            "p2s_vpngw_id": self.p2s_vpngw.id,
-        }
-        self.register_outputs(self.outputs)
-
     def _server_config(self) -> network.VpnServerConfiguration:
         auth_types = []
         auth_protocols = []
@@ -93,9 +63,11 @@ class P2sVpnGw(ComponentResource):
             vpn_server_configuration_name=self.stack.name_for(network.VpnServerConfiguration),
             location=self.stack.location,
             resource_group_name=self.stack.resource_group.name,
-            aad_authentication_parameters=P2SVpnAzureVPNConfig.model_validate(
-                {"tenant_id": self.stack.tenant_id}
-            ).entra_auth_args()
+            aad_authentication_parameters=network.AadAuthenticationParametersArgs(
+                aad_tenant=f"https://login.microsoftonline.com/{self.stack.tenant_id}",
+                aad_issuer=f"https://sts.windows.net/{self.stack.tenant_id}/",
+                aad_audience="41b23e61-6c1e-4545-b367-cd054e0ed4b4",
+            )
             if self.config.entra_auth
             else None,
             vpn_authentication_types=auth_types,
@@ -130,3 +102,12 @@ class P2sVpnGw(ComponentResource):
             ],
             opts=self._opts,
         )
+
+    def _outputs(self) -> None:
+        self.outputs = {
+            "p2s_vpngw": self.p2s_vpngw,
+            "p2s_vpngw_config": self.server_config,
+            "p2s_vpngw_client_address_pool": str(self.config.client_address_pool),
+        }
+        pulumi.export("p2s_vpngw_id", self.p2s_vpngw.id)
+        self.register_outputs(self.outputs)

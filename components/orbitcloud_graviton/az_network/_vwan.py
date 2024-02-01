@@ -5,7 +5,7 @@ from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict
 
-from orbitcloud_graviton.pulumi_lib import get_azure_stack
+from orbitcloud_graviton.pulumi_lib import AzureBase
 
 from ._types import PrivateIPv4Network
 
@@ -18,10 +18,11 @@ class VirtualWanConfig(BaseModel):
 class VirtualWan(ComponentResource):
     def __init__(
         self,
+        stack: AzureBase,
         config: VirtualWanConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
-        self.stack = get_azure_stack()
+        self.stack: AzureBase = stack
         super().__init__("Graviton:az_network:Vwan", name=f"vwan-{self.stack.workload_name}", props=None, opts=opts)
         self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(pulumi.ResourceOptions(parent=self), opts)
 

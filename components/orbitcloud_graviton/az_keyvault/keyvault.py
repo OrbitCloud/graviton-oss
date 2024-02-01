@@ -18,7 +18,6 @@ def key_vault(
 ) -> keyvault.Vault:
     vault = keyvault.Vault(
         resource_name=stack.name_for(keyvault.Vault),
-        # vault_name=stack.name_for(keyvault.Vault),
         resource_group_name=stack.resource_group.name,
         location=stack.location,
         properties=keyvault.VaultPropertiesArgs(

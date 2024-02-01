@@ -29,9 +29,6 @@ def deploy_landing_zone() -> None:
     # Get Azure Stack and export resource group
     stack = get_azure_stack()
 
-    pulumi.export("resource_group_id", stack.resource_group.id)
-    pulumi.export("resource_group_name", stack.resource_group.name)
-
     # Container Registry
     if config.has_containerregistry and config.containerregistry:
         az_cr: containerregistry.Registry = container_registry(

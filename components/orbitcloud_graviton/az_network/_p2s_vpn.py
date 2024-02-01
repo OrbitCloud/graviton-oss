@@ -5,7 +5,7 @@ from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from orbitcloud_graviton.pulumi_lib import get_azure_stack
+from orbitcloud_graviton.pulumi_lib import AzureBase
 
 from ._types import PrivateIPv4Network
 
@@ -15,7 +15,6 @@ class P2sVpnGwConfig(BaseModel):
     entra_auth: Optional[bool] = True
     cert_auth_root_cert: Optional[str] = None
 
-    # Add validation for either entra_auth or cert_auth
     @field_validator("entra_auth")
     def validate_auth(cls, v, values):
         if not v and not values.get("cert_auth"):
@@ -28,21 +27,22 @@ class P2sVpnGwConfig(BaseModel):
 class P2sVpnGw(ComponentResource):
     def __init__(
         self,
+        stack: AzureBase,
         config: P2sVpnGwConfig,
         vhub: network.VirtualHub,
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
-        self.stack = get_azure_stack()
+        self.stack: AzureBase = stack
         super().__init__(
             "Graviton:az_network:P2sVpnGw", name=f"vpngw-{self.stack.workload_name}", props=None, opts=opts
         )
         self._opts = pulumi.ResourceOptions.merge(pulumi.ResourceOptions(parent=self), opts)
 
-        self.config = config
-        self._vhub = vhub
+        self.config: P2sVpnGwConfig = config
+        self._vhub: network.VirtualHub = vhub
 
-        self.server_config = self._server_config()
-        self.p2s_vpngw = self._p2s_vpngw()
+        self.server_config: network.VpnServerConfiguration = self._server_config()
+        self.p2s_vpngw: network.P2sVpnGateway = self._p2s_vpngw()
 
         self._outputs()
 

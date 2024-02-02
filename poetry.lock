@@ -50,20 +50,20 @@ tests-no-zope = ["attrs[tests-mypy]", "cloudpickle", "hypothesis", "pympler", "p
 
 [[package]]
 name = "beartype"
-version = "0.16.4"
+version = "0.17.0"
 description = "Unbearably fast runtime type checking in pure Python."
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "beartype-0.16.4-py3-none-any.whl", hash = "sha256:64865952f9dff1e17f22684b3c7286fc79754553b47eaefeb1286224ae8c1bd9"},
-    {file = "beartype-0.16.4.tar.gz", hash = "sha256:1ada89cf2d6eb30eb6e156eed2eb5493357782937910d74380918e53c2eae0bf"},
+    {file = "beartype-0.17.0-py3-none-any.whl", hash = "sha256:fa84b77a8d037f2a39c4aa2f3dc71854afc7d79312e55a66b338da68fdd48c60"},
+    {file = "beartype-0.17.0.tar.gz", hash = "sha256:3226fbba8c53b4e698acdb47dcaf3c0640151c4d405618c281e6631f4112947d"},
 ]
 
 [package.extras]
 all = ["typing-extensions (>=3.10.0.0)"]
-dev = ["autoapi (>=0.9.0)", "coverage (>=5.5)", "mypy (>=0.800)", "numpy", "pandera", "pydata-sphinx-theme (<=0.7.2)", "pytest (>=4.0.0)", "sphinx", "sphinx (>=4.2.0,<6.0.0)", "sphinxext-opengraph (>=0.7.5)", "tox (>=3.20.1)", "typing-extensions (>=3.10.0.0)"]
+dev = ["autoapi (>=0.9.0)", "coverage (>=5.5)", "equinox", "mypy (>=0.800)", "numpy", "pandera", "pydata-sphinx-theme (<=0.7.2)", "pytest (>=4.0.0)", "sphinx", "sphinx (>=4.2.0,<6.0.0)", "sphinxext-opengraph (>=0.7.5)", "torch", "tox (>=3.20.1)", "typing-extensions (>=3.10.0.0)"]
 doc-rtd = ["autoapi (>=0.9.0)", "pydata-sphinx-theme (<=0.7.2)", "sphinx (>=4.2.0,<6.0.0)", "sphinxext-opengraph (>=0.7.5)"]
-test-tox = ["mypy (>=0.800)", "numpy", "pandera", "pytest (>=4.0.0)", "sphinx", "typing-extensions (>=3.10.0.0)"]
+test-tox = ["equinox", "mypy (>=0.800)", "numpy", "pandera", "pytest (>=4.0.0)", "sphinx", "torch", "typing-extensions (>=3.10.0.0)"]
 test-tox-coverage = ["coverage (>=5.5)"]
 
 [[package]]
@@ -1077,4 +1077,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "8aff4ecd068dd97f5f4d832b6d02b87c5563aa62408732377f97c014cda51795"
+content-hash = "4d35e72cfbbd50df7f994e323b2e60c89e755d734e7b6d713f3d0a0f8401cca9"

@@ -66,10 +66,15 @@ class Vnet(ComponentResource):
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
         self.stack: AzureBase = stack
-        super().__init__("Graviton:az_network:Vnet", name=f"vnet-{self.stack.workload_name}", props=None, opts=opts)
-        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(parent=self))
-
         self.config = config
+
+        super().__init__(
+            "Graviton:az_network:Vnet",
+            name=f"vnet-{self.stack.workload_name}",
+            props=None,
+            opts=opts,
+        )
+        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(parent=self))
 
         self.vnet = self._vnet()
         self.subnets = self._subnets()

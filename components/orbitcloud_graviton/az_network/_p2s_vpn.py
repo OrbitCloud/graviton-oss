@@ -33,14 +33,14 @@ class P2sVpnGw(ComponentResource):
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
         self.stack: AzureBase = stack
+        self.config: P2sVpnGwConfig = config
+
         super().__init__(
             "Graviton:az_network:P2sVpnGw", name=f"vpngw-{self.stack.workload_name}", props=None, opts=opts
         )
         self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(parent=self))
 
-        self.config: P2sVpnGwConfig = config
         self._vhub: network.VirtualHub = vhub
-
         self.server_config: network.VpnServerConfiguration = self._server_config()
         self.p2s_vpngw: network.P2sVpnGateway = self._p2s_vpngw()
 

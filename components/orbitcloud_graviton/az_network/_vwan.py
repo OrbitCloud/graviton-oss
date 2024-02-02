@@ -23,10 +23,18 @@ class VirtualWan(ComponentResource):
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
         self.stack: AzureBase = stack
-        super().__init__("Graviton:az_network:Vwan", name=f"vwan-{self.stack.workload_name}", props=None, opts=opts)
-        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(parent=self))
-
         self.config: VirtualWanConfig = config
+
+        super().__init__(
+            "Graviton:az_network:Vwan",
+            name=f"vwan-{self.stack.workload_name}",
+            props=None,
+            opts=opts,
+        )
+        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
+            opts,
+            pulumi.ResourceOptions(parent=self),
+        )
 
         self.vwan: network.VirtualWan = self._vwan()
         self.vhub: network.VirtualHub = self._vhub()
@@ -55,7 +63,12 @@ class VirtualWan(ComponentResource):
                 id=self.vwan.id.apply(lambda id: f"{id}"),
             ),
             opts=self._opts._merge_instance(
-                pulumi.ResourceOptions(ignore_changes=["virtual_router_ips", "p2_s_vpn_gateway"])
+                pulumi.ResourceOptions(
+                    ignore_changes=[
+                        "virtual_router_ips",
+                        "p2_s_vpn_gateway",
+                    ]
+                )
             ),
         )
         return virtual_hub

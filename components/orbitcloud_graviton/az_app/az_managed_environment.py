@@ -157,8 +157,8 @@ def managed_environment_deploy() -> None:
     print(config)
 
     # Resource Group
-    az_rg: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult = az_resource_group_from_config(
-        config=config
+    az_rg: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult = (
+        az_resource_group_from_config(config=config)
     )
 
     pulumi.export("resource_group_name", az_rg.name)

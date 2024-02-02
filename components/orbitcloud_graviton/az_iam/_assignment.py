@@ -18,7 +18,11 @@ def role_assignment(
         "role-"
         + principal_name
         + "-"
-        + ((principal.translate_input_property("urn") + scope + role_definition_id).encode("utf-8").hex()[:5])
+        + (
+            (principal.translate_input_property("urn") + scope + role_definition_id)
+            .encode("utf-8")
+            .hex()[:5]
+        )
     )
 
     return authorization.RoleAssignment(

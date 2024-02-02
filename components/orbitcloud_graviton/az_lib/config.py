@@ -133,7 +133,11 @@ class Confy:
     # Returns the same type as the dataclass_type
     def populate(self) -> Any:
         for dcfield in fields(self.dataclass_obj):
-            config_instance = self.pulumi_azure_config if self.is_azure_native(dcfield.type) else self.pulumi_config
+            config_instance = (
+                self.pulumi_azure_config
+                if self.is_azure_native(dcfield.type)
+                else self.pulumi_config
+            )
 
             getter_func = self.config_getter_func(
                 dcfield=dcfield,

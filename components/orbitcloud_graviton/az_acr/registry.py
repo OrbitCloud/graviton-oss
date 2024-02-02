@@ -8,7 +8,9 @@ from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
 class ContainerRegistryConfig(BaseModel):
-    public_network_access: containerregistry.PublicNetworkAccess = containerregistry.PublicNetworkAccess.DISABLED
+    public_network_access: containerregistry.PublicNetworkAccess = (
+        containerregistry.PublicNetworkAccess.DISABLED
+    )
     ip_allow_list: Optional[List[str]] = Field(..., default_factory=list)
     admin_user_enabled: Optional[bool] = False
 

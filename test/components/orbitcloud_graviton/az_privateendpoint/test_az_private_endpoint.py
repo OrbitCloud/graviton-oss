@@ -68,7 +68,9 @@ def test_az_private_endpoint(pulumi_projects_mock, private_endpoint_config, mock
         pulumi_projects_mock["tags"],
     )
 
-    resource_group = az_resource_group(workload_name=workload_name, env=env, location=location, tags=tags)
+    resource_group = az_resource_group(
+        workload_name=workload_name, env=env, location=location, tags=tags
+    )
 
     private_endpoint = az_private_endpoint(
         resource=mock_resource,

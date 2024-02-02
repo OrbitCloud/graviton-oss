@@ -54,8 +54,8 @@ exclude = ["**/__pycache__", "**/.pytest_cache", "**/.*", "**/.git", ".venv/*"]
 venvPath = ".venv"
 
 [tool.ruff]
-line-length = 120
-select = [
+line-length = 100
+lint.select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # pyflakes
@@ -64,7 +64,7 @@ select = [
     "UP", # pyupgrade
     "I",  # isort
 ]
-ignore = [
+lint.ignore = [
     "E501", # line too long, handled by black
     "B008", # do not perform function calls in argument defaults
     "C901", # too complex

@@ -37,7 +37,9 @@ def test_az_logworkspace(request):
         config.get("tags"),
     )
 
-    resource_group = az_resource_group(workload_name=workload_name, env=env, location=location, tags=tags)
+    resource_group = az_resource_group(
+        workload_name=workload_name, env=env, location=location, tags=tags
+    )
 
     log_workspace = az_logworkspace(
         workload_name=workload_name,

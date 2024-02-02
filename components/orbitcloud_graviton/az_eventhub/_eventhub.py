@@ -43,7 +43,9 @@ class EventHub(ComponentResource):
             props=None,
             opts=opts,
         )
-        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(parent=self))
+        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
+            opts, pulumi.ResourceOptions(parent=self)
+        )
 
         self.namespace: eventhub.Namespace = self._namespace()
         self.hubs: List[eventhub.EventHub] = self._eventhubs()
@@ -56,7 +58,9 @@ class EventHub(ComponentResource):
             resource_group_name=self.stack.resource_group.name,
             location=self.stack.location,
             disable_local_auth=self.config.disable_local_auth,
-            identity=eventhub.IdentityArgs(type=eventhub.ManagedServiceIdentityType.SYSTEM_ASSIGNED),
+            identity=eventhub.IdentityArgs(
+                type=eventhub.ManagedServiceIdentityType.SYSTEM_ASSIGNED
+            ),
             is_auto_inflate_enabled=False,
             kafka_enabled=True,
             minimum_tls_version=eventhub.TlsVersion.TLS_VERSION_1_2,

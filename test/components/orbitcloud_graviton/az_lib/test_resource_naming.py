@@ -31,11 +31,21 @@ def test_location_abbr() -> None:
 
 
 def test_resource_namer() -> None:
-    assert resource_namer(resources.ResourceGroup, "test", "dev", "westeurope") == "rg-test-dev-weu-01"
-    assert resource_namer(resources.ResourceGroup, "test", "dev", "swedencentral", "02") == "rg-test-dev-sec-02"
-    assert resource_namer(operationalinsights.Workspace, "test", "dev", "northeurope") == "log-test-dev-neu-01"
+    assert (
+        resource_namer(resources.ResourceGroup, "test", "dev", "westeurope") == "rg-test-dev-weu-01"
+    )
+    assert (
+        resource_namer(resources.ResourceGroup, "test", "dev", "swedencentral", "02")
+        == "rg-test-dev-sec-02"
+    )
+    assert (
+        resource_namer(operationalinsights.Workspace, "test", "dev", "northeurope")
+        == "log-test-dev-neu-01"
+    )
 
-    assert resource_namer(containerregistry.Registry, "test", "dev", "westeurope") == "CrTestDevWeu01"
+    assert (
+        resource_namer(containerregistry.Registry, "test", "dev", "westeurope") == "CrTestDevWeu01"
+    )
     assert resource_namer(storage.StorageAccount, "test", "dev", "westeurope") == "sttestdevweu01"
     assert resource_namer(keyvault.Vault, "test", "dev", "westeurope") == "KvTestDevWeu01"
 

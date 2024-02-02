@@ -31,7 +31,9 @@ def az_logworkspace(
     Returns:
         operationalinsights.Workspace: The created workspace
     """
-    workspace_name = resource_namer(operationalinsights.Workspace, workload_name, env, location=location)
+    workspace_name = resource_namer(
+        operationalinsights.Workspace, workload_name, env, location=location
+    )
 
     if tags is None:
         tags = {}

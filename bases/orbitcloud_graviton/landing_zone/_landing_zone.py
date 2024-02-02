@@ -10,7 +10,12 @@ from orbitcloud_graviton.az_acr.registry import (
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
 from orbitcloud_graviton.az_keyvault import KeyVaultConfig, key_vault
 from orbitcloud_graviton.entra_app import deployment_oidc_app
-from orbitcloud_graviton.pulumi_lib import EntraBase, PulumiConfig, get_azure_stack, print_pulumi_esc_oidc_yaml
+from orbitcloud_graviton.pulumi_lib import (
+    EntraBase,
+    PulumiConfig,
+    get_azure_stack,
+    print_pulumi_esc_oidc_yaml,
+)
 
 
 class LandingZoneConfig(PulumiConfig):

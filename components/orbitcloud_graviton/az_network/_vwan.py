@@ -24,7 +24,7 @@ class VirtualWan(ComponentResource):
     ):
         self.stack: AzureBase = stack
         super().__init__("Graviton:az_network:Vwan", name=f"vwan-{self.stack.workload_name}", props=None, opts=opts)
-        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(pulumi.ResourceOptions(parent=self), opts)
+        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(parent=self))
 
         self.config: VirtualWanConfig = config
 

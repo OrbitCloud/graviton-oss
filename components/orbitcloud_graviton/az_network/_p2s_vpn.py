@@ -36,7 +36,7 @@ class P2sVpnGw(ComponentResource):
         super().__init__(
             "Graviton:az_network:P2sVpnGw", name=f"vpngw-{self.stack.workload_name}", props=None, opts=opts
         )
-        self._opts = pulumi.ResourceOptions.merge(pulumi.ResourceOptions(parent=self), opts)
+        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(parent=self))
 
         self.config: P2sVpnGwConfig = config
         self._vhub: network.VirtualHub = vhub

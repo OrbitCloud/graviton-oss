@@ -36,12 +36,12 @@ class EventHub(ComponentResource):
     ):
         self.stack: AzureBase = stack
         super().__init__("Graviton:az_eventhub:EventHub", name=f"evh-{self.stack.workload_name}", props=None, opts=opts)
-        self._opts = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(parent=self))
+        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(parent=self))
 
-        self.config = config
+        self.config: NamespaceConfig = config
 
-        self.namespace = self._namespace()
-        self.hubs = self._eventhubs()
+        self.namespace: eventhub.Namespace = self._namespace()
+        self.hubs: List[eventhub.EventHub] = self._eventhubs()
 
         self._outputs()
 

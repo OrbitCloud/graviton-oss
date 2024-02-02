@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "orbitcloud-graviton"
-version = "0.16.0"
+version = "0.17.0"
 description = ""
 authors = ["Orbit Team <admin@orbit.is>"]
 license = "MIT"
@@ -62,7 +62,7 @@ extend-exclude = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.16.0"
+version = "0.17.0"
 tag_format = "v$version"
 version_files = [
     "VERSION",

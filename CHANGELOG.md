@@ -1,3 +1,13 @@
+## v0.17.0 (2024-02-02)
+
+### Feat
+
+- initial storageaccount, privateendpoint, privatednszonegroup #30 #19 #25
+
+### Refactor
+
+- **resource_namer**: Minor improvement and added test for storage account naming
+
 ## v0.16.0 (2024-01-10)
 
 ### Feat

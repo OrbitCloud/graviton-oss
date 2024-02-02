@@ -26,7 +26,7 @@ packages = [
 python = "^3.10"
 pulumi = "^3.104"
 pulumi-azure-native = "^2.27"
-beartype = "^0.16.4"
+beartype = "^0.17.0"
 
 
 [tool.poetry.group.dev.dependencies]

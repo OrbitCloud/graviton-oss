@@ -7,6 +7,7 @@ from orbitcloud_graviton.az_acr.registry import (
     ContainerRegistryConfig,
     container_registry,
 )
+from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
 from orbitcloud_graviton.az_keyvault import KeyVaultConfig, key_vault
 from orbitcloud_graviton.entra_app import deployment_oidc_app
 from orbitcloud_graviton.pulumi_lib import EntraBase, PulumiConfig, get_azure_stack, print_pulumi_esc_oidc_yaml
@@ -15,6 +16,7 @@ from orbitcloud_graviton.pulumi_lib import EntraBase, PulumiConfig, get_azure_st
 class LandingZoneConfig(PulumiConfig):
     containerregistry: Optional[ContainerRegistryConfig] = ContainerRegistryConfig()
     keyvault: Optional[KeyVaultConfig] = KeyVaultConfig()
+    eventhub: Optional[NamespaceConfig]
 
     has_keyvault: Optional[bool] = True
     has_containerregistry: Optional[bool] = True
@@ -23,8 +25,6 @@ class LandingZoneConfig(PulumiConfig):
 def deploy_landing_zone() -> None:
     config: LandingZoneConfig = LandingZoneConfig.model_validate({})
     entra_config = EntraBase.model_validate({})
-
-    print(config)
 
     # Get Azure Stack and export resource group
     stack = get_azure_stack()
@@ -48,6 +48,14 @@ def deploy_landing_zone() -> None:
         )
         pulumi.export("keyvault_name", az_kv.name)
         pulumi.export("keyvault_id", az_kv.id)
+
+    if config.eventhub:
+        # Event Hub
+        EventHub(
+            stack=stack,
+            config=config.eventhub,
+            opts=pulumi.ResourceOptions(parent=stack.resource_group),
+        )
 
     # Pulumi Deployments Entra App - OIDC
     esc_app, _, _ = deployment_oidc_app(

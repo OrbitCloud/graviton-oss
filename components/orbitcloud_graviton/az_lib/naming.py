@@ -59,6 +59,8 @@ RESOURCE_NAMING: Dict[str, Any] = {
     "pulumi_azure_native.network.hub_virtual_network_connection": {
         "prefix": "vhubc",
     },
+    "pulumi_azure_native.eventhub.namespace": {"prefix": "evhns"},
+    "pulumi_azure_native.eventhub.event_hub": {"prefix": "evh"},
 }
 
 LOCATION_ABBR: Dict[str, str] = {

@@ -61,6 +61,8 @@ jobs:
     runs-on: ubuntu-latest-xl
     needs: test
     name: Release
+    permissions:
+      contents: write
     steps:
       - name: Check out
         uses: actions/checkout@v4

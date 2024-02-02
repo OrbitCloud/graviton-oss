@@ -87,4 +87,12 @@ class EventHub(ComponentResource):
         )
 
     def _outputs(self) -> None:
-        self.register_outputs({})
+        self.register_outputs(
+            {
+                "namespace": self.namespace,
+                "hubs": self.hubs,
+            }
+        )
+        pulumi.export("eventhub_endpoint", self.namespace.service_bus_endpoint)
+        pulumi.export("eventhub_namespace_id", self.namespace.id)
+        pulumi.export("eventhub_namespace_name", self.namespace.name)

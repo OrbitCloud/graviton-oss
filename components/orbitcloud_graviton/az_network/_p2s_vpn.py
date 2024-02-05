@@ -33,14 +33,19 @@ class P2sVpnGw(ComponentResource):
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
         self.stack: AzureBase = stack
-        super().__init__(
-            "Graviton:az_network:P2sVpnGw", name=f"vpngw-{self.stack.workload_name}", props=None, opts=opts
-        )
-        self._opts = pulumi.ResourceOptions.merge(pulumi.ResourceOptions(parent=self), opts)
-
         self.config: P2sVpnGwConfig = config
-        self._vhub: network.VirtualHub = vhub
 
+        super().__init__(
+            "Graviton:az_network:P2sVpnGw",
+            name=f"vpngw-{self.stack.workload_name}",
+            props=None,
+            opts=opts,
+        )
+        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
+            opts, pulumi.ResourceOptions(parent=self)
+        )
+
+        self._vhub: network.VirtualHub = vhub
         self.server_config: network.VpnServerConfiguration = self._server_config()
         self.p2s_vpngw: network.P2sVpnGateway = self._p2s_vpngw()
 
@@ -74,7 +79,8 @@ class P2sVpnGw(ComponentResource):
             vpn_protocols=auth_protocols,
             vpn_client_root_certificates=[
                 network.VpnServerConfigVpnClientRootCertificateArgs(
-                    name="p2s-vpngw-client-root-cert", public_cert_data=self.config.cert_auth_root_cert
+                    name="p2s-vpngw-client-root-cert",
+                    public_cert_data=self.config.cert_auth_root_cert,
                 )
             ]
             if self.config.cert_auth_root_cert
@@ -90,7 +96,9 @@ class P2sVpnGw(ComponentResource):
             resource_group_name=self.stack.resource_group.name,
             virtual_hub=network.SubResourceArgs(id=self._vhub.id.apply(lambda id: f"{id}")),
             vpn_gateway_scale_unit=1,
-            vpn_server_configuration=network.SubResourceArgs(id=self.server_config.id.apply(lambda id: f"{id}")),
+            vpn_server_configuration=network.SubResourceArgs(
+                id=self.server_config.id.apply(lambda id: f"{id}")
+            ),
             p2_s_connection_configurations=[
                 network.P2SConnectionConfigurationArgs(
                     enable_internet_security=True,

@@ -31,7 +31,9 @@ class VnetConfig(BaseModel):
     # Validate that subnets are unique, don't overlap and are within the vnet address space
     @model_validator(mode="after")
     def validate_subnets(m: "VnetConfig") -> "VnetConfig":
-        subnet_address_prefixes: set[PrivateIPv4Network] = {subnet.address_prefix for subnet in m.subnets}
+        subnet_address_prefixes: set[PrivateIPv4Network] = {
+            subnet.address_prefix for subnet in m.subnets
+        }
         if len(subnet_address_prefixes) != len(m.subnets):
             raise ValueError("Subnet address prefixes must be unique")
 
@@ -40,7 +42,9 @@ class VnetConfig(BaseModel):
 
         # Check if subnets are within at least one of the vnet address spaces
         for subnet in m.subnets:
-            if not any(subnet.address_prefix.subnet_of(address_space) for address_space in m.address_space):
+            if not any(
+                subnet.address_prefix.subnet_of(address_space) for address_space in m.address_space
+            ):
                 raise ValueError(
                     f"Subnet {subnet.name} address prefix {subnet.address_prefix} is not within any of the vnet address spaces"
                 )
@@ -66,10 +70,17 @@ class Vnet(ComponentResource):
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
         self.stack: AzureBase = stack
-        super().__init__("Graviton:az_network:Vnet", name=f"vnet-{self.stack.workload_name}", props=None, opts=opts)
-        self._opts = pulumi.ResourceOptions.merge(pulumi.ResourceOptions(parent=self), opts)
-
         self.config = config
+
+        super().__init__(
+            "Graviton:az_network:Vnet",
+            name=f"vnet-{self.stack.workload_name}",
+            props=None,
+            opts=opts,
+        )
+        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
+            opts, pulumi.ResourceOptions(parent=self)
+        )
 
         self.vnet = self._vnet()
         self.subnets = self._subnets()
@@ -129,7 +140,10 @@ class Vnet(ComponentResource):
     ) -> network.HubVirtualNetworkConnection:
         """Creates a Virtual Network Connection in virtual hub"""
         hub_virtual_network_connection = network.HubVirtualNetworkConnection(
-            self.stack.name_for(network.HubVirtualNetworkConnection, workload_name=f"vnet-{self.stack.workload_name}"),
+            self.stack.name_for(
+                network.HubVirtualNetworkConnection,
+                workload_name=f"vnet-{self.stack.workload_name}",
+            ),
             resource_group_name=self.stack.resource_group.name,
             enable_internet_security=True,
             remote_virtual_network=network.SubResourceArgs(

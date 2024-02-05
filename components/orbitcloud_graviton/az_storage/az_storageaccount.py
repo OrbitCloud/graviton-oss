@@ -61,7 +61,9 @@ def az_storageaccount(
                     if is_public_ip(ip_rule):
                         ip_rules.append(storage.IPRuleArgs(i_p_address_or_range=ip_rule))
                     else:
-                        pulumi.warn(f"The IP address or range {ip_rule} is private and will not be added.")
+                        pulumi.warn(
+                            f"The IP address or range {ip_rule} is private and will not be added."
+                        )
                 except ValueError as e:
                     pulumi.warn(str(e))
 
@@ -176,8 +178,8 @@ def storageaccount_deploy() -> None:
     config: StorageAccountConfig = Confy(StorageAccountConfig).populate()
 
     # Resource Group
-    az_rg: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult = az_resource_group_from_config(
-        config=config
+    az_rg: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult = (
+        az_resource_group_from_config(config=config)
     )
 
     pulumi.export("resource_group_name", az_rg.name)

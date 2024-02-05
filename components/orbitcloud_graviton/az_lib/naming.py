@@ -59,6 +59,8 @@ RESOURCE_NAMING: Dict[str, Any] = {
     "pulumi_azure_native.network.hub_virtual_network_connection": {
         "prefix": "vhubc",
     },
+    "pulumi_azure_native.eventhub.namespace": {"prefix": "evhns"},
+    "pulumi_azure_native.eventhub.event_hub": {"prefix": "evh"},
 }
 
 LOCATION_ABBR: Dict[str, str] = {
@@ -84,7 +86,9 @@ def resource_opts(resource_type) -> Dict[str, Any]:
     return opts
 
 
-def resource_namer(resource_type, workload_name: str, env, location, instance_number: str = "01") -> str:
+def resource_namer(
+    resource_type, workload_name: str, env, location, instance_number: str = "01"
+) -> str:
     """Return a resource name for a given resource type"""
     opts: Dict[str, Any] = resource_opts(resource_type=resource_type)
     prefix: str | Any = opts.get("prefix")
@@ -107,7 +111,9 @@ def resource_namer(resource_type, workload_name: str, env, location, instance_nu
         instance_number,
     ]
 
-    resource_name = separator.join([element.title() if separator == "" else element for element in name_elements])
+    resource_name = separator.join(
+        [element.title() if separator == "" else element for element in name_elements]
+    )
 
     return resource_name.lower() if opts.get("lowercase") else resource_name
 

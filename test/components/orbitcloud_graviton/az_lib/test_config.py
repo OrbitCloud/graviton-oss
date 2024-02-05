@@ -52,11 +52,15 @@ class DummyDataclass:
     secret_dict_field: Annotated[dict, "secret"]
     secret_dict_field_with_default: Annotated[dict, "secret"] = field(default_factory=lambda: {})
     secret_dict_field_optional: Optional[Annotated[dict, "secret"]] = None
-    secret_dict_field_optional_with_default: Optional[Annotated[dict, "secret"]] = field(default_factory=lambda: {})
+    secret_dict_field_optional_with_default: Optional[Annotated[dict, "secret"]] = field(
+        default_factory=lambda: {}
+    )
     azure_native_str_field: Annotated[str, "azure-native"]
     azure_native_str_field_with_default: Annotated[str, "azure-native"] = "default"
     azure_native_str_field_optional: Optional[Annotated[str, "azure-native"]] = None
-    azure_native_str_field_optional_with_default: Optional[Annotated[str, "azure-native"]] = "default"
+    azure_native_str_field_optional_with_default: Optional[
+        Annotated[str, "azure-native"]
+    ] = "default"
 
 
 @pytest.fixture(scope="module")
@@ -80,7 +84,9 @@ def pulumi_project_mock():
 
 @pytest.fixture(scope="module")
 def config_fields() -> dict[str, Field[Any]]:
-    dcfields_dict: dict[str, Field[Any]] = {dcfield.name: dcfield for dcfield in fields(DummyDataclass)}
+    dcfields_dict: dict[str, Field[Any]] = {
+        dcfield.name: dcfield for dcfield in fields(DummyDataclass)
+    }
     return dcfields_dict
 
 

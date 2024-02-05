@@ -21,7 +21,9 @@ from pydantic_settings import (
 
 
 class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
-    def config_path(self, field: FieldInfo, field_name: str, bag: Optional[str] = "") -> tuple[pulumi.Config, str]:
+    def config_path(
+        self, field: FieldInfo, field_name: str, bag: Optional[str] = ""
+    ) -> tuple[pulumi.Config, str]:
         alias = field.validation_alias if isinstance(field.validation_alias, str) else field_name
 
         if ":" in alias:

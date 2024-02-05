@@ -34,6 +34,8 @@ beartype = "^0.17.0"
 pulumi-azuread = "^5.47.0"
 pydantic = "^2.5.3"
 pydantic-settings = "^2.1.0"
+pulumiverse-time = "^0.0.16"
+azure-mgmt-authorization = "^4.0.0"
 
 
 [tool.poetry.group.dev.dependencies]

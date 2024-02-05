@@ -60,6 +60,66 @@ tests-mypy = ["mypy (>=1.6)", "pytest-mypy-plugins"]
 tests-no-zope = ["attrs[tests-mypy]", "cloudpickle", "hypothesis", "pympler", "pytest (>=4.3.0)", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "azure-common"
+version = "1.1.28"
+description = "Microsoft Azure Client Library for Python (Common)"
+optional = false
+python-versions = "*"
+files = [
+    {file = "azure-common-1.1.28.zip", hash = "sha256:4ac0cd3214e36b6a1b6a442686722a5d8cc449603aa833f3f0f40bda836704a3"},
+    {file = "azure_common-1.1.28-py2.py3-none-any.whl", hash = "sha256:5c12d3dcf4ec20599ca6b0d3e09e86e146353d443e7fcc050c9a19c1f9df20ad"},
+]
+
+[[package]]
+name = "azure-core"
+version = "1.30.0"
+description = "Microsoft Azure Core Library for Python"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "azure-core-1.30.0.tar.gz", hash = "sha256:6f3a7883ef184722f6bd997262eddaf80cfe7e5b3e0caaaf8db1695695893d35"},
+    {file = "azure_core-1.30.0-py3-none-any.whl", hash = "sha256:3dae7962aad109610e68c9a7abb31d79720e1d982ddf61363038d175a5025e89"},
+]
+
+[package.dependencies]
+requests = ">=2.21.0"
+six = ">=1.11.0"
+typing-extensions = ">=4.6.0"
+
+[package.extras]
+aio = ["aiohttp (>=3.0)"]
+
+[[package]]
+name = "azure-mgmt-authorization"
+version = "4.0.0"
+description = "Microsoft Azure Authorization Management Client Library for Python"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "azure-mgmt-authorization-4.0.0.zip", hash = "sha256:69b85abc09ae64fc72975bd43431170d8c7eb5d166754b98aac5f3845de57dc4"},
+    {file = "azure_mgmt_authorization-4.0.0-py3-none-any.whl", hash = "sha256:d8feeb3842e6ddf1a370963ca4f61fb6edc124e8997b807dd025bc9b2379cd1a"},
+]
+
+[package.dependencies]
+azure-common = ">=1.1,<2.0"
+azure-mgmt-core = ">=1.3.2,<2.0.0"
+isodate = ">=0.6.1,<1.0.0"
+
+[[package]]
+name = "azure-mgmt-core"
+version = "1.4.0"
+description = "Microsoft Azure Management Core Library for Python"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "azure-mgmt-core-1.4.0.zip", hash = "sha256:d195208340094f98e5a6661b781cde6f6a051e79ce317caabd8ff97030a9b3ae"},
+    {file = "azure_mgmt_core-1.4.0-py3-none-any.whl", hash = "sha256:81071675f186a585555ef01816f2774d49c1c9024cb76e5720c3c0f6b337bb7d"},
+]
+
+[package.dependencies]
+azure-core = ">=1.26.2,<2.0.0"
+
+[[package]]
 name = "beartype"
 version = "0.17.0"
 description = "Unbearably fast runtime type checking in pure Python."
@@ -76,6 +136,17 @@ dev = ["autoapi (>=0.9.0)", "coverage (>=5.5)", "equinox", "mypy (>=0.800)", "nu
 doc-rtd = ["autoapi (>=0.9.0)", "pydata-sphinx-theme (<=0.7.2)", "sphinx (>=4.2.0,<6.0.0)", "sphinxext-opengraph (>=0.7.5)"]
 test-tox = ["equinox", "mypy (>=0.800)", "numpy", "pandera", "pytest (>=4.0.0)", "sphinx", "torch", "typing-extensions (>=3.10.0.0)"]
 test-tox-coverage = ["coverage (>=5.5)"]
+
+[[package]]
+name = "certifi"
+version = "2024.2.2"
+description = "Python package for providing Mozilla's CA Bundle."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "certifi-2024.2.2-py3-none-any.whl", hash = "sha256:dc383c07b76109f368f6106eee2b593b04a011ea4d55f652c6ca24a754d1cdd1"},
+    {file = "certifi-2024.2.2.tar.gz", hash = "sha256:0569859f95fc761b18b45ef421b1290a0f65f147e92a1e5eb3e635f9a5e4e66f"},
+]
 
 [[package]]
 name = "cfgv"
@@ -382,63 +453,6 @@ typing = ["typing-extensions (>=4.8)"]
 
 [[package]]
 name = "grpcio"
-version = "1.56.2"
-description = "HTTP/2-based RPC framework"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "grpcio-1.56.2-cp310-cp310-linux_armv7l.whl", hash = "sha256:bf0b9959e673505ee5869950642428046edb91f99942607c2ecf635f8a4b31c9"},
-    {file = "grpcio-1.56.2-cp310-cp310-macosx_12_0_universal2.whl", hash = "sha256:5144feb20fe76e73e60c7d73ec3bf54f320247d1ebe737d10672480371878b48"},
-    {file = "grpcio-1.56.2-cp310-cp310-manylinux_2_17_aarch64.whl", hash = "sha256:a72797549935c9e0b9bc1def1768c8b5a709538fa6ab0678e671aec47ebfd55e"},
-    {file = "grpcio-1.56.2-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c3f3237a57e42f79f1e560726576aedb3a7ef931f4e3accb84ebf6acc485d316"},
-    {file = "grpcio-1.56.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:900bc0096c2ca2d53f2e5cebf98293a7c32f532c4aeb926345e9747452233950"},
-    {file = "grpcio-1.56.2-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:97e0efaebbfd222bcaac2f1735c010c1d3b167112d9d237daebbeedaaccf3d1d"},
-    {file = "grpcio-1.56.2-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:c0c85c5cbe8b30a32fa6d802588d55ffabf720e985abe9590c7c886919d875d4"},
-    {file = "grpcio-1.56.2-cp310-cp310-win32.whl", hash = "sha256:06e84ad9ae7668a109e970c7411e7992751a116494cba7c4fb877656527f9a57"},
-    {file = "grpcio-1.56.2-cp310-cp310-win_amd64.whl", hash = "sha256:10954662f77dc36c9a1fb5cc4a537f746580d6b5734803be1e587252682cda8d"},
-    {file = "grpcio-1.56.2-cp311-cp311-linux_armv7l.whl", hash = "sha256:c435f5ce1705de48e08fcbcfaf8aee660d199c90536e3e06f2016af7d6a938dd"},
-    {file = "grpcio-1.56.2-cp311-cp311-macosx_10_10_universal2.whl", hash = "sha256:6108e5933eb8c22cd3646e72d5b54772c29f57482fd4c41a0640aab99eb5071d"},
-    {file = "grpcio-1.56.2-cp311-cp311-manylinux_2_17_aarch64.whl", hash = "sha256:8391cea5ce72f4a12368afd17799474015d5d3dc00c936a907eb7c7eaaea98a5"},
-    {file = "grpcio-1.56.2-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:750de923b456ca8c0f1354d6befca45d1f3b3a789e76efc16741bd4132752d95"},
-    {file = "grpcio-1.56.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fda2783c12f553cdca11c08e5af6eecbd717280dc8fbe28a110897af1c15a88c"},
-    {file = "grpcio-1.56.2-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:9e04d4e4cfafa7c5264e535b5d28e786f0571bea609c3f0aaab13e891e933e9c"},
-    {file = "grpcio-1.56.2-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:89a49cc5ad08a38b6141af17e00d1dd482dc927c7605bc77af457b5a0fca807c"},
-    {file = "grpcio-1.56.2-cp311-cp311-win32.whl", hash = "sha256:6a007a541dff984264981fbafeb052bfe361db63578948d857907df9488d8774"},
-    {file = "grpcio-1.56.2-cp311-cp311-win_amd64.whl", hash = "sha256:af4063ef2b11b96d949dccbc5a987272f38d55c23c4c01841ea65a517906397f"},
-    {file = "grpcio-1.56.2-cp37-cp37m-linux_armv7l.whl", hash = "sha256:a6ff459dac39541e6a2763a4439c4ca6bc9ecb4acc05a99b79246751f9894756"},
-    {file = "grpcio-1.56.2-cp37-cp37m-macosx_10_10_universal2.whl", hash = "sha256:f20fd21f7538f8107451156dd1fe203300b79a9ddceba1ee0ac8132521a008ed"},
-    {file = "grpcio-1.56.2-cp37-cp37m-manylinux_2_17_aarch64.whl", hash = "sha256:d1fbad1f9077372b6587ec589c1fc120b417b6c8ad72d3e3cc86bbbd0a3cee93"},
-    {file = "grpcio-1.56.2-cp37-cp37m-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:6ee26e9dfb3996aff7c870f09dc7ad44a5f6732b8bdb5a5f9905737ac6fd4ef1"},
-    {file = "grpcio-1.56.2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a4c60abd950d6de3e4f1ddbc318075654d275c29c846ab6a043d6ed2c52e4c8c"},
-    {file = "grpcio-1.56.2-cp37-cp37m-musllinux_1_1_i686.whl", hash = "sha256:1c31e52a04e62c8577a7bf772b3e7bed4df9c9e0dd90f92b6ffa07c16cab63c9"},
-    {file = "grpcio-1.56.2-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:345356b307cce5d14355e8e055b4ca5f99bc857c33a3dc1ddbc544fca9cd0475"},
-    {file = "grpcio-1.56.2-cp37-cp37m-win_amd64.whl", hash = "sha256:42e63904ee37ae46aa23de50dac8b145b3596f43598fa33fe1098ab2cbda6ff5"},
-    {file = "grpcio-1.56.2-cp38-cp38-linux_armv7l.whl", hash = "sha256:7c5ede2e2558f088c49a1ddda19080e4c23fb5d171de80a726b61b567e3766ed"},
-    {file = "grpcio-1.56.2-cp38-cp38-macosx_10_10_universal2.whl", hash = "sha256:33971197c47965cc1d97d78d842163c283e998223b151bab0499b951fd2c0b12"},
-    {file = "grpcio-1.56.2-cp38-cp38-manylinux_2_17_aarch64.whl", hash = "sha256:d39f5d4af48c138cb146763eda14eb7d8b3ccbbec9fe86fb724cd16e0e914c64"},
-    {file = "grpcio-1.56.2-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:ded637176addc1d3eef35331c39acc598bac550d213f0a1bedabfceaa2244c87"},
-    {file = "grpcio-1.56.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c90da4b124647547a68cf2f197174ada30c7bb9523cb976665dfd26a9963d328"},
-    {file = "grpcio-1.56.2-cp38-cp38-musllinux_1_1_i686.whl", hash = "sha256:3ccb621749a81dc7755243665a70ce45536ec413ef5818e013fe8dfbf5aa497b"},
-    {file = "grpcio-1.56.2-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:4eb37dd8dd1aa40d601212afa27ca5be255ba792e2e0b24d67b8af5e012cdb7d"},
-    {file = "grpcio-1.56.2-cp38-cp38-win32.whl", hash = "sha256:ddb4a6061933bd9332b74eac0da25f17f32afa7145a33a0f9711ad74f924b1b8"},
-    {file = "grpcio-1.56.2-cp38-cp38-win_amd64.whl", hash = "sha256:8940d6de7068af018dfa9a959a3510e9b7b543f4c405e88463a1cbaa3b2b379a"},
-    {file = "grpcio-1.56.2-cp39-cp39-linux_armv7l.whl", hash = "sha256:51173e8fa6d9a2d85c14426bdee5f5c4a0654fd5fddcc21fe9d09ab0f6eb8b35"},
-    {file = "grpcio-1.56.2-cp39-cp39-macosx_10_10_universal2.whl", hash = "sha256:373b48f210f43327a41e397391715cd11cfce9ded2fe76a5068f9bacf91cc226"},
-    {file = "grpcio-1.56.2-cp39-cp39-manylinux_2_17_aarch64.whl", hash = "sha256:42a3bbb2bc07aef72a7d97e71aabecaf3e4eb616d39e5211e2cfe3689de860ca"},
-    {file = "grpcio-1.56.2-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:5344be476ac37eb9c9ad09c22f4ea193c1316bf074f1daf85bddb1b31fda5116"},
-    {file = "grpcio-1.56.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c3fa3ab0fb200a2c66493828ed06ccd1a94b12eddbfb985e7fd3e5723ff156c6"},
-    {file = "grpcio-1.56.2-cp39-cp39-musllinux_1_1_i686.whl", hash = "sha256:b975b85d1d5efc36cf8b237c5f3849b64d1ba33d6282f5e991f28751317504a1"},
-    {file = "grpcio-1.56.2-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:cbdf2c498e077282cd427cfd88bdce4668019791deef0be8155385ab2ba7837f"},
-    {file = "grpcio-1.56.2-cp39-cp39-win32.whl", hash = "sha256:139f66656a762572ae718fa0d1f2dce47c05e9fbf7a16acd704c354405b97df9"},
-    {file = "grpcio-1.56.2-cp39-cp39-win_amd64.whl", hash = "sha256:830215173ad45d670140ff99aac3b461f9be9a6b11bee1a17265aaaa746a641a"},
-    {file = "grpcio-1.56.2.tar.gz", hash = "sha256:0ff789ae7d8ddd76d2ac02e7d13bfef6fc4928ac01e1dcaa182be51b6bcc0aaa"},
-]
-
-[package.extras]
-protobuf = ["grpcio-tools (>=1.56.2)"]
-
-[[package]]
-name = "grpcio"
 version = "1.60.1"
 description = "HTTP/2-based RPC framework"
 optional = false
@@ -518,6 +532,17 @@ files = [
 license = ["ukkonen"]
 
 [[package]]
+name = "idna"
+version = "3.6"
+description = "Internationalized Domain Names in Applications (IDNA)"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "idna-3.6-py3-none-any.whl", hash = "sha256:c05567e9c24a6b9faaa835c4821bad0590fbb9d5779e7caa6e1cc4978e7eb24f"},
+    {file = "idna-3.6.tar.gz", hash = "sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca"},
+]
+
+[[package]]
 name = "importlib-metadata"
 version = "7.0.1"
 description = "Read metadata from Python packages"
@@ -546,6 +571,20 @@ files = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
     {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
 ]
+
+[[package]]
+name = "isodate"
+version = "0.6.1"
+description = "An ISO 8601 date/time/duration parser and formatter"
+optional = false
+python-versions = "*"
+files = [
+    {file = "isodate-0.6.1-py2.py3-none-any.whl", hash = "sha256:0751eece944162659049d35f4f549ed815792b38793f07cf73381c1c87cbed96"},
+    {file = "isodate-0.6.1.tar.gz", hash = "sha256:48c5881de7e8b0a0d648cb024c8062dc84e7b840ed81e864c7614fd3c127bde9"},
+]
+
+[package.dependencies]
+six = "*"
 
 [[package]]
 name = "jinja2"
@@ -773,10 +812,7 @@ files = [
 
 [package.dependencies]
 dill = ">=0.3,<1.0"
-grpcio = [
-    {version = "1.56.2", markers = "python_version < \"3.12\""},
-    {version = ">=1.60.0,<1.61.0", markers = "python_version >= \"3.12\""},
-]
+grpcio = {version = ">=1.60.0,<1.61.0", markers = "python_version >= \"3.12\""}
 protobuf = ">=4.21,<5.0"
 pyyaml = ">=6.0,<7.0"
 semver = ">=2.13,<3.0"
@@ -807,6 +843,21 @@ python-versions = ">=3.7"
 files = [
     {file = "pulumi_azuread-5.47.0-py3-none-any.whl", hash = "sha256:ce35a41830c740cdc4aa2a85dfd04ea07e9e2fb8a7f599c1e756d78ce245ee0d"},
     {file = "pulumi_azuread-5.47.0.tar.gz", hash = "sha256:4b8402a77119a4beef12bdc5cb918be5998700f61a860fa8e7bbba76b9d9c098"},
+]
+
+[package.dependencies]
+parver = ">=0.2.1"
+pulumi = ">=3.0.0,<4.0.0"
+semver = ">=2.8.1"
+
+[[package]]
+name = "pulumiverse-time"
+version = "0.0.16"
+description = "A Pulumi package for creating and managing Time resources"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pulumiverse_time-0.0.16.tar.gz", hash = "sha256:148a8978dc30c559796531e21e98f4402fe529e74e26980138a66c81d2a51a22"},
 ]
 
 [package.dependencies]
@@ -1093,6 +1144,27 @@ files = [
 prompt_toolkit = ">=2.0,<=3.0.36"
 
 [[package]]
+name = "requests"
+version = "2.31.0"
+description = "Python HTTP for Humans."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "requests-2.31.0-py3-none-any.whl", hash = "sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f"},
+    {file = "requests-2.31.0.tar.gz", hash = "sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1"},
+]
+
+[package.dependencies]
+certifi = ">=2017.4.17"
+charset-normalizer = ">=2,<4"
+idna = ">=2.5,<4"
+urllib3 = ">=1.21.1,<3"
+
+[package.extras]
+socks = ["PySocks (>=1.5.6,!=1.5.7)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
+
+[[package]]
 name = "ruff"
 version = "0.2.0"
 description = "An extremely fast Python linter and code formatter, written in Rust."
@@ -1193,6 +1265,23 @@ files = [
 ]
 
 [[package]]
+name = "urllib3"
+version = "2.2.0"
+description = "HTTP library with thread-safe connection pooling, file post, and more."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "urllib3-2.2.0-py3-none-any.whl", hash = "sha256:ce3711610ddce217e6d113a2732fafad960a03fd0318c91faa79481e35c11224"},
+    {file = "urllib3-2.2.0.tar.gz", hash = "sha256:051d961ad0c62a94e50ecf1af379c3aba230c66c710493493560c0c223c49f20"},
+]
+
+[package.extras]
+brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)"]
+h2 = ["h2 (>=4,<5)"]
+socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
+zstd = ["zstandard (>=0.18.0)"]
+
+[[package]]
 name = "virtualenv"
 version = "20.25.0"
 description = "Virtual Python Environment builder"
@@ -1240,5 +1329,5 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.11"
-content-hash = "466098a3cb0b4775e6c702cf39c88e2278f4fc7cd39cf956dfcd577fbe5d17b1"
+python-versions = "^3.12"
+content-hash = "ec55ce668b63ea9c73323497bd1e47d7b511e8c49b6cd1f13c4dbab93f8f8cc7"

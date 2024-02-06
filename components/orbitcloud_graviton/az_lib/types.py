@@ -2,6 +2,7 @@ import re
 from typing import Any
 from uuid import UUID
 
+import pulumi_azure_native.resources.v20230701 as resources
 from pydantic import GetCoreSchemaHandler, ValidationInfo
 from pydantic_core import core_schema
 
@@ -21,19 +22,27 @@ class AzureResourceId:
     def __str__(self) -> str:
         return self.id
 
-    def scope_repr(self) -> str:
-        if self.sub_resource is not None:
-            return f"{self.resource_name}-{self.sub_resource}"
-        if self.resource_name is not None:
-            return self.resource_name
-        if self.resource_group_name is not None:
-            return self.resource_group_name
-        return f"subscription-{str(self.subscription_id)[:5]}"
+    def get_resource(self) -> resources.AwaitableGetResourceResult:
+        raise NotImplementedError(
+            "Not implemented until https://github.com/pulumi/pulumi-azure-native/issues/2630 is fixed."
+        )
+        # return resources.get_resource(
+        #     resource_group_name=self.resource_group_name,
+        #     resource_provider_namespace=self.provider,
+        #     resource_type=self.resource_type,
+        #     resource_name=self.resource_name,
+        # )
+
+    @staticmethod
+    def is_valid(value: str) -> bool:
+        pattern = r"^/subscriptions/([^/]+)(?:/resourceGroups/([^/]+))?(?:/providers/([^/]+)/([^/]+)/([^/]+)(?:/(.*))?)?$"
+        if re.match(pattern, value):
+            return True
+        return False
 
     @classmethod
     def validate(cls, value, info: ValidationInfo):
-        pattern = r"^/subscriptions/([^/]+)(?:/resourceGroups/([^/]+))?(?:/providers/([^/]+)/([^/]+)/([^/]+)(?:/([^/]+))?)?$"
-        if not re.match(pattern, value):
+        if not cls.is_valid(value):
             raise ValueError("Invalid Azure Resource ID")
         return cls(value)
 
@@ -46,7 +55,7 @@ class AzureResourceId:
         )
 
     def _params(self) -> dict[str, str]:
-        pattern = r"^/subscriptions/([^/]+)(?:/resourceGroups/([^/]+))?(?:/providers/([^/]+)/([^/]+)/([^/]+)(?:/([^/]+))?)?$"
+        pattern = r"^/subscriptions/([^/]+)(?:/resourceGroups/([^/]+))?(?:/providers/([^/]+)/([^/]+)/([^/]+)(?:/(.*))?)?$"
         match: re.Match[str] | None = re.match(pattern, self.id)
 
         if not match:

@@ -3,7 +3,7 @@ from typing import Optional
 import pulumi
 from pulumi_azure_native import containerregistry, keyvault
 
-from orbitcloud_graviton.az_acr.registry import (
+from orbitcloud_graviton.az_acr import (
     ContainerRegistryConfig,
     container_registry,
 )

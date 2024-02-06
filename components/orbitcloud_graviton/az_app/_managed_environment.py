@@ -34,7 +34,9 @@ class ManagedEnvironmentConfig(BaseModel):
     @field_validator("environment_type")
     def validate_environment_type(cls, v):
         if v not in ["WorkloadProfiles", "ConsumptionOnly"]:
-            raise ValueError("environment_type must be either 'WorkloadProfiles' or 'ConsumptionOnly'")
+            raise ValueError(
+                "environment_type must be either 'WorkloadProfiles' or 'ConsumptionOnly'"
+            )
         return v
 
     @field_validator("workload_profiles")
@@ -79,7 +81,9 @@ def containerapp_environment(
         )
 
         # When VNET integrated, a separate resource group is automatically created for the LB - here we can specify the RG name instead of having it auto-generated. -to-be-discussed
-        infrastructure_resource_group_name = stack.resource_group.name.apply(lambda name: f"{name}-CAE_INFRA")
+        infrastructure_resource_group_name = stack.resource_group.name.apply(
+            lambda name: f"{name}-CAE_INFRA"
+        )
 
     # Handle Custom Domain
     custom_domain_args = None
@@ -166,7 +170,11 @@ def _az_containerapp_env_diagnostic(
         resource=resource,
         log_workspace=log_workspace,
         metric_categories=["AllMetrics"],
-        log_categories=["ContainerAppConsoleLogs", "ContainerAppSystemLogs", "AppEnvSpringAppConsoleLogs"],
+        log_categories=[
+            "ContainerAppConsoleLogs",
+            "ContainerAppSystemLogs",
+            "AppEnvSpringAppConsoleLogs",
+        ],
         opts=pulumi.ResourceOptions(parent=resource),
     )
     return settings

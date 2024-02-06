@@ -40,7 +40,8 @@ def certificate(
         resource_group_name=stack.resource_group.name,
         location=stack.location,
         properties=app.CertificatePropertiesArgs(
-            password=config.certificate_password.get_secret_value(), value=config.certificate_value.get_secret_value()
+            password=config.certificate_password.get_secret_value(),
+            value=config.certificate_value.get_secret_value(),
         ),
         opts=opts,
     )

@@ -42,9 +42,9 @@ def deploy_landing_zone() -> None:
     # Get Azure Stack and export resource group
     stack = get_azure_stack()
 
-    #
+    ##########################################
     #   Container Registry
-    #
+    ##########################################
     if config.has_containerregistry and config.container_registry:
         az_cr: containerregistry.Registry = container_registry(
             stack=stack,
@@ -54,9 +54,9 @@ def deploy_landing_zone() -> None:
         pulumi.export("containerregistry_server", az_cr.login_server)
         pulumi.export("containerregistry_id", az_cr.id)
 
-    #
+    ##########################################
     #   Key Vault
-    #
+    ##########################################
     if config.has_keyvault and config.keyvault:
         az_kv: keyvault.Vault = key_vault(
             stack=stack,
@@ -66,9 +66,9 @@ def deploy_landing_zone() -> None:
         pulumi.export("keyvault_name", az_kv.name)
         pulumi.export("keyvault_id", az_kv.id)
 
-    #
+    ##########################################
     #   Event Hub
-    #
+    ##########################################
     if config.eventhub:
         # Event Hub
         EventHub(
@@ -77,9 +77,9 @@ def deploy_landing_zone() -> None:
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
 
-    #
+    ##########################################
     #   Entra App for Pulumi deployments
-    #
+    ##########################################
     entra_pulumi_app = EntraApp(
         stack=stack,
         entra=entra_config,
@@ -101,9 +101,9 @@ def deploy_landing_zone() -> None:
         entra_pulumi_app.app.client_id, entra_config.tenant_id, stack.subscription_id
     ).apply(func=print_pulumi_esc_oidc_yaml)
 
-    #
+    ##########################################
     #   Entra App for GitHub Container Registry
-    #
+    ##########################################
     if config.github_cr_app:
         entra_app_github = EntraApp(
             stack=stack,

@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import Annotated, Literal, Optional, Union
 
 import pulumi
 from pulumi_azure_native import insights, operationalinsights
 from pulumi_azure_native.app import v20230501 as app
-from pydantic import BaseModel, SecretStr, field_validator
+from pydantic import BaseModel, Field, SecretStr, field_validator
 from pydantic_core.core_schema import FieldValidationInfo
 
 from orbitcloud_graviton.az_lib import get_resource_name_from_id
@@ -13,10 +13,26 @@ from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_st
 from ._certificate import CertificateConfig, certificate
 
 
+class ConsumptionProfile(BaseModel):
+    workload_type: Literal["Consumption"] = "Consumption"
+    name: Literal["Consumption"] = "Consumption"
+
+
+class DedicatedProfile(BaseModel):
+    name: str
+    workload_type: Literal["D4", "D8", "E4", "E8"]
+    minimum_count: Annotated[int, Field(ge=0)]
+    maximum_count: Annotated[int, Field(gt=0)]
+
+
 class ManagedEnvironmentConfig(BaseModel):
     environment_type: Optional[str] = "WorkloadProfiles"
     certificates: Optional[list[dict]] = None
-    workload_profiles: Optional[list[dict]] = None
+
+    workload_profiles: list[Union[ConsumptionProfile, DedicatedProfile]] = Field(
+        discriminator="workload_type", default_factory=lambda: [ConsumptionProfile()]
+    )
+
     vnet_config_subnet: Optional[str] = None
     vnet_config_internal: Optional[bool] = True
     custom_domain_name: Optional[str] = None
@@ -31,20 +47,6 @@ class ManagedEnvironmentConfig(BaseModel):
             raise ValueError("VNET config required for Zone Redundancy. Please provide a subnet.")
         return v
 
-    @field_validator("environment_type")
-    def validate_environment_type(cls, v):
-        if v not in ["WorkloadProfiles", "ConsumptionOnly"]:
-            raise ValueError(
-                "environment_type must be either 'WorkloadProfiles' or 'ConsumptionOnly'"
-            )
-        return v
-
-    @field_validator("workload_profiles")
-    def validate_workload_profiles(cls, v, info: FieldValidationInfo):
-        if info.data.get("environment_type") == "ConsumptionOnly" and v:
-            raise ValueError("ConsumptionOnly environments do not support workload profiles.")
-        return v
-
 
 def containerapp_environment(
     stack: AzureBase,
@@ -52,23 +54,18 @@ def containerapp_environment(
     opts: Optional[pulumi.ResourceOptions] = None,
 ) -> app.ManagedEnvironment:
     environment_name = stack.name_for(app.ManagedEnvironment)
-    print(f"environment_name = {environment_name}")
-    # Handle Environment Type / Workload Profiles
-    workload_profiles_args: list[app.WorkloadProfileArgs] = []
-    if config.environment_type == "WorkloadProfiles":
-        if config.workload_profiles is None:
-            workload_profiles_args.append(
-                app.WorkloadProfileArgs(name="Consumption", workload_profile_type="Consumption")
-            )
-        if config.workload_profiles:
-            for profile in config.workload_profiles:
-                workload_profile_arg = app.WorkloadProfileArgs(
-                    workload_profile_type=profile.get("workload_profile_type"),  # type: ignore
-                    name=profile.get("name"),  # type: ignore
-                    minimum_count=profile.get("minimum_count"),
-                    maximum_count=profile.get("maximum_count"),
-                )
-                workload_profiles_args.append(workload_profile_arg)
+
+    print(config)
+
+    workload_profiles_args: list[app.WorkloadProfileArgs] = [
+        app.WorkloadProfileArgs(
+            workload_profile_type=profile.workload_type,
+            name=str(profile.name),
+            minimum_count=profile.minimum_count if isinstance(profile, DedicatedProfile) else None,
+            maximum_count=profile.maximum_count if isinstance(profile, DedicatedProfile) else None,
+        )
+        for profile in config.workload_profiles
+    ]
 
     # Handle VNet Configuration
     vnet_config_args = None

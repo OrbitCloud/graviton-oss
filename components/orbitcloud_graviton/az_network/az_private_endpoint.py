@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
+import pulumi
 from pulumi_azure_native import resources
 from pulumi_azure_native.network import v20230201 as network
 
@@ -23,6 +24,7 @@ def az_private_endpoint(
     resource_group: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult,
     private_endpoint_config: PrivateEndpointConfig,
     tags: Optional[Dict[str, str]] = None,
+    opts: Optional[pulumi.ResourceOptions] = None,
 ) -> network.PrivateEndpoint:
     """Create private endpoint"""
 
@@ -63,6 +65,7 @@ def az_private_endpoint(
             )
         ],
         tags=tags,
+        opts=opts,
     )
 
     # Create Private DNS record if Private DNS Zone is specified

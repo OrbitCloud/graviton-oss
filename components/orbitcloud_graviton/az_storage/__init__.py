@@ -1,3 +1,3 @@
-from .az_storageaccount import storageaccount_deploy
+from ._storage_account import StorageAccount, StorageAccountConfig
 
-__all__ = ["storageaccount_deploy"]
+__all__ = ["StorageAccount", "StorageAccountConfig"]

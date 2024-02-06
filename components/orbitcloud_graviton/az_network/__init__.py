@@ -1,5 +1,5 @@
 from ._p2s_vpn import P2sVpnGw, P2sVpnGwConfig
-from ._types import PrivateIPv4Network
+from ._types import PrivateIPv4Network, PublicIPv4Network
 from ._vnet import SubnetConfig, Vnet, VnetConfig
 from ._vwan import VirtualWan, VirtualWanConfig
 from .az_private_dns_zone_group import az_privatednszonegroup
@@ -17,4 +17,5 @@ __all__ = [
     "VirtualWanConfig",
     "P2sVpnGw",
     "P2sVpnGwConfig",
+    "PublicIPv4Network",
 ]

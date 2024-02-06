@@ -40,7 +40,7 @@
     },
     {
       "label": "Run pulumi pre and wait to start",
-      "dependsOn": ["pulumi pre", "Wait 30 seconds"]
+      "dependsOn": ["pulumi pre", "Wait 10 seconds"]
     },
     {
       "label": "Initilize Project",

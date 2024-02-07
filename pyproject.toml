@@ -64,6 +64,7 @@ addopts = """
 -s
 --cov
 --cov-report=term-missing:skip-covered
+--junitxml=pytest.xml
 """
 norecursedirs = [".*", ".venv"]
 filterwarnings = [
@@ -87,9 +88,6 @@ include_namespace_packages = true
 ignore_errors = true
 skip_empty = true
 omit = ["**/__init__.py", ".venv/*", "development/*", "test/*"]
-
-[tool.coverage.xml]
-output = "pytest.xml"
 
 
 [tool.ruff]

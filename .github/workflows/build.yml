@@ -6,6 +6,8 @@ on:
 
 jobs:
   test:
+    permissions:
+      pull-requests: write
     name: Test & lint
     runs-on: ubuntu-latest-xl
     steps:

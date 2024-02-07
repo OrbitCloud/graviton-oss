@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, Optional, Union
+from typing import Annotated, List, Literal, Optional, Union
 
 import pulumi
 from pulumi_azure_native import insights, operationalinsights
@@ -26,17 +26,15 @@ class DedicatedProfile(BaseModel):
 
 
 class ContainerAppEnvConfig(BaseModel):
-    environment_type: Optional[str] = "WorkloadProfiles"
-
     workload_profiles: list[Union[ConsumptionProfile, DedicatedProfile]] = Field(
         discriminator="workload_type", default_factory=lambda: [ConsumptionProfile()]
     )
 
-    certificates: Optional[list[dict]] = None
-
     subnet_id: Optional[Union[AzureIdRef, str]] = None
     zone_redundant: Optional[bool] = False
     public_network_access: Optional[bool] = False
+
+    certificates: Optional[List[CertificateConfig]] = None
 
     custom_domain_name: Optional[str] = None
     custom_domain_certificate_password: Optional[SecretStr] = None
@@ -124,23 +122,21 @@ def containerapp_environment(
             log_workspace=log_workspace,
         )
 
-    # Handle Certificates
-    if config.certificates:
-        pulumi.Output.all(environment.name).apply(
-            lambda _: [
+    certs: list[app.Certificate] = (  # noqa
+        (
+            [
                 certificate(
                     stack=stack,
-                    config=CertificateConfig(
-                        certificate_name=cert["name"],
-                        certificate_value=cert["value"],
-                        certificate_password=cert["password"],
-                        environment_name=environment_name,  # Ensure this matches the created environment's name
-                    ),
+                    environment=environment,
+                    cert=cert,
                     opts=opts,
                 )
-                for cert in config.certificates  # type: ignore
+                for cert in config.certificates
             ]
         )
+        if config.certificates
+        else []
+    )
 
     return environment
 

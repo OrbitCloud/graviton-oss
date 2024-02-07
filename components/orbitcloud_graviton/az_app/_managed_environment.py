@@ -9,6 +9,7 @@ from orbitcloud_graviton.az_lib import get_resource_name_from_id
 from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_monitor import az_diagnosticsetting
 from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
+from orbitcloud_graviton.pulumi_lib.types import DomainName
 
 from ._certificate import CertificateConfig, certificate
 
@@ -25,20 +26,23 @@ class DedicatedProfile(BaseModel):
     maximum_count: Annotated[int, Field(gt=0)]
 
 
+class CustomDomain(BaseModel):
+    dns_suffix: DomainName
+    cert_password: SecretStr
+    cert_contents: SecretStr
+
+
 class ContainerAppEnvConfig(BaseModel):
     workload_profiles: list[Union[ConsumptionProfile, DedicatedProfile]] = Field(
         discriminator="workload_type", default_factory=lambda: [ConsumptionProfile()]
     )
 
-    subnet_id: Optional[Union[AzureIdRef, str]] = None
+    subnet_id: Optional[AzureIdRef] = None
     zone_redundant: Optional[bool] = False
     public_network_access: Optional[bool] = False
 
     certificates: Optional[List[CertificateConfig]] = None
-
-    custom_domain_name: Optional[str] = None
-    custom_domain_certificate_password: Optional[SecretStr] = None
-    custom_domain_certificate_value: Optional[SecretStr] = None
+    custom_domain: Optional[CustomDomain] = None
 
     log_workspace_ref: Optional[str] = None
 
@@ -78,17 +82,15 @@ def containerapp_environment(
     )
 
     # Handle Custom Domain
-    custom_domain_args = None
-    if (
-        config.custom_domain_name
-        and config.custom_domain_certificate_password
-        and config.custom_domain_certificate_value
-    ):
-        custom_domain_args = app.CustomDomainConfigurationArgs(
-            certificate_password=config.custom_domain_certificate_password.get_secret_value(),
-            certificate_value=config.custom_domain_certificate_value.get_secret_value(),
-            dns_suffix=config.custom_domain_name,
+    custom_domain_args = (
+        app.CustomDomainConfigurationArgs(
+            certificate_password=config.custom_domain.cert_password.get_secret_value(),
+            certificate_value=config.custom_domain.cert_contents.get_secret_value(),
+            dns_suffix=config.custom_domain.dns_suffix,
         )
+        if config.custom_domain
+        else None
+    )
 
     app_logs_args = app.AppLogsConfigurationArgs(destination="azure-monitor")
 
@@ -147,7 +149,6 @@ class ManagedEnvConfig(PulumiConfig):
 
 def deploy_containerapp_environment():
     config: ManagedEnvConfig = ManagedEnvConfig.model_validate({})
-
     stack: AzureBase = get_azure_stack()
 
     environment = containerapp_environment(

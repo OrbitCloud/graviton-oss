@@ -2,7 +2,7 @@ from typing import Optional
 
 import pulumi
 from pulumi_azure_native.app import v20230501 as app
-from pydantic import Base64Str, BaseModel, Field, SecretStr
+from pydantic import BaseModel, Field, SecretStr
 
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
@@ -10,7 +10,7 @@ from orbitcloud_graviton.pulumi_lib import AzureBase
 class CertificateConfig(BaseModel):
     name: str = Field(pattern=r"^[a-z0-9](?:[a-z0-9\-\.]*[a-z0-9])?$", max_length=60)
     contents: SecretStr
-    password: SecretStr = Field(Base64Str)
+    password: SecretStr
 
 
 def certificate(

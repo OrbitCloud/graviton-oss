@@ -1,15 +1,16 @@
 import re
-from typing import Any
+from typing import Annotated, Any, Union
 from uuid import UUID
 
+import pulumi
 import pulumi_azure_native.resources.v20230701 as resources
-from pydantic import GetCoreSchemaHandler, ValidationInfo
+from pydantic import AfterValidator, GetCoreSchemaHandler, ValidationInfo
 from pydantic_core import core_schema
 
 
 class AzureResourceId:
     def __init__(self, id) -> None:
-        self.id = id
+        self.id: str = id
         params = self._params()
 
         self.subscription_id = UUID(params["subscriptionId"])
@@ -71,3 +72,46 @@ class AzureResourceId:
             "sub_resource",
         ]
         return {key: value for key, value in zip(keys, groups) if value is not None}
+
+
+def parse_stack_reference(v: str) -> tuple[str, str]:
+    parts: list[str] = v.removeprefix("stack://").split("/")
+    if len(parts) < 3:
+        raise ValueError(
+            f"{v} is not a valid stack reference (stack://project_name/stack_name/output_name)"
+        )
+    # If organization is included stack://organization_name/project_name/stack_name/output_name
+    if len(parts) == 4:
+        stack_ref = parts[0] + "/" + parts[1] + "/" + parts[2]
+        output_name = parts[3]
+    else:
+        stack_ref = pulumi.get_organization() + "/" + parts[0] + "/" + parts[1]
+        output_name = parts[2]
+    return stack_ref, output_name
+
+
+def get_resource_id(
+    v: Union[pulumi.Output[str], str],
+) -> str | pulumi.Output[str]:
+    if isinstance(v, pulumi.Output):
+        if v.is_known():
+            return v
+        else:
+            return v.apply(lambda x: x)
+
+    if isinstance(v, str):
+        if v.startswith("/subscriptions") and AzureResourceId.is_valid(v):
+            return AzureResourceId(v).id
+
+        if v.startswith("stack://"):
+            stack_ref, output_name = parse_stack_reference(v)
+            stack_output = pulumi.StackReference(stack_ref).require_output(output_name)
+            return stack_output
+
+    raise ValueError(f"{v} is not a valid resource ID reference")
+
+
+AzureIdRef = Annotated[
+    Union[pulumi.Output[str], str],
+    AfterValidator(get_resource_id),
+]

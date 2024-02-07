@@ -3,10 +3,10 @@ from typing import Annotated, Literal, Optional, Union
 import pulumi
 from pulumi_azure_native import insights, operationalinsights
 from pulumi_azure_native.app import v20230501 as app
-from pydantic import BaseModel, Field, SecretStr, field_validator
-from pydantic_core.core_schema import FieldValidationInfo
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
 from orbitcloud_graviton.az_lib import get_resource_name_from_id
+from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_monitor import az_diagnosticsetting
 from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
 
@@ -25,37 +25,40 @@ class DedicatedProfile(BaseModel):
     maximum_count: Annotated[int, Field(gt=0)]
 
 
-class ManagedEnvironmentConfig(BaseModel):
+class ContainerAppEnvConfig(BaseModel):
     environment_type: Optional[str] = "WorkloadProfiles"
-    certificates: Optional[list[dict]] = None
 
     workload_profiles: list[Union[ConsumptionProfile, DedicatedProfile]] = Field(
         discriminator="workload_type", default_factory=lambda: [ConsumptionProfile()]
     )
 
-    vnet_config_subnet: Optional[str] = None
-    vnet_config_internal: Optional[bool] = True
+    certificates: Optional[list[dict]] = None
+
+    subnet_id: Optional[Union[AzureIdRef, str]] = None
+    zone_redundant: Optional[bool] = False
+    public_network_access: Optional[bool] = False
+
     custom_domain_name: Optional[str] = None
     custom_domain_certificate_password: Optional[SecretStr] = None
     custom_domain_certificate_value: Optional[SecretStr] = None
-    zone_redundant: Optional[bool] = False
+
     log_workspace_ref: Optional[str] = None
 
-    @field_validator("zone_redundant")
-    def validate_zone_redundant(cls, v, info: FieldValidationInfo):
-        if v and not info.data["vnet_config_subnet"]:
+    @model_validator(mode="after")
+    def zone_redundancy_requires_subnet(m: "ContainerAppEnvConfig") -> "ContainerAppEnvConfig":
+        if m.zone_redundant and not m.subnet_id:
             raise ValueError("VNET config required for Zone Redundancy. Please provide a subnet.")
-        return v
+        return m
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 def containerapp_environment(
     stack: AzureBase,
-    config: ManagedEnvironmentConfig,
+    config: ContainerAppEnvConfig,
     opts: Optional[pulumi.ResourceOptions] = None,
 ) -> app.ManagedEnvironment:
     environment_name = stack.name_for(app.ManagedEnvironment)
-
-    print(config)
 
     workload_profiles_args: list[app.WorkloadProfileArgs] = [
         app.WorkloadProfileArgs(
@@ -67,20 +70,14 @@ def containerapp_environment(
         for profile in config.workload_profiles
     ]
 
-    # Handle VNet Configuration
-    vnet_config_args = None
-    infrastructure_resource_group_name: str = ""
-    if config.vnet_config_subnet:
-        print(f"vnet_config_internal: {config.vnet_config_internal}")
-        vnet_config_args = app.VnetConfigurationArgs(
-            infrastructure_subnet_id=config.vnet_config_subnet,
-            internal=config.vnet_config_internal,
+    vnet_args: app.VnetConfigurationArgs | None = (
+        app.VnetConfigurationArgs(
+            infrastructure_subnet_id=config.subnet_id,
+            internal=(not config.public_network_access),
         )
-
-        # When VNET integrated, a separate resource group is automatically created for the LB - here we can specify the RG name instead of having it auto-generated. -to-be-discussed
-        infrastructure_resource_group_name = stack.resource_group.name.apply(
-            lambda name: f"{name}-CAE_INFRA"
-        )
+        if config.subnet_id
+        else None
+    )
 
     # Handle Custom Domain
     custom_domain_args = None
@@ -105,9 +102,15 @@ def containerapp_environment(
         workload_profiles=workload_profiles_args,
         custom_domain_configuration=custom_domain_args,
         app_logs_configuration=app_logs_args,
-        vnet_configuration=vnet_config_args,
+        vnet_configuration=vnet_args,
         zone_redundant=config.zone_redundant,
-        infrastructure_resource_group=infrastructure_resource_group_name,
+        # When VNET integrated, a separate resource group is automatically created for the LB
+        # here we can specify the RG name instead of having it auto-generated. -to-be-discussed
+        infrastructure_resource_group=(
+            stack.resource_group.name.apply(lambda name: f"{name}-CAE_INFRA")
+            if config.subnet_id
+            else None
+        ),
         opts=opts,
     )
 
@@ -143,7 +146,7 @@ def containerapp_environment(
 
 
 class ManagedEnvConfig(PulumiConfig):
-    containerapp_env: ManagedEnvironmentConfig
+    containerapp_env: ContainerAppEnvConfig
 
 
 def deploy_containerapp_environment():

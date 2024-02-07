@@ -1,3 +1,54 @@
+## v0.18.0 (2024-02-07)
+
+### Feat
+
+- **config**: Adds IdReference type for retrieving and validating resource IDs
+- **containerapp_env**: Remove az_managed_environment.py
+- **eventhub**: Adds EventHub component
+- **containerapp_env**: Networking, custom_domain, certificates, logging
+- **landing_zone**: Adds hub environment
+- **hubspoke**: Simplifies hubspoke base usage
+- **oidc-app**: Adds base config for azuread provider and changes naming convention for keyvault
+- **az_network**: Adds P2S VPN gateway
+- **az_network**: Adds P2S VPN Gateway
+- **az_network**: Adds Virtual Wan and Virtual Hub
+- **config**: Introduce the use of Pydantic config schemas
+- **pydantic**: Pydantic models for managing Pulumi configs
+- **landing_zone**: Adopt Pulumi ESC env to configure stack
+
+### Fix
+
+- **pulumi-opts**: Fixes merge order of Pulumi opts in component resources
+- **keyvault**: Go back to alphanumeric naming with random suffix due to globally unique naming constrains
+- **pulumi-esc**: Fix typo in ESC config output and add tenantId to azuread provider
+- **esc-config**: Fixes azure-native config
+- **PulumiConfig**: Returns default value when value isn't provided
+- **PulumiConfig**: Adds support for Optional nested BaseModels
+- **PulumiConfig**: Fixes an error in model validation
+- **config**: Fixes a bug in boolean stack config parameters
+- **pyproject.toml**: Remove landing_site base from package
+- **entra_app**: Small fixes and improvements to OIDC app
+- **merge**: Fixes merge conflict and az_storageaccount typing
+
+### Refactor
+
+- **containerapp-env**: Improves certificate and custom domain configuration and validation
+- **containerapp-env**: Improves certificate configuration
+- **containerapp-env**: Simplifies VNET configuration
+- **containerapp-env**: Improves workload profile configuration
+- **StorageAccount**: Refactors StorageAccount module
+- **EntraApp**: Refactors Entra App module and IaM assignments
+- **eventhub**: Adds EventHub exports
+- **dev**: Removes networking dev scratchpad
+- **oidc-app**: Changes app name to pulumi-<env>-deployments
+- **keyvault**: Migrates keyvault to new config structure
+- **acr+keyvault**: Adopts new config schema
+- **az_network**: Moves VnetConfig and SubnetConfig to _vnet.py
+- **cleanup**: Removes unused files
+- **landing_zone**: Reorganizing main.py
+- **landing_zone**: Adds pulumiConfig parameters to ESC env output
+- **multiple**: Adds landing zone base and various improvements
+
 ## v0.17.0 (2024-02-02)
 
 ### Feat

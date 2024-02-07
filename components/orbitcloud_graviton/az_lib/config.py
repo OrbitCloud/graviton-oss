@@ -41,16 +41,10 @@ class Confy:
     @staticmethod
     def field_type(field_type: Any) -> Type:
         # Unwrap Optional[]
-        field_type = (
-            field_type.__args__[0] if field_type == Optional[field_type] else field_type
-        )
+        field_type = field_type.__args__[0] if field_type == Optional[field_type] else field_type
 
         # Unwrap Annotated[]
-        field_type = (
-            get_args(field_type)[0]
-            if get_origin(field_type) is Annotated
-            else field_type
-        )
+        field_type = get_args(field_type)[0] if get_origin(field_type) is Annotated else field_type
 
         if field_type in [str, int, bool]:
             return field_type
@@ -65,9 +59,7 @@ class Confy:
         if field_type == Optional[field_type]:
             field_type = field_type.__args__[0]
 
-        return get_origin(field_type) is Annotated and "azure-native" in get_args(
-            field_type
-        )
+        return get_origin(field_type) is Annotated and "azure-native" in get_args(field_type)
 
     @staticmethod
     def is_secret(field_type: Any) -> bool:
@@ -109,9 +101,7 @@ class Confy:
         if hasattr(config, getter_func_name):
             return getattr(config, getter_func_name)
 
-        raise ValueError(
-            f"Could not find getter function {getter_func_name} in pulumi.Config"
-        )
+        raise ValueError(f"Could not find getter function {getter_func_name} in pulumi.Config")
 
     @staticmethod
     def default_value(dcfield: Field) -> Any:
@@ -154,7 +144,10 @@ class Confy:
                 config=config_instance,
             )
 
-            field_value = getter_func(dcfield.name) or self.default_value(dcfield)
+            field_value = getter_func(dcfield.name)
+
+            if field_value is None:
+                field_value = self.default_value(dcfield)
 
             self.dckwargs.update({dcfield.name: field_value})
 

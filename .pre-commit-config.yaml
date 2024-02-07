@@ -1,5 +1,3 @@
-default_stages:
-  - "pre-commit"
 repos:
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v3.13.0
@@ -24,10 +22,11 @@ repos:
         entry: make fmt
         language: system
         types: [python]
+        pass_filenames: false
 
       - id: pyright
-        name: Validate types with pyright
-        entry: make pyright
+        name: pyright
+        entry: poetry run pyright -p .
         language: system
-        types: [python]
         pass_filenames: false
+        types: [python]

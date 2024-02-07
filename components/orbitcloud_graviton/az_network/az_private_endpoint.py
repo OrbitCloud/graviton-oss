@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
+import pulumi
 from pulumi_azure_native import resources
 from pulumi_azure_native.network import v20230201 as network
 
@@ -23,6 +24,7 @@ def az_private_endpoint(
     resource_group: resources.ResourceGroup | resources.AwaitableGetResourceGroupResult,
     private_endpoint_config: PrivateEndpointConfig,
     tags: Optional[Dict[str, str]] = None,
+    opts: Optional[pulumi.ResourceOptions] = None,
 ) -> network.PrivateEndpoint:
     """Create private endpoint"""
 
@@ -43,9 +45,7 @@ def az_private_endpoint(
     elif isinstance(subnet, str):
         subnet_id = subnet
     else:
-        raise TypeError(
-            "subnet must be either a network.Subnet object or a subnet ID string"
-        )
+        raise TypeError("subnet must be either a network.Subnet object or a subnet ID string")
 
     private_endpoint_name: str = (
         "pep-" + resource._name + "-" + private_endpoint_config.target_resource_type
@@ -65,6 +65,7 @@ def az_private_endpoint(
             )
         ],
         tags=tags,
+        opts=opts,
     )
 
     # Create Private DNS record if Private DNS Zone is specified

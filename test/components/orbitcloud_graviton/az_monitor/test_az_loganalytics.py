@@ -1,9 +1,10 @@
 import pulumi
 import pytest
+from pulumi_azure_native import operationalinsights
+
 from orbitcloud_graviton.az_monitor import az_logworkspace
 from orbitcloud_graviton.az_resources import az_resource_group
 from orbitcloud_graviton.pulumi_mocks import set_mocks
-from pulumi_azure_native import operationalinsights
 
 
 @pytest.fixture(scope="module", autouse=True)

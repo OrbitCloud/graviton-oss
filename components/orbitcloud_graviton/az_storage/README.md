@@ -18,7 +18,7 @@ config:
 
 ##### IP Filtering
 To be used to allow traffic from *public IP addresses*
-> [!NOTE]  
+> [!NOTE]
 > network_rules will only be effective if public_network_access is set to Enabled.
 > Private IPs will be ignored.
 
@@ -31,7 +31,7 @@ config:
 ```
 
 ##### Virtual Networks
-> [!NOTE]  
+> [!NOTE]
 > virtual_network_subnets will only be effective if public_network_access is set to Enabled
 
 ```yaml
@@ -46,7 +46,7 @@ config:
 
 To configure Private Endpoints, define both the target_resource_type and the corresponding subnet_id. Additionally, if a private_dns_zone_id is provided, the module will automatically create a DNS record within the specified Private DNS Zone
 
-> [!NOTE]  
+> [!NOTE]
 > For Storage Accounts, 1 Private Endpoint per *type* used is required (blob, queue, file, table..)
 
 ```yaml

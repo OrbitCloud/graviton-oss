@@ -2,6 +2,47 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "pulumi pre",
+      "type": "shell",
+      "isBackground": true,
+      "command": "DEBUG=true pulumi pre",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [
+        {
+          "pattern": [
+            {
+              "regexp": ".",
+              "file": 1,
+              "location": 2,
+              "message": 3
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "."
+          }
+        }
+      ]
+    },
+    {
+      "label": "Wait 10 seconds",
+      "type": "shell",
+      "command": "sleep 10",
+      "presentation": {
+        "reveal": "silent"
+      }
+    },
+    {
+      "label": "Run pulumi pre and wait to start",
+      "dependsOn": ["pulumi pre", "Wait 10 seconds"]
+    },
+    {
       "label": "Initilize Project",
       "type": "process",
       "command": "",

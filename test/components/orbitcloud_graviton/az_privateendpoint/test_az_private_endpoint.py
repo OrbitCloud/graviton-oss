@@ -1,9 +1,10 @@
 import pulumi
 import pytest
+from pulumi_azure_native.network import v20230201 as network
+
 from orbitcloud_graviton.az_network import PrivateEndpointConfig, az_private_endpoint
 from orbitcloud_graviton.az_resources import az_resource_group
 from orbitcloud_graviton.pulumi_mocks import set_mocks
-from pulumi_azure_native.network import v20230201 as network
 
 
 # Define the MockResource class
@@ -59,9 +60,7 @@ def mock_resource(pulumi_projects_mock):
 
 
 @pulumi.runtime.test
-def test_az_private_endpoint(
-    pulumi_projects_mock, private_endpoint_config, mock_resource
-):
+def test_az_private_endpoint(pulumi_projects_mock, private_endpoint_config, mock_resource):
     workload_name, env, location, tags = (
         pulumi_projects_mock["workload_name"],
         pulumi_projects_mock["env"],
@@ -86,17 +85,13 @@ def test_az_private_endpoint(
         privateendpoint_location, privateendpoint_tags = args
 
         # Check that the location is correct
-        assert (
-            privateendpoint_location == location
-        ), "Private endpoint location mismatch"
+        assert privateendpoint_location == location, "Private endpoint location mismatch"
 
         # Check that all the tags are set correctly
         assert privateendpoint_tags == tags, "Private endpoint tags mismatch"
 
         # Check the private endpoint name prefix
-        assert private_endpoint._name.startswith(
-            "pep-"
-        ), "Private endpoint name mismatch"
+        assert private_endpoint._name.startswith("pep-"), "Private endpoint name mismatch"
 
     return pulumi.Output.all(
         private_endpoint.location,

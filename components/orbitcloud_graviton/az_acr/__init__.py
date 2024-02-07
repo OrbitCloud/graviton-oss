@@ -1,3 +1,3 @@
-from orbitcloud_graviton.az_acr.registry import az_containerregistry
+from orbitcloud_graviton.az_acr.registry import ContainerRegistryConfig, container_registry
 
-__all__ = ["az_containerregistry"]
+__all__ = ["container_registry", "ContainerRegistryConfig"]

@@ -1,11 +1,13 @@
 import pytest
-from orbitcloud_graviton.az_lib import location_abbr, resource_namer, resource_opts
 from pulumi_azure_native import (
     containerregistry,
+    keyvault,
     operationalinsights,
     resources,
     storage,
 )
+
+from orbitcloud_graviton.az_lib import location_abbr, resource_namer, resource_opts
 
 
 def test_resource_opts() -> None:
@@ -30,8 +32,7 @@ def test_location_abbr() -> None:
 
 def test_resource_namer() -> None:
     assert (
-        resource_namer(resources.ResourceGroup, "test", "dev", "westeurope")
-        == "rg-test-dev-weu-01"
+        resource_namer(resources.ResourceGroup, "test", "dev", "westeurope") == "rg-test-dev-weu-01"
     )
     assert (
         resource_namer(resources.ResourceGroup, "test", "dev", "swedencentral", "02")
@@ -43,13 +44,10 @@ def test_resource_namer() -> None:
     )
 
     assert (
-        resource_namer(containerregistry.Registry, "test", "dev", "westeurope")
-        == "CrTestDevWeu01"
+        resource_namer(containerregistry.Registry, "test", "dev", "westeurope") == "CrTestDevWeu01"
     )
-    assert (
-        resource_namer(storage.StorageAccount, "test", "dev", "westeurope")
-        == "sttestdevweu01"
-    )
+    assert resource_namer(storage.StorageAccount, "test", "dev", "westeurope") == "sttestdevweu01"
+    assert resource_namer(keyvault.Vault, "test", "dev", "westeurope") == "KvTestDevWeu01"
 
     # assert a value error is raised when the resource type is not found
     with pytest.raises(ValueError):

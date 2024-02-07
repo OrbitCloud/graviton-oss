@@ -1,52 +1,58 @@
-.PHONY: test lint outdated update flake8 isort pytest-cov pytest black pylint pyright
-
 default: help
 
-test:
-	@make pytest-cov
-	@make pytest
 
-install:
+##@
+##@ Initialize dev environment
+##@
+
+.PHONY: install
+install: ##@ Install Poetry dependencies
 	poetry install
 
-install-precommit:
+.PHONY: install-precommit
+install-precommit: ##@ Install pre-commit hooks
 	pre-commit install
 
-format:
-	isort --profile=black .
-	black .
+##@
+##@ Local development
+##@
 
-outdated:
-	poetry show --outdated --top-level
-
-update:
-	poetry update
-	pre-commit autoupdate
-
-
-.PHONY: test-cov
-lint: ##@ Lint and type checks
-	@make ruff-check
+.PHONY: test
+test: ##@ Run tests
+	poetry run pytest | tee pytest-coverage.txt
 
 .PHONY: fmt
 fmt: ##@ Ruff formatter and linter (autofix)
 	poetry run ruff --fix .
 	poetry run ruff format .
 
-.PHONY: ruff-check
-ruff-check: ##@ Ruff formatter (check mode)
+.PHONY: lint
+lint: ##@ Ruff formatter and linter (check mode)
 	poetry run ruff check --no-fix .
 	poetry run ruff format --check .
 
+.PHONY: pyright
+pyright: ##@ Run Pyright type checker
+	poetry run pyright -p .
 
-pytest-cov:
-	pytest --cov=. --cov-report=term-missing
 
-pytest:
-	pytest -s --verbose test/
+##@
+##@ Dependency choirs
+##@
 
-pyright:
-	pyright .
+.PHONY: outdated
+outdated: ##@ Check for outdated Poetry dependencies
+	poetry show --outdated --top-level
+
+.PHONY: update
+update: ##@ Update Poetry and pre-commit dependencies
+	poetry update
+	pre-commit autoupdate
+
+
+##@
+##@ Help
+##@
 
 .PHONY: help
 help: ##@ (Default) Print listing of key targets with their descriptions

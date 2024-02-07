@@ -24,6 +24,7 @@ RESOURCE_NAMING: Dict[str, Any] = {
     "pulumi_azure_native.keyvault.vault": {
         "prefix": "kv",
         "alphanumeric": True,
+        "max_length": 24,
     },
     "pulumi_azure_native.storage.storage_account": {
         "prefix": "st",
@@ -33,6 +34,33 @@ RESOURCE_NAMING: Dict[str, Any] = {
     "pulumi_azure_native.network.private_dns_zone_group": {
         "prefix": "pdzg",
     },
+    "pulumi_azure_native.app.managed_environment": {
+        "prefix": "cae",
+        "max_length": 60,
+    },
+    "pulumi_azure_native.network.virtual_network": {
+        "prefix": "vnet",
+    },
+    "pulumi_azure_native.network.subnet": {
+        "prefix": "snet",
+    },
+    "pulumi_azure_native.network.virtual_wan": {
+        "prefix": "vwan",
+    },
+    "pulumi_azure_native.network.virtual_hub": {
+        "prefix": "vhub",
+    },
+    "pulumi_azure_native.network.vpn_server_configuration": {
+        "prefix": "vpnconf",
+    },
+    "pulumi_azure_native.network.p2s_vpn_gateway": {
+        "prefix": "vpng",
+    },
+    "pulumi_azure_native.network.hub_virtual_network_connection": {
+        "prefix": "vhubc",
+    },
+    "pulumi_azure_native.eventhub.namespace": {"prefix": "evhns"},
+    "pulumi_azure_native.eventhub.event_hub": {"prefix": "evh"},
 }
 
 LOCATION_ABBR: Dict[str, str] = {
@@ -59,12 +87,21 @@ def resource_opts(resource_type) -> Dict[str, Any]:
 
 
 def resource_namer(
-    resource_type, workload_name, env, location, instance_number: str = "01"
+    resource_type, workload_name: str, env, location, instance_number: str = "01"
 ) -> str:
     """Return a resource name for a given resource type"""
     opts: Dict[str, Any] = resource_opts(resource_type=resource_type)
     prefix: str | Any = opts.get("prefix")
     location_short: str = location_abbr(location=location)
+    separator: str = "-"
+
+    if opts.get("alphanumeric"):
+        separator = ""
+        workload_name = (
+            "".join([word.title() for word in workload_name.split("-")])
+            if "-" in workload_name
+            else workload_name.title()
+        )
 
     name_elements = [
         prefix,
@@ -74,15 +111,11 @@ def resource_namer(
         instance_number,
     ]
 
-    if opts.get("alphanumeric"):
-        return "".join(
-            [
-                element.lower() if opts.get("lowercase") else element.capitalize()
-                for element in name_elements
-            ]
-        )
+    resource_name = separator.join(
+        [element.title() if separator == "" else element for element in name_elements]
+    )
 
-    return "-".join(name_elements)
+    return resource_name.lower() if opts.get("lowercase") else resource_name
 
 
 def location_abbr(location) -> str:

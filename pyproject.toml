@@ -9,24 +9,35 @@ packages = [
     # Lib and helpers
     { include = "orbitcloud_graviton/pulumi_mocks", from = "components" },
     { include = "orbitcloud_graviton/az_lib", from = "components" },
-
     # Azure Components
     { include = "orbitcloud_graviton/az_acr", from = "components" },
+    { include = "orbitcloud_graviton/az_app", from = "components" },
     { include = "orbitcloud_graviton/az_appservice", from = "components" },
     { include = "orbitcloud_graviton/az_keyvault", from = "components" },
     { include = "orbitcloud_graviton/az_monitor", from = "components" },
     { include = "orbitcloud_graviton/az_resources", from = "components" },
-
+    { include = "orbitcloud_graviton/az_storage",from = "components" },
+    { include = "orbitcloud_graviton/az_iam",from = "components" },
+    { include = "orbitcloud_graviton/az_network",from = "components" },
+    { include = "orbitcloud_graviton/pulumi_lib",from = "components" },
+    { include = "orbitcloud_graviton/entra",from = "components" },
+    { include = "orbitcloud_graviton/az_eventhub",from = "components" },
     # Bases
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
-    { include = "orbitcloud_graviton/landing_site", from = "bases" },
+    { include = "orbitcloud_graviton/landing_zone",from = "bases" },
+    { include = "orbitcloud_graviton/hubspoke",from = "bases" },
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
+azure-mgmt-authorization = "^4.0.0"
+beartype = "^0.17.0"
 pulumi = "^3.104"
 pulumi-azure-native = "^2.28"
-beartype = "^0.17.0"
+pulumi-azuread = "^5.47.0"
+pulumiverse-time = "^0.0.16"
+pydantic = "^2.5.3"
+pydantic-settings = "^2.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -36,11 +47,52 @@ commitizen = "^3.14.1"
 pytest-xdist = "^3.5.0"
 pyright = "^1.1.350"
 pre-commit = "^3.6.0"
+debugpy = "^1.8.0"
+ruff = "^0.2.0"
+
+[tool.pyright]
+include = ["components", "bases", "development", "test"]
+ignore = ["test/*", "development/*"]
+extraPaths = ["components", "bases"]
+exclude = ["**/__pycache__", "**/.pytest_cache", "**/.*", "**/.git", ".venv/*"]
+venvPath = ".venv"
 ruff = "^0.2.1"
 
+[tool.pytest.ini_options]
+testpaths = ["test"]
+addopts = """
+-s
+--cov
+--cov-report=term-missing:skip-covered
+--junitxml=pytest.xml
+"""
+norecursedirs = [".*", ".venv"]
+filterwarnings = [
+    "ignore::DeprecationWarning:pulumi_azure_native.*:",
+    "ignore::DeprecationWarning:pulumi.*",
+    "ignore::DeprecationWarning:commitizen.*",
+    "ignore::DeprecationWarning:importlib._bootstrap.*",
+
+]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = [
+    "bases/orbitcloud_graviton",
+    "components/orbitcloud_graviton",
+]
+
+[tool.coverage.report]
+include_namespace_packages = true
+ignore_errors = true
+skip_empty = true
+omit = ["**/__init__.py", ".venv/*", "development/*", "test/*"]
+
+
 [tool.ruff]
-line-length = 88
-select = [
+line-length = 100
+lint.select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # pyflakes
@@ -49,16 +101,20 @@ select = [
     "UP", # pyupgrade
     "I",  # isort
 ]
-ignore = [
+lint.ignore = [
     "E501", # line too long, handled by black
     "B008", # do not perform function calls in argument defaults
     "C901", # too complex
     "W191", # indentation contains tabs
 ]
 extend-exclude = [
-    "development/*",
+    # "development/*",
     "tests/*",
 ]
+
+[tool.ruff.lint.isort]
+known-third-party = ["pulumi_azure_native", "pulumi_azuread", "pulumi", "pydantic"]
+known-first-party = ["orbitcloud_graviton"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"

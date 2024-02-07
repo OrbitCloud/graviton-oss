@@ -29,16 +29,12 @@ fmt: ##@ Ruff formatter and linter (autofix)
 
 .PHONY: lint
 lint: ##@ Ruff formatter and linter (check mode)
-	@make ruff-check
+	poetry run ruff check --no-fix .
+	poetry run ruff format --check .
 
 .PHONY: pyright
 pyright: ##@ Run Pyright type checker
 	poetry run pyright -p .
-
-.PHONY: ruff-check
-ruff-check: ##@ Ruff formatter (check mode)
-	poetry run ruff check --no-fix .
-	poetry run ruff format --check .
 
 .PHONY: pytest-cov
 pytest-cov:

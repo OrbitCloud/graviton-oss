@@ -58,6 +58,40 @@ exclude = ["**/__pycache__", "**/.pytest_cache", "**/.*", "**/.git", ".venv/*"]
 venvPath = ".venv"
 ruff = "^0.2.1"
 
+[tool.pytest.ini_options]
+testpaths = ["test"]
+addopts = """
+-s
+--cov
+--cov-report=term-missing:skip-covered
+"""
+norecursedirs = [".*", ".venv"]
+filterwarnings = [
+    "ignore::DeprecationWarning:pulumi_azure_native.*:",
+    "ignore::DeprecationWarning:pulumi.*",
+    "ignore::DeprecationWarning:commitizen.*",
+    "ignore::DeprecationWarning:importlib._bootstrap.*",
+
+]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = [
+    "bases/orbitcloud_graviton",
+    "components/orbitcloud_graviton",
+]
+
+[tool.coverage.report]
+include_namespace_packages = true
+ignore_errors = true
+skip_empty = true
+omit = ["**/__init__.py", ".venv/*", "development/*", "test/*"]
+
+[tool.coverage.xml]
+output = "pytest.xml"
+
+
 [tool.ruff]
 line-length = 100
 lint.select = [

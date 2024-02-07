@@ -19,8 +19,7 @@ install-precommit: ##@ Install pre-commit hooks
 
 .PHONY: test
 test: ##@ Run tests
-	@make pytest-cov
-	@make pytest
+	poetry run pytest | tee pytest-coverage.txt
 
 .PHONY: fmt
 fmt: ##@ Ruff formatter and linter (autofix)
@@ -35,14 +34,6 @@ lint: ##@ Ruff formatter and linter (check mode)
 .PHONY: pyright
 pyright: ##@ Run Pyright type checker
 	poetry run pyright -p .
-
-.PHONY: pytest-cov
-pytest-cov:
-	pytest --cov=. --cov-report=term-missing
-
-.PHONY: pytest
-pytest:
-	pytest -s --verbose test/
 
 
 ##@

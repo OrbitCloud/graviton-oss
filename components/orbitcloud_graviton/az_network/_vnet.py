@@ -8,6 +8,8 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from orbitcloud_graviton.az_network._types import PrivateIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
+from ._enums import SubnetServiceEndpoints
+
 
 class SubnetConfig(BaseModel):
     name: str
@@ -18,6 +20,7 @@ class SubnetConfig(BaseModel):
     )
 
     virtual_network_name: Optional[Union[str, pulumi.Output[str]]] = None
+    service_endpoints: Optional[List[SubnetServiceEndpoints]] = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -112,6 +115,7 @@ class Vnet(ComponentResource):
                     address_prefix=str(subnet.address_prefix),
                     delegations=self._subnet_delegation(subnet),
                     private_endpoint_network_policies=subnet.private_endpoint_network_policies,
+                    service_endpoints=self._subnet_service_endpoints_args(subnet),
                 ),
                 opts=pulumi.ResourceOptions(
                     parent=self.vnet,
@@ -119,6 +123,20 @@ class Vnet(ComponentResource):
             )
             for subnet in self.config.subnets
         ]
+
+    def _subnet_service_endpoints_args(
+        self, subnet: SubnetConfig
+    ) -> list[network.ServiceEndpointPropertiesFormatArgs] | None:
+        return (
+            [
+                network.ServiceEndpointPropertiesFormatArgs(
+                    service=service,
+                )
+                for service in subnet.service_endpoints
+            ]
+            if subnet.service_endpoints
+            else None
+        )
 
     def _subnet_delegation(self, subnet: SubnetConfig) -> list[network.DelegationArgs] | None:
         return (

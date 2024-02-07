@@ -9,6 +9,7 @@ from orbitcloud_graviton.az_acr import (
 )
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
 from orbitcloud_graviton.az_keyvault import KeyVaultConfig, key_vault
+from orbitcloud_graviton.az_providerhub import provider_registration
 from orbitcloud_graviton.entra import (
     AzureRbacPermission,
     EntraApp,
@@ -33,6 +34,7 @@ class LandingZoneConfig(PulumiConfig):
     has_containerregistry: Optional[bool] = True
 
     github_cr_app: Optional[GitHubOIDCCredentials] = None
+    resource_providers: Optional[list[str]] = None
 
 
 def deploy_landing_zone() -> None:
@@ -116,3 +118,11 @@ def deploy_landing_zone() -> None:
         pulumi.export("github_cr_app_client_id", entra_app_github.app.client_id)
         pulumi.export("github_cr_app_tenant_id", entra_config.tenant_id)
         pulumi.export("github_cr_app_subscription_id", stack.subscription_id)
+
+    if config.resource_providers:
+        for provider in config.resource_providers:
+            provider_registration(
+                stack=stack,
+                provider_namespace=provider,
+                opts=pulumi.ResourceOptions(parent=stack.resource_group),
+            )

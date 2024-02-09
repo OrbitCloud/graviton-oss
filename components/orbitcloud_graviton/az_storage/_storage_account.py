@@ -31,6 +31,7 @@ class StorageAccountConfig(BaseModel):
     allowed_public_networks: Optional[List[PrivateIPv4Network]] = None
 
     private_endpoints: Optional[list[PrivateEndpointConfig]] = None
+    storage_tables: Optional[List[str]] = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -57,6 +58,7 @@ class StorageAccount(pulumi.ComponentResource):
 
         self.storage_account: storage.StorageAccount = self._storage_account()
         self.private_endpoints: Optional[list[network.PrivateEndpoint]] = self._private_endpoints()
+        self.storage_tables: list[storage.Table] | None = self._storage_tables()
 
         self._outputs()
 
@@ -128,6 +130,24 @@ class StorageAccount(pulumi.ComponentResource):
                     )
                 )
             return endpoints
+
+    def _storage_tables(self) -> list[storage.Table] | None:
+        return (
+            (
+                [
+                    storage.Table(
+                        resource_name=self.stack.name_for(storage.Table, table),
+                        table_name=table,
+                        account_name=self.storage_account.name,
+                        resource_group_name=self.stack.resource_group.name,
+                        opts=self._opts,
+                    )
+                    for table in self.config.storage_tables
+                ]
+            )
+            if self.config.storage_tables
+            else None
+        )
 
     def _outputs(self):
         self.register_outputs(

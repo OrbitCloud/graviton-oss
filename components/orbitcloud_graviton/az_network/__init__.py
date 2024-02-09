@@ -1,3 +1,4 @@
+from ._enums import SubnetServiceEndpoints
 from ._p2s_vpn import P2sVpnGw, P2sVpnGwConfig
 from ._types import PrivateIPv4Network, PublicIPv4Network
 from ._vnet import SubnetConfig, Vnet, VnetConfig
@@ -18,4 +19,5 @@ __all__ = [
     "P2sVpnGw",
     "P2sVpnGwConfig",
     "PublicIPv4Network",
+    "SubnetServiceEndpoints",
 ]

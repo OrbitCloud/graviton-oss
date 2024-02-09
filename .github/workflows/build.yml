@@ -77,7 +77,7 @@ jobs:
         id: bot-token
         with:
           app-id: ${{ vars.GRAVITON_BOT_CLIENT_ID }}
-          private-key: ${{ secrets.GRAVITON_BOT_PRIVATE_KEY }}    
+          private-key: ${{ secrets.GRAVITON_BOT_PRIVATE_KEY }}
       - name: Check out
         uses: actions/checkout@v4
         with:
@@ -89,12 +89,14 @@ jobs:
         with:
           github_token: ${{ steps.bot-token.outputs.token }}
           changelog_increment_filename: body.md
+          push: false
       - id: check-tag
         name: Check if tag exists
         run: |
           RELEASE=$(gh release view "$RELEASE_TAG" --json id,name,tagName || true)
           if [ -z "$RELEASE" ]; then
             echo "IS_NEW_TAG=true" >> $GITHUB_OUTPUT
+            git push --follow-tags --force
             exit 0
           fi
         env:

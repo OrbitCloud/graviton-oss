@@ -1,3 +1,9 @@
+## v0.19.0 (2024-02-09)
+
+* feat(vnet): Adds support for subnet service endpoints
+* ci: Uses Graviton bot to release
+
+
 ## v0.18.0 (2024-02-07)
 
 ### Feat

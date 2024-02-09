@@ -1,3 +1,9 @@
+## v0.20.0 (2024-02-09)
+
+### Feat
+
+- **StorageAccount**: Adds option to create storage tables
+
 ## v0.19.0 (2024-02-09)
 
 * feat(vnet): Adds support for subnet service endpoints

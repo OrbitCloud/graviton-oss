@@ -61,6 +61,9 @@ RESOURCE_NAMING: Dict[str, Any] = {
     },
     "pulumi_azure_native.eventhub.namespace": {"prefix": "evhns"},
     "pulumi_azure_native.eventhub.event_hub": {"prefix": "evh"},
+    "pulumi_azure_native.storage.table": {"prefix": "sttbl"},
+    "pulumi_azure_native.providerhub.provider_registration": {"prefix": "proreg"},
+    "pulumi_azure_native.providerhub.resource_type_registration": {"prefix": "prov"},
 }
 
 LOCATION_ABBR: Dict[str, str] = {
@@ -75,7 +78,7 @@ LOCATION_ABBR: Dict[str, str] = {
 def resource_opts(resource_type) -> Dict[str, Any]:
     """Return a resource prefix for a given resource type"""
     # Extract the base module path without the version
-    base_module_path = re.sub(r"\.v\d{8}", "", resource_type.__module__)
+    base_module_path = re.sub(r"\.v\d{8}(preview)?", "", resource_type.__module__)
 
     # Try to get the options using the base module path
     opts: Any | None = RESOURCE_NAMING.get(base_module_path)

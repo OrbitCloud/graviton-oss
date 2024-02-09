@@ -22,6 +22,7 @@ packages = [
     { include = "orbitcloud_graviton/pulumi_lib",from = "components" },
     { include = "orbitcloud_graviton/entra",from = "components" },
     { include = "orbitcloud_graviton/az_eventhub",from = "components" },
+    {include = "orbitcloud_graviton/az_providerhub",from = "components"},
     # Bases
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
     { include = "orbitcloud_graviton/landing_zone",from = "bases" },

@@ -29,12 +29,12 @@ def is_public_network(v: str) -> IPv4Network:
 
 PrivateIPv4Network = Annotated[
     IPv4Network,
-    PlainSerializer(lambda x: str(x.with_netmask), return_type=str),
+    PlainSerializer(lambda x: str(x), return_type=str),
     BeforeValidator(is_private_network),
 ]
 
 PublicIPv4Network = Annotated[
     IPv4Network,
-    PlainSerializer(lambda x: str(x.with_netmask), return_type=str),
+    PlainSerializer(lambda x: str(x), return_type=str),
     BeforeValidator(is_public_network),
 ]

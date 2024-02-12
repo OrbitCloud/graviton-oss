@@ -1,9 +1,8 @@
 import pulumi
 import pytest
-from pulumi_azure_native.network import v20230201 as network
+from pulumi_azure_native.network import v20230901 as network
 
 from orbitcloud_graviton.az_network import PrivateEndpointConfig, az_private_endpoint
-from orbitcloud_graviton.az_resources import az_resource_group
 from orbitcloud_graviton.pulumi_mocks import set_mocks
 
 
@@ -60,23 +59,12 @@ def mock_resource(pulumi_projects_mock):
 
 
 @pulumi.runtime.test
-def test_az_private_endpoint(pulumi_projects_mock, private_endpoint_config, mock_resource):
-    workload_name, env, location, tags = (
-        pulumi_projects_mock["workload_name"],
-        pulumi_projects_mock["env"],
-        pulumi_projects_mock["location"],
-        pulumi_projects_mock["tags"],
-    )
-
-    resource_group = az_resource_group(
-        workload_name=workload_name, env=env, location=location, tags=tags
-    )
-
+def test_az_private_endpoint(stack, private_endpoint_config, mock_resource):
     private_endpoint = az_private_endpoint(
         resource=mock_resource,
-        resource_group=resource_group,
+        resource_group=stack.resource_group,
         private_endpoint_config=private_endpoint_config,
-        tags=tags,
+        tags=stack.tags,
     )
 
     assert isinstance(private_endpoint, network.PrivateEndpoint)
@@ -85,10 +73,10 @@ def test_az_private_endpoint(pulumi_projects_mock, private_endpoint_config, mock
         privateendpoint_location, privateendpoint_tags = args
 
         # Check that the location is correct
-        assert privateendpoint_location == location, "Private endpoint location mismatch"
+        assert privateendpoint_location == stack.location, "Private endpoint location mismatch"
 
         # Check that all the tags are set correctly
-        assert privateendpoint_tags == tags, "Private endpoint tags mismatch"
+        assert privateendpoint_tags == stack.tags, "Private endpoint tags mismatch"
 
         # Check the private endpoint name prefix
         assert private_endpoint._name.startswith("pep-"), "Private endpoint name mismatch"

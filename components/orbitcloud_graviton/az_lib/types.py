@@ -3,13 +3,13 @@ from typing import Annotated, Any, Union
 from uuid import UUID
 
 import pulumi
-import pulumi_azure_native.resources.v20230701 as resources
+from pulumi_azure_native import resources
 from pydantic import AfterValidator, GetCoreSchemaHandler, ValidationInfo
 from pydantic_core import core_schema
 
 
 class AzureResourceId:
-    def __init__(self, id) -> None:
+    def __init__(self, id: str) -> None:
         self.id: str = id
         params = self._params()
 
@@ -20,13 +20,18 @@ class AzureResourceId:
         self.resource_name: str | None = params.get("resource_name")
         self.sub_resource: str | None = params.get("sub_resource")
 
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, str):
+            return self.id == other
+        return self.id == other.id
+
     def __str__(self) -> str:
         return self.id
 
     def get_resource(self) -> resources.AwaitableGetResourceResult:
         raise NotImplementedError(
             "Not implemented until https://github.com/pulumi/pulumi-azure-native/issues/2630 is fixed."
-        )
+        )  # pragma: no cover
         # return resources.get_resource(
         #     resource_group_name=self.resource_group_name,
         #     resource_provider_namespace=self.provider,
@@ -42,7 +47,7 @@ class AzureResourceId:
         return False
 
     @classmethod
-    def validate(cls, value, info: ValidationInfo):
+    def validate(cls, value: str, info: ValidationInfo):
         if not cls.is_valid(value):
             raise ValueError("Invalid Azure Resource ID")
         return cls(value)
@@ -76,7 +81,7 @@ class AzureResourceId:
 
 def parse_stack_reference(v: str) -> tuple[str, str]:
     parts: list[str] = v.removeprefix("stack://").split("/")
-    if len(parts) < 3:
+    if len(parts) < 3 or len(parts) > 4:
         raise ValueError(
             f"{v} is not a valid stack reference (stack://project_name/stack_name/output_name)"
         )
@@ -99,14 +104,13 @@ def get_resource_id(
         else:
             return v.apply(lambda x: x)
 
-    if isinstance(v, str):
-        if v.startswith("/subscriptions") and AzureResourceId.is_valid(v):
-            return AzureResourceId(v).id
+    if v.startswith("/subscriptions") and AzureResourceId.is_valid(v):
+        return AzureResourceId(v).id
 
-        if v.startswith("stack://"):
-            stack_ref, output_name = parse_stack_reference(v)
-            stack_output = pulumi.StackReference(stack_ref).require_output(output_name)
-            return stack_output
+    if v.startswith("stack://"):
+        stack_ref, output_name = parse_stack_reference(v)
+        stack_output = pulumi.StackReference(stack_ref).require_output(output_name)
+        return stack_output
 
     raise ValueError(f"{v} is not a valid resource ID reference")
 

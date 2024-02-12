@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "orbitcloud-graviton"
+name = "orbitcloud_graviton"
 version = "0.21.0"
 description = ""
 authors = ["Orbit Team <admin@orbit.is>"]
@@ -29,10 +29,25 @@ packages = [
     { include = "orbitcloud_graviton/hubspoke",from = "bases" },
 ]
 
+[tool.polylith]
+namespace = "orbitcloud_graviton"
+
+[tool.polylith.tag.patterns]
+stable = "stable-*"
+release = "v[0-9]*"
+
+[tool.polylith.structure]
+theme = "loose"
+
+[tool.polylith.resources]
+brick_docs_enabled = false
+
+[tool.polylith.test]
+enabled = false
+
 [tool.poetry.dependencies]
 python = "^3.12"
 azure-mgmt-authorization = "^4.0.0"
-beartype = "^0.17.0"
 pulumi = "^3.105"
 pulumi-azure-native = "^2.28"
 pulumi-azuread = "^5.47.0"
@@ -45,28 +60,29 @@ pydantic-settings = "^2.1.0"
 pytest = "^8.0.0"
 pytest-cov = "^4.1.0"
 commitizen = "^3.14.1"
-pytest-xdist = "^3.5.0"
 pyright = "^1.1.350"
 pre-commit = "^3.6.0"
 debugpy = "^1.8.1"
-ruff = "^0.2.0"
+ruff = "^0.2.1"
+pytest-sugar = "^1.0.0"
 
 [tool.pyright]
 include = ["components", "bases", "development", "test"]
-ignore = ["test/*", "development/*"]
 extraPaths = ["components", "bases"]
-exclude = ["**/__pycache__", "**/.pytest_cache", "**/.*", "**/.git", ".venv/*"]
-venvPath = ".venv"
+venvPath = "."
+venv = ".venv"
 ruff = "^0.2.1"
+typeCheckingMode = "basic"
+reportMissingTypeStubs = true
+useLibraryCodeForTypes = true
 
 [tool.pytest.ini_options]
-testpaths = ["test"]
-addopts = """
--s
---cov
---cov-report=term-missing:skip-covered
---junitxml=pytest.xml
-"""
+testpaths = ["test/components/orbitcloud_graviton", "test/bases/orbitcloud_graviton",]
+python_files = ["test_*.py", "tests.py", "test.py"]
+addopts = [
+    "-s",
+    "-vvv",
+]
 norecursedirs = [".*", ".venv"]
 filterwarnings = [
     "ignore::DeprecationWarning:pulumi_azure_native.*:",

@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
-from ._types import PrivateIPv4Network
+from .types import PrivateIPv4Network
 
 
 class P2sVpnGwConfig(BaseModel):
@@ -31,7 +31,7 @@ class P2sVpnGw(ComponentResource):
         config: P2sVpnGwConfig,
         vhub: network.VirtualHub,
         opts: Optional[pulumi.ResourceOptions] = None,
-    ):
+    ) -> None:
         self.stack: AzureBase = stack
         self.config: P2sVpnGwConfig = config
 

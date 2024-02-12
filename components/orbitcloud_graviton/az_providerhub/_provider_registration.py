@@ -1,7 +1,7 @@
 from typing import Optional
 
 import pulumi
-import pulumi_azure_native.providerhub.v20210901preview as providerhub
+from pulumi_azure_native.providerhub import v20210901preview as providerhub
 
 from orbitcloud_graviton.pulumi_lib import AzureBase
 

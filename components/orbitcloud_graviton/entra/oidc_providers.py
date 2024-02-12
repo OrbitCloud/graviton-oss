@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
-from orbitcloud_graviton.entra._entra_app import FederatedCredentials
+from orbitcloud_graviton.entra.entra_app import FederatedCredentials
 
 
 class PulumiOIDCCredentials(BaseModel):

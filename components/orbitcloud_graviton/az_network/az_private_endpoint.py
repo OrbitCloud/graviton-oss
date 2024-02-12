@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 
 import pulumi
 from pulumi_azure_native import resources
-from pulumi_azure_native.network import v20230201 as network
+from pulumi_azure_native.network import v20230901 as network
 
 from .az_private_dns_zone_group import az_privatednszonegroup
 

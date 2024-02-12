@@ -19,7 +19,7 @@ install-precommit: ##@ Install pre-commit hooks
 
 .PHONY: test
 test: ##@ Run tests
-	poetry run pytest | tee pytest-coverage.txt
+	poetry run pytest --cov --cov-report=term-missing:skip-covered --junitxml=pytest.xml | tee pytest-coverage.txt
 
 .PHONY: fmt
 fmt: ##@ Ruff formatter and linter (autofix)

@@ -5,10 +5,10 @@ from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from orbitcloud_graviton.az_network._types import PrivateIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
 from ._enums import SubnetServiceEndpoints
+from .types import PrivateIPv4Network
 
 
 class SubnetConfig(BaseModel):
@@ -71,7 +71,7 @@ class Vnet(ComponentResource):
         stack: AzureBase,
         config: VnetConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
-    ):
+    ) -> None:
         self.stack: AzureBase = stack
         self.config = config
 

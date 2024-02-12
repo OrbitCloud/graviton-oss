@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
-from ._types import PrivateIPv4Network
+from .types import PrivateIPv4Network
 
 
 class VirtualWanConfig(BaseModel):

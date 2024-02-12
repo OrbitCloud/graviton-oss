@@ -2,7 +2,7 @@ from typing import List, Optional, Union
 
 import pulumi
 from pulumi_azure_native import storage
-from pulumi_azure_native.network import v20230201 as network
+from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureResourceId
@@ -83,7 +83,7 @@ class StorageAccount(pulumi.ComponentResource):
             opts=self._opts,
         )
 
-    def _network_rules(self):
+    def _network_rules(self) -> storage.NetworkRuleSetArgs:
         ip_rules = []
         vnet_rules = []
 

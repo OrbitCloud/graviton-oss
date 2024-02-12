@@ -10,13 +10,13 @@ from pydantic_settings import SettingsConfigDict
 from orbitcloud_graviton.az_lib import resource_namer
 from orbitcloud_graviton.az_resources import resource_group
 
-from ._config import PulumiConfig
+from .config import PulumiConfig
 
 
 class AzureBase(PulumiConfig):
-    subscription_id: UUID = Field(..., alias="azure-native:subscriptionId")
-    tenant_id: UUID = Field(..., alias="azure-native:tenantId")
-    location: str = Field(..., alias="azure-native:location")
+    subscription_id: UUID = Field(..., validation_alias="azure-native:subscriptionId")
+    tenant_id: UUID = Field(..., validation_alias="azure-native:tenantId")
+    location: str = Field(..., validation_alias="azure-native:location")
 
     env: str
     workload_name: str
@@ -31,7 +31,7 @@ class AzureBase(PulumiConfig):
             return self._resource_group
 
         self._resource_group = resource_group(self)
-        pulumi.export("resource_group_id", self._resource_group.id)
+        pulumi.export("resource_group_id", self._resource_group.id.apply)
         pulumi.export("resource_group_name", self._resource_group.name)
         return self._resource_group
 

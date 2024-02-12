@@ -21,7 +21,7 @@ def test_something():
 
 import json
 from os import environ
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import pulumi
 
@@ -29,10 +29,10 @@ import pulumi
 class MyPulumiMocks(pulumi.runtime.Mocks):
     """From https://www.pulumi.com/docs/guides/testing/unit/"""
 
-    def new_resource(self, args: pulumi.runtime.MockResourceArgs):  # pyright: ignore
+    def new_resource(self, args: pulumi.runtime.MockResourceArgs) -> list[Any]:
         return [args.name + "_id", args.inputs]
 
-    def call(self, args: pulumi.runtime.MockCallArgs):  # pyright: ignore
+    def call(self, args: pulumi.runtime.MockCallArgs) -> dict[Any, Any]:  # pyright: ignore
         return {}
 
 
@@ -48,7 +48,7 @@ def mock_pulumi_settings(settings: Dict) -> None:
     environ["PULUMI_CONFIG"] = pulumi_settings_str
 
 
-def set_mocks(settings: Optional[Dict] = None, arm_location: Optional[str] = "") -> None:
+def set_mocks(settings: Optional[Dict] = None) -> None:
     """Set up Pulumi mocks.
 
     Args:
@@ -57,7 +57,6 @@ def set_mocks(settings: Optional[Dict] = None, arm_location: Optional[str] = "")
     if settings:
         mock_pulumi_settings(settings)
 
-    if arm_location:
-        environ["ARM_LOCATION_NAME"] = arm_location
-
-    pulumi.runtime.set_mocks(MyPulumiMocks(), project="mock-project")
+    pulumi.runtime.set_mocks(
+        MyPulumiMocks(), project="mock-project", preview=False, organization="mock-org"
+    )

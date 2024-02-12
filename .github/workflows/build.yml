@@ -103,7 +103,7 @@ jobs:
           RELEASE_TAG: ${{ steps.commitizen.outputs.version }}
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: ${{ steps.check-tag.outputs.IS_NEW_TAG == 'true' && false }}
+        if: ${{ steps.check-tag.outputs.IS_NEW_TAG == 'true' }}
         with:
           body_path: "body.md"
           tag_name: ${{ steps.commitizen.outputs.version }}

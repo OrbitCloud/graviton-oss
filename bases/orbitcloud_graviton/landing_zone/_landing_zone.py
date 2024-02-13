@@ -1,14 +1,14 @@
 from typing import Optional
 
 import pulumi
-from pulumi_azure_native import containerregistry, keyvault
+from pulumi_azure_native import containerregistry
 
 from orbitcloud_graviton.az_acr import (
     ContainerRegistryConfig,
     container_registry,
 )
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
-from orbitcloud_graviton.az_keyvault import KeyVaultConfig, key_vault
+from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
 from orbitcloud_graviton.az_monitor import log_workspace
 from orbitcloud_graviton.az_monitor.log_workspace import LogWorkspaceConfig
 from orbitcloud_graviton.az_providerhub import provider_registration
@@ -60,13 +60,11 @@ def deploy_landing_zone() -> None:
     #   Key Vault
     ##########################################
     if config.has_keyvault and config.keyvault:
-        az_kv: keyvault.Vault = key_vault(
+        KeyVault(
             stack=stack,
             config=config.keyvault,
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
-        pulumi.export("keyvault_name", az_kv.name)
-        pulumi.export("keyvault_id", az_kv.id)
 
     ##########################################
     #   Container Registry
@@ -87,7 +85,7 @@ def deploy_landing_zone() -> None:
         # Event Hub
         EventHub(
             stack=stack,
-            config=config.eventhub.model_copy(update={"credentials_key_vault": az_kv.id}),
+            config=config.eventhub,
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
 
@@ -106,7 +104,15 @@ def deploy_landing_zone() -> None:
                 AzureRbacPermission(
                     role_name="Contributor",
                     scope=f"/subscriptions/{stack.subscription_id}",
-                )
+                ),
+                AzureRbacPermission(
+                    role_name="Role Based Access Control Administrator",
+                    scope=f"/subscriptions/{stack.subscription_id}",
+                ),
+                AzureRbacPermission(
+                    role_name="Key Vault Secrets Officer",
+                    scope=f"/subscriptions/{stack.subscription_id}",
+                ),
             ],
         ),
     )

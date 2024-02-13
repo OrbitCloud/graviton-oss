@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 import pulumi
 import pulumi_azuread as azuread
@@ -9,8 +9,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.az_iam import iam_assignment
 from orbitcloud_graviton.pulumi_lib import AzureBase, EntraBase
-
-from ._types import AppSignInAudience
 
 
 class ClientCredentials(BaseModel):
@@ -38,7 +36,14 @@ class FederatedCredentials(BaseModel):
 class EntraAppConfig(BaseModel):
     name: str
     display_name: Optional[str] = None
-    audience: Optional[AppSignInAudience] = AppSignInAudience.AzureADMyOrg
+    audience: Optional[
+        Literal[
+            "AzureADMyOrg",
+            "AzureADMultipleOrgs",
+            "AzureADandPersonalMicrosoftAccount",
+            "PersonalMicrosoftAccount",
+        ]
+    ] = "AzureADMyOrg"
     client_credentials: Optional[List[ClientCredentials]] = Field(default_factory=list)
     federated_credentials: Optional[List[FederatedCredentials]] = Field(default_factory=list)
 

@@ -11,7 +11,7 @@ from orbitcloud_graviton.az_monitor import az_diagnosticsetting
 from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
 from orbitcloud_graviton.pulumi_lib.types import DomainName
 
-from ._certificate import CertificateConfig, certificate
+from .certificate import CertificateConfig, certificate
 
 
 class ConsumptionProfile(BaseModel):

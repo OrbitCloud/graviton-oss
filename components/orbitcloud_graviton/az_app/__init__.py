@@ -1,4 +1,4 @@
-from ._managed_environment import (
+from .managed_environment import (
     ContainerAppEnvConfig,
     containerapp_environment,
     deploy_containerapp_environment,

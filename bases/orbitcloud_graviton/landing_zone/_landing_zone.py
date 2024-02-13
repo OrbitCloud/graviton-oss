@@ -9,6 +9,8 @@ from orbitcloud_graviton.az_acr import (
 )
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
 from orbitcloud_graviton.az_keyvault import KeyVaultConfig, key_vault
+from orbitcloud_graviton.az_monitor import log_workspace
+from orbitcloud_graviton.az_monitor.log_workspace import LogWorkspaceConfig
 from orbitcloud_graviton.az_providerhub import provider_registration
 from orbitcloud_graviton.entra import (
     AzureRbacPermission,
@@ -28,7 +30,8 @@ from orbitcloud_graviton.pulumi_lib import (
 class LandingZoneConfig(PulumiConfig):
     container_registry: Optional[ContainerRegistryConfig] = ContainerRegistryConfig()
     keyvault: Optional[KeyVaultConfig] = KeyVaultConfig()
-    eventhub: Optional[NamespaceConfig]
+    eventhub: Optional[NamespaceConfig] = None
+    log_workspace: LogWorkspaceConfig = LogWorkspaceConfig()
 
     has_keyvault: Optional[bool] = True
     has_containerregistry: Optional[bool] = True
@@ -45,16 +48,13 @@ def deploy_landing_zone() -> None:
     stack = get_azure_stack()
 
     ##########################################
-    #   Container Registry
+    # Log Workspace
     ##########################################
-    if config.has_containerregistry and config.container_registry:
-        az_cr: containerregistry.Registry = container_registry(
-            stack=stack,
-            config=config.container_registry,
-            opts=pulumi.ResourceOptions(parent=stack.resource_group),
-        )
-        pulumi.export("containerregistry_server", az_cr.login_server)
-        pulumi.export("containerregistry_id", az_cr.id)
+    log_workspace(
+        config=config.log_workspace,
+        stack=stack,
+        opts=pulumi.ResourceOptions(parent=stack.resource_group),
+    )
 
     ##########################################
     #   Key Vault
@@ -69,13 +69,25 @@ def deploy_landing_zone() -> None:
         pulumi.export("keyvault_id", az_kv.id)
 
     ##########################################
+    #   Container Registry
+    ##########################################
+    if config.has_containerregistry and config.container_registry:
+        az_cr: containerregistry.Registry = container_registry(
+            stack=stack,
+            config=config.container_registry,
+            opts=pulumi.ResourceOptions(parent=stack.resource_group),
+        )
+        pulumi.export("containerregistry_server", az_cr.login_server)
+        pulumi.export("containerregistry_id", az_cr.id)
+
+    ##########################################
     #   Event Hub
     ##########################################
     if config.eventhub:
         # Event Hub
         EventHub(
             stack=stack,
-            config=config.eventhub,
+            config=config.eventhub.model_copy(update={"credentials_key_vault": az_kv.id}),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
 

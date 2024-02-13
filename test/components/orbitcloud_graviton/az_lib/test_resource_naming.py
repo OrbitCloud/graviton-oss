@@ -7,17 +7,17 @@ from pulumi_azure_native import (
     storage,
 )
 
-from orbitcloud_graviton.az_lib import location_abbr, resource_namer, resource_opts
+from orbitcloud_graviton.az_lib import get_prefix, location_abbr, resource_namer
 
 
 def test_resource_opts() -> None:
-    assert resource_opts(resources.ResourceGroup).get("prefix") == "rg"
-    assert resource_opts(operationalinsights.Workspace).get("prefix") == "log"
-    assert resource_opts(containerregistry.Registry).get("prefix") == "cr"
-    assert resource_opts(containerregistry.Registry).get("alphanumeric")
+    assert get_prefix(resources.ResourceGroup).get("prefix") == "rg"
+    assert get_prefix(operationalinsights.Workspace).get("prefix") == "log"
+    assert get_prefix(containerregistry.Registry).get("prefix") == "cr"
+    assert get_prefix(containerregistry.Registry).get("alphanumeric")
     # assert a value error is raised when the resource type is not found
     with pytest.raises(ValueError):
-        resource_opts(object)
+        get_prefix(object)
 
 
 def test_location_abbr() -> None:

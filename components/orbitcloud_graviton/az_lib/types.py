@@ -99,23 +99,54 @@ def get_resource_id(
     v: Union[pulumi.Output[str], str],
 ) -> str | pulumi.Output[str]:
     if isinstance(v, pulumi.Output):
+        return v if v.is_known() else v.apply(lambda x: x)
+
+    if v.startswith("/subscriptions"):
+        return AzureResourceId(v).id
+
+    if v.startswith("stack://"):
+        stack_ref, output_name = parse_stack_reference(v)
+        stack_output: pulumi.Output[str] = pulumi.StackReference(stack_ref).require_output(
+            name=output_name
+        )
+
+        return stack_output if stack_output.is_known() else stack_output.apply(lambda x: x)
+
+    raise ValueError(f"{v} is not a valid resource ID reference")
+
+
+def get_resource_name(
+    v: Union[pulumi.Output[str], str],
+    info: ValidationInfo,
+) -> str | pulumi.Output[str] | None:
+    if isinstance(v, pulumi.Output):
         if v.is_known():
             return v
         else:
             return v.apply(lambda x: x)
 
-    if v.startswith("/subscriptions") and AzureResourceId.is_valid(v):
-        return AzureResourceId(v).id
+    if v.startswith("/subscriptions"):
+        return AzureResourceId(v).resource_name
 
     if v.startswith("stack://"):
         stack_ref, output_name = parse_stack_reference(v)
-        stack_output = pulumi.StackReference(stack_ref).require_output(output_name)
-        return stack_output
+        stack_output: pulumi.Output[str] = pulumi.StackReference(stack_ref).require_output(
+            name=output_name
+        )
+        if stack_output.is_known():
+            return stack_output
+        else:
+            return stack_output.apply(lambda x: x)
 
-    raise ValueError(f"{v} is not a valid resource ID reference")
+    raise ValueError(f"{v} is not a valid resource name reference")
 
 
 AzureIdRef = Annotated[
     Union[pulumi.Output[str], str],
-    AfterValidator(get_resource_id),
+    AfterValidator(func=get_resource_id),
+]
+
+AzureNameRef = Annotated[
+    Union[pulumi.Output[str], str],
+    AfterValidator(func=get_resource_name),
 ]

@@ -33,7 +33,7 @@ class EventHub(ComponentResource):
         stack: AzureBase,
         config: NamespaceConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
-    ):
+    ) -> None:
         self.stack: AzureBase = stack
         self.config: NamespaceConfig = config
 

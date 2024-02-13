@@ -30,8 +30,8 @@ class AzureBase(PulumiConfig):
         if self._resource_group:
             return self._resource_group
 
-        self._resource_group = resource_group(self)
-        pulumi.export("resource_group_id", self._resource_group.id.apply)
+        self._resource_group = resource_group(stack=self)
+        pulumi.export("resource_group_id", self._resource_group.id)
         pulumi.export("resource_group_name", self._resource_group.name)
         return self._resource_group
 

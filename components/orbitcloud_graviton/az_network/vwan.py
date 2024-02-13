@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import List, Optional
 
 import pulumi
 from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
+from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
 from .types import PrivateIPv4Network
@@ -13,6 +14,7 @@ from .types import PrivateIPv4Network
 class VirtualWanConfig(BaseModel):
     address_prefix: PrivateIPv4Network
     model_config = ConfigDict(arbitrary_types_allowed=True)
+    hub_vnet_connections: Optional[List[AzureIdRef]] = Field(default_factory=list)
 
 
 class VirtualWan(ComponentResource):
@@ -38,6 +40,9 @@ class VirtualWan(ComponentResource):
 
         self.vwan: network.VirtualWan = self._vwan()
         self.vhub: network.VirtualHub = self._vhub()
+        self.vhub_vnet_connections: List[
+            network.HubVirtualNetworkConnection
+        ] | None = self.vhub_vnet_connection()
 
         self._outputs()
 
@@ -72,6 +77,53 @@ class VirtualWan(ComponentResource):
             ),
         )
         return virtual_hub
+
+    def vhub_vnet_connection(
+        self,
+    ) -> List[network.HubVirtualNetworkConnection] | None:
+        """Creates a Virtual Network Connection in virtual hub"""
+        vnet_connections: List[network.HubVirtualNetworkConnection] = []
+
+        if not self.config.hub_vnet_connections:
+            return None
+
+        for vnet_id in self.config.hub_vnet_connections:
+            vnet_connections.append(
+                network.HubVirtualNetworkConnection(
+                    resource_name=self.stack.name_for(
+                        resource_type=network.HubVirtualNetworkConnection,
+                        workload_name=f"vnet-{self.stack.workload_name}",
+                    ),
+                    resource_group_name=self.stack.resource_group.name,
+                    enable_internet_security=True,
+                    remote_virtual_network=network.SubResourceArgs(
+                        id=vnet_id,
+                    ),
+                    virtual_hub_name=self.vhub.name,
+                    allow_hub_to_remote_vnet_transit=True,
+                    allow_remote_vnet_to_use_hub_vnet_gateways=True,
+                    # routing_configuration=network.RoutingConfigurationArgs(
+                    #     associated_route_table=network.SubResourceArgs(
+                    #         id=network.get_virtual_hub_route_table_v2(
+                    #             resource_group_name=rg.name,
+                    #             virtual_hub_name=vhub.name,
+                    #             route_table_name="defaultRouteTable",
+                    #         ).id,
+                    #     ),
+                    # ),
+                    # propagated_route_tables={
+                    #     "ids": [network.SubResourceArgs(
+                    #         id=network.get_virtual_hub_route_table_v2(
+                    #             resource_group_name=rg.name,
+                    #             virtual_hub_name=vhub.name,
+                    #             route_table_name="defaultRouteTable",
+                    #         ).id,
+                    #     )],
+                    # },
+                    opts=self._opts._merge_instance(pulumi.ResourceOptions(parent=self.vhub)),
+                )
+            )
+        return vnet_connections
 
     def _outputs(self) -> None:
         self.outputs = {

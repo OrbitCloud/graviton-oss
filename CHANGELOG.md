@@ -1,3 +1,34 @@
+## v0.25.0 (2024-02-14)
+
+### Feat
+
+- **AppZone**: Adds AppZone base for deploying application landing zones
+- **stack_schema**: Module for generating JSON validation schema from Pydantic models
+- **KeyVault**: Allow explicitly setting KeyVault name when needed due to global unique constrains
+- **config**: Adds support for getting nested values from dictionary stack outputs
+- **LandingZone**: Configures diagnistoc settings for EventHub
+- **EventHub**: Adds diagnostic_settings to EventHub for logs & metrics
+- **az_network**: Implements vhub connections in vhub
+- **az_lib**: Adds AzureNameRef data type for resolving resource name references
+- **keyvault**: Adds network configuration options and implements Secret module
+- **landing_zone**: Adds log workspace to landing zone
+
+### Fix
+
+- **AzureIdRef**: Fixes an issue when same stack output is referenced twice in same stack
+- **KeyVault**: Allowed vnets should be subnet IDs
+- **VNet**: Fixes stack export of subnets
+- **type**: Various type improvements
+
+### Refactor
+
+- **ContainerAppEnv+az_monitor**: Refactors ContainerAppEnv and diagnostic_settings
+- **az_lib**: Moves resource name prefixes to a seperate file
+- **entra_app**: Use Literal for audience options instead of Enum
+- **containerapp-env**: Changes to module imports
+
+## 0.24.0 (2024-02-12)
+
 ## v0.24.0 (2024-02-12)
 
 ## v0.23.0 (2024-02-12)

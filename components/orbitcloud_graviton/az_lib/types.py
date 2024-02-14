@@ -1,7 +1,7 @@
 import re
 from functools import reduce
 from typing import Annotated, Any, Union
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pulumi
 from pulumi.runtime.sync_await import _sync_await
@@ -107,6 +107,7 @@ def deep_get(obj: dict, path, default=None) -> Any | None:
 
 def get_resource_id(
     v: Union[pulumi.Output[str], str],
+    info: ValidationInfo,
 ) -> str | pulumi.Output[str]:
     if isinstance(v, pulumi.Output):
         return v if v.is_known() else v.apply(lambda x: x)
@@ -118,7 +119,9 @@ def get_resource_id(
         stack_ref, output_name = parse_stack_reference(v)
 
         if "." in output_name:
-            stack = pulumi.StackReference(name=v, stack_name=stack_ref)
+            stack = pulumi.StackReference(
+                name=f"{v}-{uuid4().hex.upper()[0:3]}", stack_name=stack_ref
+            )
             parent: str = output_name.split(".")[0]
             path: str = ".".join(output_name.split(".")[1:])
 

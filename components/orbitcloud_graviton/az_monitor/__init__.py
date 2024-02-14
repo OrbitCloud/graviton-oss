@@ -1,8 +1,8 @@
-from .az_diagnosticsetting import az_diagnosticsetting
+from .az_diagnosticsetting import diagnostic_setting
 from .log_workspace import LogWorkspaceConfig, log_workspace
 
 __all__ = [
     "log_workspace",
-    "az_diagnosticsetting",
+    "diagnostic_setting",
     "LogWorkspaceConfig",
 ]

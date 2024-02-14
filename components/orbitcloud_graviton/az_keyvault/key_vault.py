@@ -3,7 +3,7 @@ from typing import List, Optional
 import pulumi
 from pulumi import ComponentResource, ResourceOptions
 from pulumi_azure_native import keyvault
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_network.types import PublicIPv4Network
@@ -11,15 +11,38 @@ from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
 class KeyVaultConfig(BaseModel):
-    public_network_access: keyvault.PublicNetworkAccess = keyvault.PublicNetworkAccess.DISABLED
-    allowed_private_vnets: Optional[List[AzureIdRef]] = None
-    allowed_public_networks: Optional[List[PublicIPv4Network]] = None
-    allow_azure_services: Optional[bool] = True
+    public_network_access: keyvault.PublicNetworkAccess = Field(
+        default=keyvault.PublicNetworkAccess.DISABLED,
+        title="Public Network Access",
+        description="Whether the key vault is accessible from public networks.",
+    )
+    allowed_private_subnets: Optional[List[AzureIdRef]] = Field(
+        default=None,
+        title="Allowed private subnets",
+        description="Allows network access from a list of Private Subnets",
+        examples=[
+            "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-name/providers/Microsoft.Network/virtualNetworks/vnet-name/subnets/subnet-name"
+            "stack://project/stack-name/output-name",
+            "stack://project/stack-name/output-name.subnet_id",
+            "stack://project/stack-name/output-name.subnets.subnet_id",
+        ],
+    )
+    allowed_public_networks: Optional[List[PublicIPv4Network]] = Field(
+        default=None,
+        title="Allowed public networks",
+        description="Allows network access from a list of Public Networks. Must be in CIDR notation.",
+        examples=["157.157.205.0/24", "103.103.10.5/32"],
+    )
+    allow_azure_services: Optional[bool] = Field(
+        default=True,
+        title="Allow Azure Services",
+        description="Allow traffic from trusted Azure services",
+    )
 
     @model_validator(mode="after")
     def validate_network_access(m: "KeyVaultConfig") -> "KeyVaultConfig":
         if m.public_network_access == keyvault.PublicNetworkAccess.ENABLED:
-            if m.allowed_private_vnets is None and m.allowed_public_networks is None:
+            if m.allowed_private_subnets is None and m.allowed_public_networks is None:
                 pulumi.warn(
                     msg="KeyVault is configured to allow public network access, \
                         but no private subnets or public networks are allowed \
@@ -77,11 +100,11 @@ class KeyVault(ComponentResource):
                 else [],
                 virtual_network_rules=(
                     [
-                        keyvault.VirtualNetworkRuleArgs(id=vnet)
-                        for vnet in self.config.allowed_private_vnets
+                        keyvault.VirtualNetworkRuleArgs(id=subnet_id)
+                        for subnet_id in self.config.allowed_private_subnets
                     ]
                 )
-                if self.config.allowed_private_vnets
+                if self.config.allowed_private_subnets
                 else [],
             )
         return None

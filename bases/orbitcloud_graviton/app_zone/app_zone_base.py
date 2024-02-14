@@ -8,7 +8,12 @@ from orbitcloud_graviton.az_acr.registry import ContainerRegistryConfig
 from orbitcloud_graviton.az_app import ContainerAppEnv, ContainerAppEnvConfig
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
 from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
-from orbitcloud_graviton.az_monitor import LogWorkspaceConfig, log_workspace
+from orbitcloud_graviton.az_monitor import (
+    AppInsightsConfig,
+    LogWorkspaceConfig,
+    app_insights,
+    log_workspace,
+)
 from orbitcloud_graviton.az_storage import StorageAccountConfig
 from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
 
@@ -24,6 +29,8 @@ class AppHubBaseConfig(PulumiConfig):
     event_hub: Optional[NamespaceConfig] = None
     storage_account: Optional[StorageAccountConfig] = None
     container_registry: Optional[ContainerRegistryConfig] = None
+
+    app_insights: Optional[AppInsightsConfig] = None
 
 
 def deploy() -> None:
@@ -41,12 +48,27 @@ def deploy() -> None:
     )
 
     ##########################################
+    # Application Insights
+    ##########################################
+    appi = app_insights(
+        stack=stack,
+        config=AppInsightsConfig(log_workspace_id=logs.id).model_copy(
+            update=config.app_insights.model_dump() if config.app_insights else {}
+        ),
+        opts=pulumi.ResourceOptions(parent=stack.resource_group),
+    )
+
+    ##########################################
     # Container App Environment
     ##########################################
     ContainerAppEnv(
         stack=stack,
         config=config.containerapp_env.model_copy(
-            update={"log_workspace_id": logs.id},
+            update={
+                "log_workspace_id": logs.id,
+                "dapr_appi_connstring": appi.connection_string,
+                "dapr_appi_instrumentation_key": appi.instrumentation_key,
+            },
         ),
         opts=pulumi.ResourceOptions(parent=stack.resource_group),
     )

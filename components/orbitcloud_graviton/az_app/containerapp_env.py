@@ -38,6 +38,9 @@ class ContainerAppEnvConfig(BaseModel):
     certificates: Optional[List[CertificateConfig]] = None
     custom_domain: Optional[CustomDomain] = None
 
+    dapr_appi_connstring: Optional[Union[str, pulumi.Output]] = None
+    dapr_appi_instrumentation_key: Optional[Union[str, pulumi.Output]] = None
+
     log_workspace_id: Optional[AzureIdRef] = None
 
     @model_validator(mode="after")
@@ -84,7 +87,10 @@ class ContainerAppEnv(pulumi.ComponentResource):
             # Workload config
             workload_profiles=self._workload_profiles(),
             zone_redundant=self.config.zone_redundant,
+            # Logging
             app_logs_configuration=app.AppLogsConfigurationArgs(destination="azure-monitor"),
+            dapr_ai_connection_string=self.config.dapr_appi_connstring,
+            dapr_ai_instrumentation_key=self.config.dapr_appi_instrumentation_key,
             # Custom domain config
             custom_domain_configuration=self._custom_domain(),
             # VNET config

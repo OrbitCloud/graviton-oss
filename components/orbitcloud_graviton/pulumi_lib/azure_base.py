@@ -19,7 +19,11 @@ class AzureBase(PulumiConfig):
     location: str = Field(..., validation_alias="azure-native:location")
 
     env: str
-    workload_name: str
+    workload_name: str = Field(
+        ...,
+        title="Workload Name",
+        description="The name of the workload, used for naming resources",
+    )
     tags: Optional[Dict[str, str]] = None
 
     resource_group_name: Optional[str] = None

@@ -74,5 +74,6 @@
   "ruff.lint.run": "onType",
   "ruff.path": [".venv/bin/ruff"],
   "pythonIndent.trimLinesWithOnlyWhitespace": true,
-  "python.analysis.typeCheckingMode": "basic"
+  "python.analysis.typeCheckingMode": "basic",
+  "yaml.hover": true
 }

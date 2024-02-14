@@ -19,7 +19,11 @@ class AzureBase(PulumiConfig):
     location: str = Field(..., validation_alias="azure-native:location")
 
     env: str
-    workload_name: str
+    workload_name: str = Field(
+        ...,
+        title="Workload Name",
+        description="The name of the workload, used for naming resources",
+    )
     tags: Optional[Dict[str, str]] = None
 
     resource_group_name: Optional[str] = None
@@ -30,8 +34,8 @@ class AzureBase(PulumiConfig):
         if self._resource_group:
             return self._resource_group
 
-        self._resource_group = resource_group(self)
-        pulumi.export("resource_group_id", self._resource_group.id.apply)
+        self._resource_group = resource_group(stack=self)
+        pulumi.export("resource_group_id", self._resource_group.id)
         pulumi.export("resource_group_name", self._resource_group.name)
         return self._resource_group
 

@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import pulumi
 from pulumi import ComponentResource
@@ -82,17 +82,17 @@ class Vnet(ComponentResource):
             opts=opts,
         )
         self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
-            opts, pulumi.ResourceOptions(parent=self)
+            opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
 
-        self.vnet = self._vnet()
-        self.subnets = self._subnets()
+        self.vnet: network.VirtualNetwork = self._vnet()
+        self.subnets: Dict[str, network.Subnet] = self._subnets()
 
         self._outputs()
 
     def _vnet(self) -> network.VirtualNetwork:
         return network.VirtualNetwork(
-            self.stack.name_for(network.VirtualNetwork),
+            resource_name=self.stack.name_for(network.VirtualNetwork),
             args=network.VirtualNetworkArgs(
                 resource_group_name=self.stack.resource_group.name,
                 location=self.stack.location,
@@ -105,10 +105,12 @@ class Vnet(ComponentResource):
             ),
         )
 
-    def _subnets(self) -> list[network.Subnet]:
-        return [
-            network.Subnet(
-                resource_name=self.stack.name_for(network.Subnet, subnet.name),
+    def _subnets(self) -> Dict[str, network.Subnet]:
+        return {
+            subnet.name: network.Subnet(
+                resource_name=self.stack.name_for(
+                    resource_type=network.Subnet, workload_name=subnet.name
+                ),
                 args=network.SubnetInitArgs(
                     resource_group_name=self.stack.resource_group.name,
                     virtual_network_name=self.vnet.name,
@@ -122,7 +124,7 @@ class Vnet(ComponentResource):
                 ),
             )
             for subnet in self.config.subnets
-        ]
+        }
 
     def _subnet_service_endpoints_args(
         self, subnet: SubnetConfig
@@ -152,46 +154,6 @@ class Vnet(ComponentResource):
             else None
         )
 
-    def vhub_connection(
-        self,
-        virtual_hub: network.VirtualHub,
-    ) -> network.HubVirtualNetworkConnection:
-        """Creates a Virtual Network Connection in virtual hub"""
-        hub_virtual_network_connection = network.HubVirtualNetworkConnection(
-            self.stack.name_for(
-                network.HubVirtualNetworkConnection,
-                workload_name=f"vnet-{self.stack.workload_name}",
-            ),
-            resource_group_name=self.stack.resource_group.name,
-            enable_internet_security=True,
-            remote_virtual_network=network.SubResourceArgs(
-                id=self.vnet.id.apply(lambda id: f"{id}"),
-            ),
-            virtual_hub_name=virtual_hub.name,
-            allow_hub_to_remote_vnet_transit=True,
-            allow_remote_vnet_to_use_hub_vnet_gateways=True,
-            # routing_configuration=network.RoutingConfigurationArgs(
-            #     associated_route_table=network.SubResourceArgs(
-            #         id=network.get_virtual_hub_route_table_v2(
-            #             resource_group_name=rg.name,
-            #             virtual_hub_name=vhub.name,
-            #             route_table_name="defaultRouteTable",
-            #         ).id,
-            #     ),
-            # ),
-            # propagated_route_tables={
-            #     "ids": [network.SubResourceArgs(
-            #         id=network.get_virtual_hub_route_table_v2(
-            #             resource_group_name=rg.name,
-            #             virtual_hub_name=vhub.name,
-            #             route_table_name="defaultRouteTable",
-            #         ).id,
-            #     )],
-            # },
-            opts=self._opts._merge_instance(pulumi.ResourceOptions(parent=self.vnet)),
-        )
-        return hub_virtual_network_connection
-
     def _outputs(self) -> None:
         self.register_outputs(
             {
@@ -200,17 +162,19 @@ class Vnet(ComponentResource):
             }
         )
 
+        def _subnet_export() -> dict:
+            subnet_export = {}
+            for name, subnet in self.subnets.items():
+                subnet_export[name] = {
+                    "name": subnet.name.apply(lambda x: x),
+                    "id": subnet.id.apply(lambda x: x),
+                    "address_prefix": subnet.address_prefix.apply(lambda x: x),
+                }
+            return subnet_export
+
         pulumi.export("vnet_id", self.vnet.id)
         pulumi.export(
-            "subnets",
-            self.vnet.subnets.apply(
-                lambda args: {
-                    f"{subnet.name}": {
-                        "name": subnet.name,
-                        "id": subnet.id,
-                        "address_prefix": subnet.address_prefix,
-                    }
-                    for subnet in args
-                }
-            ),
+            name="subnets",
+            value=_subnet_export(),
+            # pulumi.Output.all(*[subnet_export()]).apply(lambda x: x),
         )

@@ -1,30 +1,23 @@
-from typing import Any, List, Optional
+from typing import List, Optional, Union
 
-from pulumi_azure_native import insights, operationalinsights
+import pulumi
+from pulumi_azure_native import insights
 
 
-def az_diagnosticsetting(
-    resource: Any,
-    log_workspace: operationalinsights.Workspace,
+def diagnostic_setting(
+    resource: pulumi.CustomResource,
+    log_workspace_id: Union[str, pulumi.Output[str]],
     log_categories: Optional[List[str]] = None,
     metric_categories: Optional[List[str]] = None,
     opts=None,
 ) -> insights.DiagnosticSetting:
-    if not hasattr(resource, "id"):
-        raise ValueError("target resource must have an id attribute")
-
-    if not hasattr(resource, "name"):
-        raise ValueError("target resource must have a name attribute")
-
     metric_categories = metric_categories or ["AllMetrics"]
-
-    # pylint: disable=protected-access
     diag_name: str = "diag-" + resource._name
 
     settings = insights.DiagnosticSetting(
         resource_name=diag_name,
         resource_uri=resource.id,
-        workspace_id=log_workspace.id,
+        workspace_id=log_workspace_id,
         metrics=[
             insights.MetricSettingsArgs(
                 category=category,

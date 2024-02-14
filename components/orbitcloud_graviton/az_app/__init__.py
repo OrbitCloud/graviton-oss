@@ -1,11 +1,9 @@
-from ._managed_environment import (
+from .containerapp_env import (
+    ContainerAppEnv,
     ContainerAppEnvConfig,
-    containerapp_environment,
-    deploy_containerapp_environment,
 )
 
 __all__ = [
-    "containerapp_environment",
+    "ContainerAppEnv",
     "ContainerAppEnvConfig",
-    "deploy_containerapp_environment",
 ]

@@ -6,18 +6,29 @@ from pulumi_azure_native import (
     resources,
     storage,
 )
+from pulumi_azure_native.app.v20230502preview import ContainerApp as VersionedContainerApp
+from pulumi_azure_native.resources.v20220901 import ResourceGroup as VersionedResourceGroup
 
-from orbitcloud_graviton.az_lib import location_abbr, resource_namer, resource_opts
+from orbitcloud_graviton.az_lib import get_prefix, location_abbr, resource_namer
 
 
-def test_resource_opts() -> None:
-    assert resource_opts(resources.ResourceGroup).get("prefix") == "rg"
-    assert resource_opts(operationalinsights.Workspace).get("prefix") == "log"
-    assert resource_opts(containerregistry.Registry).get("prefix") == "cr"
-    assert resource_opts(containerregistry.Registry).get("alphanumeric")
-    # assert a value error is raised when the resource type is not found
+def test_resource_prefix() -> None:
+    assert get_prefix(resources.ResourceGroup).get("prefix") == "rg"
+    assert get_prefix(operationalinsights.Workspace).get("prefix") == "log"
+    assert get_prefix(containerregistry.Registry).get("prefix") == "cr"
+
+
+def test_versioned_resource_prefix() -> None:
+    assert get_prefix(VersionedResourceGroup).get("prefix") == "rg"
+
+
+def test_versioned_preview_prefix() -> None:
+    assert get_prefix(VersionedContainerApp).get("prefix") == "app"
+
+
+def test_resource_prefix_undefined() -> None:
     with pytest.raises(ValueError):
-        resource_opts(object)
+        get_prefix(object)
 
 
 def test_location_abbr() -> None:
@@ -26,11 +37,13 @@ def test_location_abbr() -> None:
     assert location_abbr("norwayeast") == "noe"
     assert location_abbr("norwaywest") == "now"
 
+
+def test_location_abbr_undefined() -> None:
     with pytest.raises(ValueError):
         location_abbr("not_a_location")
 
 
-def test_resource_namer() -> None:
+def test_resource_names() -> None:
     assert (
         resource_namer(resources.ResourceGroup, "test", "dev", "westeurope") == "rg-test-dev-weu-01"
     )
@@ -43,12 +56,20 @@ def test_resource_namer() -> None:
         == "log-test-dev-neu-01"
     )
 
+
+def test_alphanumeric_resource_names() -> None:
     assert (
         resource_namer(containerregistry.Registry, "test", "dev", "westeurope") == "CrTestDevWeu01"
     )
-    assert resource_namer(storage.StorageAccount, "test", "dev", "westeurope") == "sttestdevweu01"
     assert resource_namer(keyvault.Vault, "test", "dev", "westeurope") == "KvTestDevWeu01"
 
-    # assert a value error is raised when the resource type is not found
+
+def test_alphanumeric_lowercase_resource_names() -> None:
+    assert get_prefix(storage.StorageAccount).get("alphanumeric") is True
+    assert get_prefix(storage.StorageAccount).get("lowercase") is True
+    assert resource_namer(storage.StorageAccount, "test", "dev", "westeurope") == "sttestdevweu01"
+
+
+def test_resource_namer_undefined() -> None:
     with pytest.raises(ValueError):
         resource_namer(object, "test", "dev", "westeurope")

@@ -9,6 +9,7 @@ packages = [
     # Lib and helpers
     { include = "orbitcloud_graviton/pulumi_mocks", from = "components" },
     { include = "orbitcloud_graviton/az_lib", from = "components" },
+    { include = "orbitcloud_graviton/pulumi_lib",from = "components" },
     # Azure Components
     { include = "orbitcloud_graviton/az_acr", from = "components" },
     { include = "orbitcloud_graviton/az_app", from = "components" },
@@ -19,7 +20,6 @@ packages = [
     { include = "orbitcloud_graviton/az_storage",from = "components" },
     { include = "orbitcloud_graviton/az_iam",from = "components" },
     { include = "orbitcloud_graviton/az_network",from = "components" },
-    { include = "orbitcloud_graviton/pulumi_lib",from = "components" },
     { include = "orbitcloud_graviton/entra",from = "components" },
     { include = "orbitcloud_graviton/az_eventhub",from = "components" },
     {include = "orbitcloud_graviton/az_providerhub",from = "components"},
@@ -27,6 +27,7 @@ packages = [
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
     { include = "orbitcloud_graviton/landing_zone",from = "bases" },
     { include = "orbitcloud_graviton/hubspoke",from = "bases" },
+    {include = "orbitcloud_graviton/app_zone",from = "bases"},
 ]
 
 [tool.polylith]

@@ -1,14 +1,16 @@
 from typing import Optional
 
 import pulumi
-from pulumi_azure_native import containerregistry, keyvault
+from pulumi_azure_native import containerregistry
 
 from orbitcloud_graviton.az_acr import (
     ContainerRegistryConfig,
     container_registry,
 )
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
-from orbitcloud_graviton.az_keyvault import KeyVaultConfig, key_vault
+from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
+from orbitcloud_graviton.az_monitor import log_workspace
+from orbitcloud_graviton.az_monitor.log_workspace import LogWorkspaceConfig
 from orbitcloud_graviton.az_providerhub import provider_registration
 from orbitcloud_graviton.entra import (
     AzureRbacPermission,
@@ -28,7 +30,8 @@ from orbitcloud_graviton.pulumi_lib import (
 class LandingZoneConfig(PulumiConfig):
     container_registry: Optional[ContainerRegistryConfig] = ContainerRegistryConfig()
     keyvault: Optional[KeyVaultConfig] = KeyVaultConfig()
-    eventhub: Optional[NamespaceConfig]
+    eventhub: Optional[NamespaceConfig] = None
+    log_workspace: LogWorkspaceConfig = LogWorkspaceConfig()
 
     has_keyvault: Optional[bool] = True
     has_containerregistry: Optional[bool] = True
@@ -45,6 +48,25 @@ def deploy_landing_zone() -> None:
     stack = get_azure_stack()
 
     ##########################################
+    # Log Workspace
+    ##########################################
+    logs = log_workspace(
+        config=config.log_workspace,
+        stack=stack,
+        opts=pulumi.ResourceOptions(parent=stack.resource_group),
+    )
+
+    ##########################################
+    #   Key Vault
+    ##########################################
+    if config.has_keyvault and config.keyvault:
+        KeyVault(
+            stack=stack,
+            config=config.keyvault,
+            opts=pulumi.ResourceOptions(parent=stack.resource_group),
+        )
+
+    ##########################################
     #   Container Registry
     ##########################################
     if config.has_containerregistry and config.container_registry:
@@ -57,25 +79,13 @@ def deploy_landing_zone() -> None:
         pulumi.export("containerregistry_id", az_cr.id)
 
     ##########################################
-    #   Key Vault
-    ##########################################
-    if config.has_keyvault and config.keyvault:
-        az_kv: keyvault.Vault = key_vault(
-            stack=stack,
-            config=config.keyvault,
-            opts=pulumi.ResourceOptions(parent=stack.resource_group),
-        )
-        pulumi.export("keyvault_name", az_kv.name)
-        pulumi.export("keyvault_id", az_kv.id)
-
-    ##########################################
     #   Event Hub
     ##########################################
     if config.eventhub:
         # Event Hub
         EventHub(
             stack=stack,
-            config=config.eventhub,
+            config=config.eventhub.model_copy(update={"log_workspace_id": logs.id}),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
 
@@ -94,7 +104,15 @@ def deploy_landing_zone() -> None:
                 AzureRbacPermission(
                     role_name="Contributor",
                     scope=f"/subscriptions/{stack.subscription_id}",
-                )
+                ),
+                AzureRbacPermission(
+                    role_name="Role Based Access Control Administrator",
+                    scope=f"/subscriptions/{stack.subscription_id}",
+                ),
+                AzureRbacPermission(
+                    role_name="Key Vault Secrets Officer",
+                    scope=f"/subscriptions/{stack.subscription_id}",
+                ),
             ],
         ),
     )

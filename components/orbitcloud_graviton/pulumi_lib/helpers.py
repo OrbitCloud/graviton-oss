@@ -3,7 +3,7 @@ from typing import Any, List
 import yaml
 
 
-def print_pulumi_esc_oidc_yaml(args: List[Any]):
+def print_pulumi_esc_oidc_yaml(args: List[Any]) -> None:
     client_id, tenant_id, subscription_id = args
 
     yaml_structure = {

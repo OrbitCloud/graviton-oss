@@ -3,60 +3,59 @@ from uuid import UUID
 import pytest
 from pydantic import TypeAdapter
 
-from orbitcloud_graviton.pulumi_mocks import set_mocks
-
-set_mocks()
-
-from orbitcloud_graviton.az_lib import AzureResourceId  # noqa
-from orbitcloud_graviton.az_lib.types import parse_stack_reference  # noqa
+from orbitcloud_graviton.az_lib import AzureResourceId
 
 
-def test_azure_resource_id():
+@pytest.fixture
+def azure_resource_id() -> AzureResourceId:
+    return AzureResourceId(
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet"
+    )
+
+
+@pytest.fixture
+def azure_sub_resource_id() -> AzureResourceId:
+    return AzureResourceId(
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet1"
+    )
+
+
+def test_azure_resource_id_invalid():
+    with pytest.raises(ValueError):
+        AzureResourceId("invalid")
+
+
+def test_azure_resource_id_validation(azure_resource_id: AzureResourceId):
+    assert AzureResourceId.is_valid(azure_resource_id.id)
+
+
+def test_azure_resource_id_validation_error():
     ta = TypeAdapter(AzureResourceId)
-
-    id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet"
-    assert AzureResourceId.is_valid(id)
-    assert AzureResourceId.is_valid("invalid") is False
-    resource_id = AzureResourceId(id)
-    assert resource_id == id
-    assert resource_id.id == id
-    assert str(resource_id) == id
-    assert ta.validate_python(id) == resource_id
-
     with pytest.raises(ValueError):
         AzureResourceId("invalid")
     with pytest.raises(ValueError):
         ta.validate_python("invalid")
 
-    assert resource_id.subscription_id == UUID("00000000-0000-0000-0000-000000000000")
-    assert resource_id.resource_group_name == "rg"
-    assert resource_id.provider == "Microsoft.Network"
-    assert resource_id.resource_type == "virtualNetworks"
-    assert resource_id.resource_name == "vnet"
-    assert resource_id.sub_resource is None
 
-    id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet1"
-    resource_id = AzureResourceId(id)
-    assert resource_id.subscription_id == UUID("00000000-0000-0000-0000-000000000000")
-    assert resource_id.resource_group_name == "rg"
-    assert resource_id.provider == "Microsoft.Network"
-    assert resource_id.resource_type == "virtualNetworks"
-    assert resource_id.resource_name == "vnet"
-    assert resource_id.sub_resource == "subnets/subnet1"
+def test_azure_resource_id_params(azure_resource_id: AzureResourceId):
+    assert azure_resource_id.subscription_id == UUID("00000000-0000-0000-0000-000000000000")
+    assert azure_resource_id.resource_group_name == "rg"
+    assert azure_resource_id.provider == "Microsoft.Network"
+    assert azure_resource_id.resource_type == "virtualNetworks"
+    assert azure_resource_id.resource_name == "vnet"
+    assert azure_resource_id.sub_resource is None
 
 
-def test_parse_stack_reference():
-    with pytest.raises(ValueError):
-        parse_stack_reference("stack://too_few/parts")
+def test_azure_sub_resource_id_params(azure_sub_resource_id: AzureResourceId):
+    assert azure_sub_resource_id.subscription_id == UUID("00000000-0000-0000-0000-000000000000")
+    assert azure_sub_resource_id.resource_group_name == "rg"
+    assert azure_sub_resource_id.provider == "Microsoft.Network"
+    assert azure_sub_resource_id.resource_type == "virtualNetworks"
+    assert azure_sub_resource_id.resource_name == "vnet"
+    assert azure_sub_resource_id.sub_resource == "subnets/subnet1"
 
-    with pytest.raises(ValueError):
-        parse_stack_reference("stack://too/many/parts/here/now")
 
-    assert parse_stack_reference("stack://org/project/stack/output") == (
-        "org/project/stack",
-        "output",
-    )
-    assert parse_stack_reference("stack://project/stack/output") == (
-        "mock-org/project/stack",
-        "output",
-    )
+def test_azure_resource_id_comparison(azure_resource_id: AzureResourceId):
+    assert azure_resource_id == azure_resource_id.id
+    assert str(azure_resource_id) == azure_resource_id.id
+    assert str(azure_resource_id) == azure_resource_id

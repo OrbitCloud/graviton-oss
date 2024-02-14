@@ -6,7 +6,7 @@ import pulumi
 from pulumi_azure_native import insights, operationalinsights, resources, web
 
 from orbitcloud_graviton.az_lib import resource_namer
-from orbitcloud_graviton.az_monitor import az_diagnosticsetting
+from orbitcloud_graviton.az_monitor import diagnostic_setting
 
 
 class PlanSkuTiers(str, Enum):
@@ -148,9 +148,9 @@ def _az_appservice_plan_diagnostic(
     resource: web.AppServicePlan,
     log_workspace: operationalinsights.Workspace,
 ) -> insights.DiagnosticSetting:
-    settings = az_diagnosticsetting(
+    settings = diagnostic_setting(
         resource=resource,
-        log_workspace=log_workspace,
+        log_workspace_id=log_workspace.id,
         metric_categories=["AllMetrics"],
         opts=pulumi.ResourceOptions(parent=resource),
     )

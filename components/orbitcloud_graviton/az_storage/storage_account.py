@@ -8,9 +8,9 @@ from pydantic import BaseModel, ConfigDict
 from orbitcloud_graviton.az_lib.types import AzureResourceId
 from orbitcloud_graviton.az_network import (
     PrivateEndpointConfig,
-    PrivateIPv4Network,
     az_private_endpoint,
 )
+from orbitcloud_graviton.az_network.types import PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
@@ -28,7 +28,7 @@ class StorageAccountConfig(BaseModel):
     nfs_v3: Optional[bool] = False
 
     allowed_private_subnets: Optional[List[Union[str, AzureResourceId]]] = None
-    allowed_public_networks: Optional[List[PrivateIPv4Network]] = None
+    allowed_public_networks: Optional[List[PublicIPv4Network]] = None
 
     private_endpoints: Optional[list[PrivateEndpointConfig]] = None
     storage_tables: Optional[List[str]] = None

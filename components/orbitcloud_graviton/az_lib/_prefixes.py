@@ -63,4 +63,5 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.providerhub.resource_type_registration": {"prefix": "prov"},
     "pulumi_azure_native.eventhub.namespace_authorization_rule": {"prefix": "evhns-key"},
     "pulumi_azure_native.keyvault.secret": {"prefix": "kvs"},
+    "pulumi_azure_native.app.container_app": {"prefix": "app"},
 }

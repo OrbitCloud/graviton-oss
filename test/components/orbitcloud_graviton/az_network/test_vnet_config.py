@@ -6,8 +6,8 @@ from orbitcloud_graviton.az_network import VnetConfig
 
 
 @pytest.fixture
-def test_vnet_config():
-    config = VnetConfig.model_validate(
+def test_vnet_config_validation():
+    config: VnetConfig = VnetConfig.model_validate(
         {
             "address_space": ["10.0.0.0/16"],
             "subnets": [
@@ -16,11 +16,12 @@ def test_vnet_config():
             ],
         }
     )
+    assert isinstance(config, VnetConfig)
     assert isinstance(config.address_space[0], IPv4Network)
-    assert config.address_space[0] == IPv4Network("10.0.0.0/16")
+    assert config.address_space[0] == IPv4Network(address="10.0.0.0/16")
     assert isinstance(config.subnets, list)
     assert isinstance(config.subnets[0].address_prefix, IPv4Network)
-    assert config.subnets[0].address_prefix == IPv4Network("10.0.1.0/24")
+    assert config.subnets[0].address_prefix == IPv4Network(address="10.0.1.0/24")
     assert config.subnets[0].name == "subnet1"
 
 
@@ -80,7 +81,7 @@ def test_vnet_unique_subnets_exception() -> None:
 
 
 def test_vnet_overlapping_subnets() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as e:
         VnetConfig.model_validate(
             {
                 "address_space": ["10.0.0.0/16"],
@@ -90,3 +91,4 @@ def test_vnet_overlapping_subnets() -> None:
                 ],
             }
         )
+        assert "overlaps with another subnet" in str(e)

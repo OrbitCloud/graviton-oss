@@ -50,7 +50,7 @@ def deploy_landing_zone() -> None:
     ##########################################
     # Log Workspace
     ##########################################
-    log_workspace(
+    logs = log_workspace(
         config=config.log_workspace,
         stack=stack,
         opts=pulumi.ResourceOptions(parent=stack.resource_group),
@@ -85,7 +85,7 @@ def deploy_landing_zone() -> None:
         # Event Hub
         EventHub(
             stack=stack,
-            config=config.eventhub,
+            config=config.eventhub.model_copy(update={"log_workspace_id": logs.id}),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
 

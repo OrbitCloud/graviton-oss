@@ -27,7 +27,7 @@ packages = [
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
     { include = "orbitcloud_graviton/landing_zone",from = "bases" },
     { include = "orbitcloud_graviton/hubspoke",from = "bases" },
-    {include = "orbitcloud_graviton/app_runway",from = "bases"},
+    {include = "orbitcloud_graviton/app_zone",from = "bases"},
 ]
 
 [tool.polylith]

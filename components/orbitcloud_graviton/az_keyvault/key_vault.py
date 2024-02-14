@@ -2,10 +2,11 @@ from typing import List, Optional
 
 import pulumi
 from pulumi import ComponentResource, ResourceOptions
-from pulumi_azure_native import keyvault
+from pulumi_azure_native import insights, keyvault
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
+from orbitcloud_graviton.az_monitor.az_diagnosticsetting import diagnostic_setting
 from orbitcloud_graviton.az_network.types import PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
@@ -44,6 +45,8 @@ class KeyVaultConfig(BaseModel):
         description="Allow traffic from trusted Azure services",
     )
 
+    log_workspace_id: Optional[AzureIdRef] = None
+
     @model_validator(mode="after")
     def validate_network_access(m: "KeyVaultConfig") -> "KeyVaultConfig":
         if m.public_network_access == keyvault.PublicNetworkAccess.ENABLED:
@@ -73,6 +76,8 @@ class KeyVault(ComponentResource):
         )
 
         self.vault: keyvault.Vault = self._vault()
+        self._diagnostic_settings()
+        self._outputs()
 
     def _vault(self) -> keyvault.Vault:
         return keyvault.Vault(
@@ -114,6 +119,18 @@ class KeyVault(ComponentResource):
                 else [],
             )
         return None
+
+    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+        if self.config.log_workspace_id:
+            return diagnostic_setting(
+                resource=self.vault,
+                log_workspace_id=self.config.log_workspace_id,
+                metric_categories=["AllMetrics"],
+                log_categories=[
+                    "AuditEvent",
+                ],
+                opts=pulumi.ResourceOptions(parent=self.vault),
+            )
 
     def _outputs(self) -> None:
         self.register_outputs({"vault": self.vault})

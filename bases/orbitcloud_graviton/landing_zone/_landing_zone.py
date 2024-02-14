@@ -9,8 +9,7 @@ from orbitcloud_graviton.az_acr import (
 )
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
 from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
-from orbitcloud_graviton.az_monitor import log_workspace
-from orbitcloud_graviton.az_monitor.log_workspace import LogWorkspaceConfig
+from orbitcloud_graviton.az_monitor import LogWorkspaceConfig, log_workspace
 from orbitcloud_graviton.az_providerhub import provider_registration
 from orbitcloud_graviton.entra import (
     AzureRbacPermission,
@@ -62,7 +61,7 @@ def deploy_landing_zone() -> None:
     if config.has_keyvault and config.keyvault:
         KeyVault(
             stack=stack,
-            config=config.keyvault,
+            config=config.keyvault.model_copy(update={"log_workspace_id": logs.id}),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
 

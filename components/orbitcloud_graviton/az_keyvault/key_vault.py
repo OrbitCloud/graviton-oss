@@ -11,6 +11,11 @@ from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
 class KeyVaultConfig(BaseModel):
+    name: Optional[str] = Field(
+        default=None,
+        title="Explicitly set Key Vault name",
+        description="The name of the Key Vault. If not set, a name will be generated.",
+    )
     public_network_access: keyvault.PublicNetworkAccess = Field(
         default=keyvault.PublicNetworkAccess.DISABLED,
         title="Public Network Access",
@@ -72,6 +77,7 @@ class KeyVault(ComponentResource):
     def _vault(self) -> keyvault.Vault:
         return keyvault.Vault(
             resource_name=self.stack.name_for(resource_type=keyvault.Vault),
+            vault_name=self.config.name,
             resource_group_name=self.stack.resource_group.name,
             location=self.stack.location,
             properties=keyvault.VaultPropertiesArgs(

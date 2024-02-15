@@ -58,7 +58,7 @@ class KeyVaultConfig(BaseModel):
                 )
         return m
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class KeyVault(ComponentResource):

@@ -13,7 +13,7 @@ class AppInsightsConfig(BaseModel):
     retention_in_days: int = 30
     log_workspace_id: AzureIdRef
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 def app_insights(

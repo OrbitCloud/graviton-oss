@@ -2,7 +2,7 @@ import json
 from copy import deepcopy
 from typing import Any, Callable, Optional, TypeVar
 
-from pydantic import BaseModel, TypeAdapter, create_model
+from pydantic import BaseModel, ConfigDict, TypeAdapter, create_model
 from pydantic.fields import FieldInfo
 
 from orbitcloud_graviton.pulumi_lib import AzureBase
@@ -58,8 +58,10 @@ def generate_stack_schema(model, output_file: str):
 
     # Representation of a Pulumi.stack.yaml file
     class PulumiStackConfig(BaseModel):
-        environment: list[str]
+        environment: Optional[list[str]] = None
         config: ConfigObject
+
+        model_config = ConfigDict(extra="forbid")
 
     config_schema: dict[str, Any] = TypeAdapter(PulumiStackConfig).json_schema()
 

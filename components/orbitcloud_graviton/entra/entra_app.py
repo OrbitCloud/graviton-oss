@@ -14,14 +14,14 @@ from orbitcloud_graviton.pulumi_lib import AzureBase, EntraBase
 class ClientCredentials(BaseModel):
     display_name: str
     expires_after_months: Optional[int] = 12
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class AzureRbacPermission(BaseModel):
     role_name: str
     scope: str
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class FederatedCredentials(BaseModel):
@@ -30,7 +30,7 @@ class FederatedCredentials(BaseModel):
     subject: str
     description: Optional[str] = None
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class EntraAppConfig(BaseModel):
@@ -49,7 +49,7 @@ class EntraAppConfig(BaseModel):
 
     azure_permissions: Optional[List[AzureRbacPermission]] = Field(default_factory=list)
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class EntraApp(ComponentResource):

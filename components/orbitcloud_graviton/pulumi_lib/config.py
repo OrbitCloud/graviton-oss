@@ -87,7 +87,7 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
         return values
 
 
-class PulumiConfig(BaseSettings):
+class PulumiConfig(BaseSettings, extra="forbid"):
     @classmethod
     def settings_customise_sources(
         cls,

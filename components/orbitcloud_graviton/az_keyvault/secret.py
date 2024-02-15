@@ -13,7 +13,7 @@ class SecretConfig(BaseModel):
     value: SecretStr
     vault: AzureResourceId
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 def key_vault_secret(

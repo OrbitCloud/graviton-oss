@@ -29,7 +29,7 @@ class NamespaceConfig(BaseModel):
 
     log_workspace_id: Optional[AzureIdRef] = None
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class EventHub(ComponentResource):

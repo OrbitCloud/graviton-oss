@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import List, Optional
 
 import pulumi
-from pulumi_azure_native import operationalinsights
+from pulumi_azure_native import insights, operationalinsights
 from pydantic import Field
 
 from orbitcloud_graviton.az_acr.registry import ContainerRegistryConfig
@@ -14,11 +14,12 @@ from orbitcloud_graviton.az_monitor import (
     app_insights,
     log_workspace,
 )
-from orbitcloud_graviton.az_storage import StorageAccountConfig
+from orbitcloud_graviton.az_storage import StorageAccountConfig, storage_account
 from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
+from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
 
-class AppHubBaseConfig(PulumiConfig):
+class AppZoneBaseConfig(PulumiConfig):
     containerapp_env: ContainerAppEnvConfig = Field(
         default=ContainerAppEnvConfig(), title="Container App Environment Configuration"
     )
@@ -27,14 +28,15 @@ class AppHubBaseConfig(PulumiConfig):
         default=KeyVaultConfig(), title="Key Vault Config", description="Key Vault Configuration"
     )
     event_hub: Optional[NamespaceConfig] = None
-    storage_account: Optional[StorageAccountConfig] = None
     container_registry: Optional[ContainerRegistryConfig] = None
-
     app_insights: Optional[AppInsightsConfig] = None
+
+    storage_accounts: Optional[List[StorageAccountConfig]] = None
 
 
 def deploy() -> None:
-    config: AppHubBaseConfig = AppHubBaseConfig.model_validate({})
+    config: AppZoneBaseConfig = AppZoneBaseConfig.model_validate({})
+    generate_stack_schema(model=AppZoneBaseConfig, output_file=".stack_schema.json")
 
     stack: AzureBase = get_azure_stack()
 
@@ -50,7 +52,7 @@ def deploy() -> None:
     ##########################################
     # Application Insights
     ##########################################
-    appi = app_insights(
+    appi: insights.Component = app_insights(
         stack=stack,
         config=AppInsightsConfig(log_workspace_id=logs.id).model_copy(
             update=config.app_insights.model_dump() if config.app_insights else {}
@@ -92,6 +94,18 @@ def deploy() -> None:
             stack=stack,
             config=config.event_hub.model_copy(
                 update={"log_workspace_id": stack.resource_group.name}
+            ),
+            opts=pulumi.ResourceOptions(parent=stack.resource_group),
+        )
+
+    ##########################################
+    # Storage Account
+    ##########################################
+    for st in config.storage_accounts or []:
+        storage_account.StorageAccount(
+            stack=stack,
+            config=st.model_copy(
+                update={"log_workspace_id": logs.id},
             ),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )

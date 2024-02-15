@@ -49,7 +49,7 @@ class ContainerAppEnvConfig(BaseModel):
             raise ValueError("VNET config required for Zone Redundancy. Please provide a subnet.")
         return m
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class ContainerAppEnv(pulumi.ComponentResource):

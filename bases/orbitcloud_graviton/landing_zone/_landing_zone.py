@@ -19,8 +19,10 @@ from orbitcloud_graviton.entra import (
     PulumiOIDCCredentials,
 )
 from orbitcloud_graviton.pulumi_lib import (
+    AzureBase,
     EntraBase,
     PulumiConfig,
+    generate_stack_schema,
     get_azure_stack,
     print_pulumi_esc_oidc_yaml,
 )
@@ -42,9 +44,10 @@ class LandingZoneConfig(PulumiConfig):
 def deploy_landing_zone() -> None:
     config: LandingZoneConfig = LandingZoneConfig.model_validate({})
     entra_config = EntraBase.model_validate({})
+    generate_stack_schema(model=LandingZoneConfig, output_file=".stack_schema.json")
 
     # Get Azure Stack and export resource group
-    stack = get_azure_stack()
+    stack: AzureBase = get_azure_stack()
 
     ##########################################
     # Log Workspace

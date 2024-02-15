@@ -21,7 +21,7 @@ class P2sVpnGwConfig(BaseModel):
             raise ValueError("Either entra_auth or cert_auth must be set")
         return v
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class P2sVpnGw(ComponentResource):

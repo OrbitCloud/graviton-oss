@@ -22,14 +22,12 @@ class SubnetConfig(BaseModel):
     virtual_network_name: Optional[Union[str, pulumi.Output[str]]] = None
     service_endpoints: Optional[List[SubnetServiceEndpoints]] = None
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class VnetConfig(BaseModel):
     address_space: List[PrivateIPv4Network]
     subnets: list[SubnetConfig]
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     # Validate that subnets are unique, don't overlap and are within the vnet address space
     @model_validator(mode="after")
@@ -63,6 +61,8 @@ class VnetConfig(BaseModel):
                 )
 
         return m
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class Vnet(ComponentResource):

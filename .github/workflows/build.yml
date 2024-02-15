@@ -90,6 +90,8 @@ jobs:
           github_token: ${{ steps.bot-token.outputs.token }}
           changelog_increment_filename: body.md
           push: true
+          git_name: graviton-bot[bot]
+          git_email: 823040+graviton-bot[bot]@users.noreply.github.com
       - id: check-tag
         name: Check if tag exists
         run: |

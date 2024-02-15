@@ -1,20 +1,21 @@
-from typing import List, Optional, Union
+from ipaddress import IPv4Address
+from typing import List, Optional
 
 import pulumi
 from pulumi_azure_native import storage
 from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict
 
-from orbitcloud_graviton.az_lib.types import AzureResourceId
+from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_network import (
     PrivateEndpointConfig,
     az_private_endpoint,
 )
-from orbitcloud_graviton.az_network.types import PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
 class StorageAccountConfig(BaseModel):
+    name: Optional[str] = None
     kind: storage.Kind = storage.Kind.STORAGE_V2
     sku: storage.SkuName = storage.SkuName.STANDARD_LRS
     tier: storage.AccessTier = storage.AccessTier.HOT
@@ -27,13 +28,13 @@ class StorageAccountConfig(BaseModel):
 
     nfs_v3: Optional[bool] = False
 
-    allowed_private_subnets: Optional[List[Union[str, AzureResourceId]]] = None
-    allowed_public_networks: Optional[List[PublicIPv4Network]] = None
+    allowed_private_subnets: Optional[List[AzureIdRef]] = None
+    allowed_public_ips: Optional[List[IPv4Address]] = None
 
     private_endpoints: Optional[list[PrivateEndpointConfig]] = None
     storage_tables: Optional[List[str]] = None
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class StorageAccount(pulumi.ComponentResource):
@@ -64,8 +65,12 @@ class StorageAccount(pulumi.ComponentResource):
 
     def _storage_account(self) -> storage.StorageAccount:
         return storage.StorageAccount(
-            resource_name=self.stack.name_for(storage.StorageAccount),
-            account_name=self.stack.name_for(storage.StorageAccount),
+            resource_name=self.stack.name_for(
+                storage.StorageAccount, workload_name=self.config.name
+            ),
+            account_name=self.stack.name_for(
+                storage.StorageAccount, workload_name=self.config.name
+            ),
             location=self.stack.location,
             resource_group_name=self.stack.resource_group.name,
             # Storage Account type
@@ -83,31 +88,30 @@ class StorageAccount(pulumi.ComponentResource):
             opts=self._opts,
         )
 
-    def _network_rules(self) -> storage.NetworkRuleSetArgs:
+    def _network_rules(self) -> storage.NetworkRuleSetArgs | None:
         ip_rules = []
         vnet_rules = []
 
-        if self.config.allowed_public_networks:
+        if self.config.public_network_access == storage.PublicNetworkAccess.DISABLED:
+            pulumi.warn(
+                "Public / private network ACL cannot be configured when Public Network Access is disabled."
+            )
+            return None
+
+        if self.config.allowed_public_ips:
             ip_rules: list[storage.IPRuleArgs] = [
-                storage.IPRuleArgs(i_p_address_or_range=str(ip_network))
-                for ip_network in self.config.allowed_public_networks
+                storage.IPRuleArgs(i_p_address_or_range=str(public_ip))
+                for public_ip in self.config.allowed_public_ips
             ]
 
         if self.config.allowed_private_subnets:
             vnet_rules: list[storage.VirtualNetworkRuleArgs] = []
 
-            for subnet in self.config.allowed_private_subnets:
-                subnet_id = subnet if isinstance(subnet, str) else subnet.id
+            for subnet_id in self.config.allowed_private_subnets:
+                print(subnet_id)
                 vnet_rules.append(
                     storage.VirtualNetworkRuleArgs(virtual_network_resource_id=subnet_id)
                 )
-
-        if (
-            ip_rules or vnet_rules
-        ) and self.config.public_network_access == storage.PublicNetworkAccess.ENABLED:
-            pulumi.warn(
-                "Public network access is enabled, but network rules are also set and will be ignored."
-            )
 
         return storage.NetworkRuleSetArgs(
             bypass="None",
@@ -140,7 +144,9 @@ class StorageAccount(pulumi.ComponentResource):
                         table_name=table,
                         account_name=self.storage_account.name,
                         resource_group_name=self.stack.resource_group.name,
-                        opts=self._opts,
+                        opts=self._opts._merge_instance(
+                            pulumi.ResourceOptions(parent=self.storage_account)
+                        ),
                     )
                     for table in self.config.storage_tables
                 ]

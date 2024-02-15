@@ -13,8 +13,9 @@ from .types import PrivateIPv4Network
 
 class VirtualWanConfig(BaseModel):
     address_prefix: PrivateIPv4Network
-    model_config = ConfigDict(arbitrary_types_allowed=True)
     hub_vnet_connections: Optional[List[AzureIdRef]] = Field(default_factory=list)
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class VirtualWan(ComponentResource):

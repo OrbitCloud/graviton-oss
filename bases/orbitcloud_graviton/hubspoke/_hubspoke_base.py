@@ -12,6 +12,7 @@ from orbitcloud_graviton.az_network import (
     VnetConfig,
 )
 from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
+from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
 
 class NetworkBaseConfig(PulumiConfig):
@@ -22,6 +23,7 @@ class NetworkBaseConfig(PulumiConfig):
 
 def deploy_hub_spoke():
     config: NetworkBaseConfig = NetworkBaseConfig.model_validate({})
+    generate_stack_schema(model=NetworkBaseConfig, output_file=".stack_schema.json")
 
     stack: AzureBase = get_azure_stack()
     rg: resources.ResourceGroup = stack.resource_group

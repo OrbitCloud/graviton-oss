@@ -1,3 +1,3 @@
-from .app_zone_base import AppHubBaseConfig, deploy
+from .app_zone_base import AppZoneBaseConfig, deploy
 
-__all__ = ["deploy", "AppHubBaseConfig"]
+__all__ = ["deploy", "AppZoneBaseConfig"]

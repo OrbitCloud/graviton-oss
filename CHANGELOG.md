@@ -1,3 +1,10 @@
+## v0.27.0 (2024-02-15)
+
+### Feat
+
+- **AppZone**: Adds Storage Account with network restrictions and storage tables
+- **stack-schema**: Add automatic json schema generation for YAML validation in bases
+
 ## v0.26.0 (2024-02-15)
 
 ### Feat

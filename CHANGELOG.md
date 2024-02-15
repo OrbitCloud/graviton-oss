@@ -1,3 +1,11 @@
+## v0.26.0 (2024-02-15)
+
+### Feat
+
+- **AppZone**: Integrate Application Insights with DAPR in ContainerAppEnv
+- **az_monitor**: Add Application Insights component
+- **KeyVault**: Audit logs and metrics configured for Key Vault
+
 ## v0.25.0 (2024-02-14)
 
 ### Feat

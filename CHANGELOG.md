@@ -1,3 +1,9 @@
+## v0.29.0 (2024-02-17)
+
+### Feat
+
+- **AcmeEntraApp**: Implement base for creating an Entra App for managing acme_challenge TXT records
+
 ## v0.28.0 (2024-02-17)
 
 ### Feat

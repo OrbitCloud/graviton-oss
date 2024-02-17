@@ -33,7 +33,16 @@ def app_insights(
         application_type=insights.ApplicationType.WEB,
         retention_in_days=config.retention_in_days,
         workspace_resource_id=config.log_workspace_id,
-        opts=opts,
+        opts=pulumi.ResourceOptions.merge(
+            opts1=opts,
+            opts2=pulumi.ResourceOptions(
+                additional_secret_outputs=["instrumentation_key", "connection_string"]
+            ),
+        ),
     )
+
+    pulumi.export("app_insights_id", appi.id)
+    pulumi.export("app_insights_key", appi.instrumentation_key)
+    pulumi.export("app_insights_connstr", appi.connection_string)
 
     return appi

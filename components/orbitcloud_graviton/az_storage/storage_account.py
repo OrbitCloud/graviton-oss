@@ -34,6 +34,7 @@ class StorageAccountConfig(BaseModel):
     private_endpoints: Optional[list[PrivateEndpointConfig]] = None
     storage_tables: Optional[List[str]] = None
 
+    stack_output_prefix: Optional[str] = None
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -162,8 +163,27 @@ class StorageAccount(pulumi.ComponentResource):
                 "private_endpoints": self.private_endpoints,
             }
         )
-        pulumi.export("storage_account_name", self.storage_account.name.apply(lambda x: x))
-        pulumi.export("storage_account_id", self.storage_account.id)
+        pulumi.export(
+            f"{self.config.stack_output_prefix}storage_account_name",
+            self.storage_account.name.apply(lambda x: x),
+        )
+        pulumi.export(f"{self.config.stack_output_prefix}_id", self.storage_account.id)
+        pulumi.export(
+            f"{self.config.stack_output_prefix}_tables_endpoint",
+            self.storage_account.primary_endpoints.apply(lambda x: x.table),
+        )
+        pulumi.export(
+            f"{self.config.stack_output_prefix}_blob_endpoint",
+            self.storage_account.primary_endpoints.apply(lambda x: x.blob),
+        )
+        pulumi.export(
+            f"{self.config.stack_output_prefix}_file_endpoint",
+            self.storage_account.primary_endpoints.apply(lambda x: x.file),
+        )
+        pulumi.export(
+            f"{self.config.stack_output_prefix}_queue_endpoint",
+            self.storage_account.primary_endpoints.apply(lambda x: x.queue),
+        )
 
         if self.private_endpoints:
             pulumi.export("private_endpoints", [endpoint.id for endpoint in self.private_endpoints])

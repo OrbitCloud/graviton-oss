@@ -13,6 +13,12 @@ install: ##@ Install Poetry dependencies
 install-precommit: ##@ Install pre-commit hooks
 	pre-commit install
 
+.PHONY: install-poly
+install-poly: ##@ Install polylith plugins
+	poetry self add poetry-multiproject-plugin
+	poetry self add poetry-polylith-plugin
+
+
 ##@
 ##@ Local development
 ##@

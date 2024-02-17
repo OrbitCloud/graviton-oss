@@ -4,6 +4,8 @@ import pulumi
 from pulumi_azure_native import resources
 
 from orbitcloud_graviton.az_network import (
+    DnsZone,
+    DnsZoneConfig,
     P2sVpnGw,
     P2sVpnGwConfig,
     VirtualWan,
@@ -19,6 +21,7 @@ class NetworkBaseConfig(PulumiConfig):
     vnet: VnetConfig
     vwan: Optional[VirtualWanConfig] = None
     p2s_vpn: Optional[P2sVpnGwConfig] = None
+    dns_zone: Optional[DnsZoneConfig] = None
 
 
 def deploy_hub_spoke():
@@ -28,12 +31,18 @@ def deploy_hub_spoke():
     stack: AzureBase = get_azure_stack()
     rg: resources.ResourceGroup = stack.resource_group
 
+    ##########################################
+    # Virtual Network
+    ##########################################
     Vnet(
         stack=stack,
         config=config.vnet,
         opts=pulumi.ResourceOptions(parent=rg),
     )
 
+    ##########################################
+    # Virtual WAN, HUB and P2S VPN
+    ##########################################
     if config.vwan:
         vwan = VirtualWan(
             stack=stack,
@@ -48,3 +57,13 @@ def deploy_hub_spoke():
                 vhub=vwan.vhub,
                 opts=pulumi.ResourceOptions(parent=vwan.vwan),
             )
+
+    ##########################################
+    # DNS Zones
+    ##########################################
+    if config.dns_zone:
+        DnsZone(
+            stack=stack,
+            config=config.dns_zone,
+            opts=pulumi.ResourceOptions(parent=rg),
+        )

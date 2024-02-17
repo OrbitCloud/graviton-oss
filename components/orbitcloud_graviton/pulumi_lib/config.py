@@ -4,6 +4,7 @@ from typing import (
     Any,
     Collection,
     Dict,
+    Literal,
     Optional,
     Tuple,
     Type,
@@ -24,12 +25,14 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
     def config_path(
         self, field: FieldInfo, field_name: str, bag: Optional[str] = ""
     ) -> tuple[pulumi.Config, str]:
-        alias = field.validation_alias if isinstance(field.validation_alias, str) else field_name
+        alias: str = (
+            field.validation_alias if isinstance(field.validation_alias, str) else field_name
+        )
 
         if ":" in alias:
             bag, alias = alias.split(":")
 
-        config = pulumi.Config(bag)
+        config = pulumi.Config(name=bag)
         return config, alias
 
     def get_field_type(self, field_type: Type) -> Type:
@@ -60,12 +63,12 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
         field: FieldInfo,
         field_name: str,
         config_bag: Optional[str] = None,
-    ):
+    ) -> tuple[Any | None, str, Literal[True]] | tuple[str | None, str, Literal[False]]:
         config, alias = self.config_path(field, field_name, config_bag)
         field_type = self.get_field_type(field.annotation) if field.annotation else None
 
         if field_type is Collection or field_type is BaseModel:
-            return config.get_object(alias), field_name, True
+            return config.get_object(key=alias), field_name, True
 
         return config.get(alias), field_name, False
 
@@ -99,5 +102,5 @@ class PulumiConfig(BaseSettings, extra="forbid"):
     ) -> Tuple[PydanticBaseSettingsSource, ...]:
         return (
             init_settings,
-            PulumiConfigSettingsSource(settings_cls),
+            PulumiConfigSettingsSource(settings_cls=settings_cls),
         )

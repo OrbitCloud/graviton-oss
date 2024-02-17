@@ -1,3 +1,9 @@
+## v0.28.0 (2024-02-17)
+
+### Feat
+
+- **LandingZone**: IAM assignments to deployment principal for managing remote vnet
+
 ## v0.27.0 (2024-02-15)
 
 ### Feat

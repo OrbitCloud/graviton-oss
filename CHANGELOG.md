@@ -1,3 +1,14 @@
+## v0.30.0 (2024-02-17)
+
+### Feat
+
+- **app_insights**: Add instrumentation key and connection string as secret outputs
+- **DnsZone**: Add component for public dns zones
+
+### Fix
+
+- **StorageAccount**: Add optional stack output prefix in cases a stack has many storage accounts
+
 ## v0.29.0 (2024-02-17)
 
 ### Feat

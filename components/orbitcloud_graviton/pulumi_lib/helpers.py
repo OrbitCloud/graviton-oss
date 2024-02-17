@@ -1,6 +1,15 @@
-from typing import Any, List
+from typing import Any, List, Sequence
 
 import yaml
+
+
+def dash_formatted(v: str | Sequence) -> str:
+    def format(v):
+        return v.lower().replace(" ", "-").replace("_", "-").replace(".", "-")
+
+    if isinstance(v, Sequence):
+        return "-".join([format(str(n)) for n in v])
+    return format(v)
 
 
 def print_pulumi_esc_oidc_yaml(args: List[Any]) -> None:

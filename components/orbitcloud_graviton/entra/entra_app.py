@@ -4,23 +4,14 @@ import pulumi
 import pulumi_azuread as azuread
 import pulumiverse_time as time
 from pulumi import ComponentResource
-from pulumi_azure_native import authorization
 from pydantic import BaseModel, ConfigDict, Field
 
-from orbitcloud_graviton.az_iam import iam_assignment
 from orbitcloud_graviton.pulumi_lib import AzureBase, EntraBase
 
 
 class ClientCredentials(BaseModel):
     display_name: str
-    expires_after_months: Optional[int] = 12
-    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
-
-
-class AzureRbacPermission(BaseModel):
-    role_name: str
-    scope: str
-
+    expires_after_months: Optional[int] = 6
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -47,8 +38,6 @@ class EntraAppConfig(BaseModel):
     client_credentials: Optional[List[ClientCredentials]] = Field(default_factory=list)
     federated_credentials: Optional[List[FederatedCredentials]] = Field(default_factory=list)
 
-    azure_permissions: Optional[List[AzureRbacPermission]] = Field(default_factory=list)
-
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -66,7 +55,7 @@ class EntraApp(ComponentResource):
 
         super().__init__(
             "Graviton:Entra:EntraApp",
-            name=f"ea-{self.stack.workload_name}",
+            name=f"ea-{self.stack.workload_name}-{self.config.name}",
             props=None,
             opts=opts,
         )
@@ -76,33 +65,12 @@ class EntraApp(ComponentResource):
 
         self.app: azuread.Application = self._app()
         self.service_principal: azuread.ServicePrincipal = self._service_principal()
-        self.client_credentials = self._client_credentials()
-        self.federated_credentials = self._federated_credentials()
-
-        self._azure_permissions()
+        self.client_credentials: List[azuread.ApplicationPassword] = self._client_credentials()
+        self.federated_credentials: list[
+            azuread.ApplicationFederatedIdentityCredential
+        ] = self._federated_credentials()
 
         self._outputs()
-
-    def _azure_permissions(
-        self,
-    ) -> List[authorization.RoleAssignment]:
-        if not self.config.azure_permissions:
-            return []
-
-        perms = []
-        for perm in self.config.azure_permissions:
-            perms.append(
-                iam_assignment(
-                    resource_name=f"iamrole-sp-{perm.role_name}-{self.config.name}",
-                    role_name=perm.role_name,
-                    scope=perm.scope,
-                    principal=self.service_principal,
-                    opts=self._opts._merge_instance(
-                        pulumi.ResourceOptions(parent=self.service_principal)
-                    ),
-                )
-            )
-        return perms
 
     def _app(self) -> azuread.Application:
         return azuread.Application(

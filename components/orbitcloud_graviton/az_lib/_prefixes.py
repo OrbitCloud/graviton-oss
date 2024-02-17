@@ -1,5 +1,13 @@
 from typing import Any, Dict
 
+LOCATION_ABBR: Dict[str, str] = {
+    "westeurope": "weu",
+    "northeurope": "neu",
+    "norwayeast": "noe",
+    "norwaywest": "now",
+    "swedencentral": "sec",
+}
+
 RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.resources.resource_group": {"prefix": "rg"},
     "pulumi_azure_native.operationalinsights.workspace": {
@@ -65,4 +73,7 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.keyvault.secret": {"prefix": "kvs"},
     "pulumi_azure_native.app.container_app": {"prefix": "app"},
     "pulumi_azure_native.insights.component": {"prefix": "appi"},
+    "pulumi_azure_native.network.zone": {"prefix": "dns"},
+    "pulumi_azure_native.network.record_set": {"prefix": "dnsr"},
+    "pulumi_azure_native.authorization.role_assignment": {"prefix": "iam"},
 }

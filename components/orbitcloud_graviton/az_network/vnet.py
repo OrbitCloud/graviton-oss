@@ -173,6 +173,7 @@ class Vnet(ComponentResource):
             return subnet_export
 
         pulumi.export("vnet_id", self.vnet.id)
+        pulumi.export("vnet_name", self.vnet.name)
         pulumi.export(
             name="subnets",
             value=_subnet_export(),

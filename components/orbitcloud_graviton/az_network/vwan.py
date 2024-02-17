@@ -11,9 +11,15 @@ from orbitcloud_graviton.pulumi_lib import AzureBase
 from .types import PrivateIPv4Network
 
 
+class RemoteVirtualNetwork(BaseModel):
+    connection_name: str
+    remote_vnet_id: AzureIdRef
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
 class VirtualWanConfig(BaseModel):
     address_prefix: PrivateIPv4Network
-    hub_vnet_connections: Optional[List[AzureIdRef]] = Field(default_factory=list)
+    hub_vnet_connections: Optional[List[RemoteVirtualNetwork]] = Field(default_factory=list)
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -58,7 +64,7 @@ class VirtualWan(ComponentResource):
             opts=self._opts,
         )
 
-    def _vhub(self):
+    def _vhub(self) -> network.VirtualHub:
         virtual_hub = network.VirtualHub(
             resource_name=self.stack.name_for(network.VirtualHub),
             address_prefix=str(self.config.address_prefix),
@@ -88,17 +94,17 @@ class VirtualWan(ComponentResource):
         if not self.config.hub_vnet_connections:
             return None
 
-        for vnet_id in self.config.hub_vnet_connections:
+        for vnet in self.config.hub_vnet_connections:
             vnet_connections.append(
                 network.HubVirtualNetworkConnection(
                     resource_name=self.stack.name_for(
                         resource_type=network.HubVirtualNetworkConnection,
-                        workload_name=f"vnet-{self.stack.workload_name}",
+                        workload_name=f"{vnet.connection_name}-{self.stack.workload_name}",
                     ),
                     resource_group_name=self.stack.resource_group.name,
                     enable_internet_security=True,
                     remote_virtual_network=network.SubResourceArgs(
-                        id=vnet_id,
+                        id=vnet.remote_vnet_id,
                     ),
                     virtual_hub_name=self.vhub.name,
                     allow_hub_to_remote_vnet_transit=True,

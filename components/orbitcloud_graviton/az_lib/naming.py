@@ -3,21 +3,13 @@
 import re
 from typing import Any, Dict
 
-from ._prefixes import RESOURCE_PREFIXES
-
-LOCATION_ABBR: Dict[str, str] = {
-    "westeurope": "weu",
-    "northeurope": "neu",
-    "norwayeast": "noe",
-    "norwaywest": "now",
-    "swedencentral": "sec",
-}
+from ._prefixes import LOCATION_ABBR, RESOURCE_PREFIXES
 
 
 def get_prefix(resource_type) -> Dict[str, Any]:
     """Return a resource prefix for a given resource type"""
     # Extract the base module path without the version
-    base_module_path = re.sub(r"\.v\d{8}(preview)?", "", resource_type.__module__)
+    base_module_path: str = re.sub(r"\.v\d{8}(preview)?", "", resource_type.__module__)
 
     # Try to get the options using the base module path
     opts: Any | None = RESOURCE_PREFIXES.get(base_module_path)
@@ -45,7 +37,7 @@ def resource_namer(
             else workload_name.title()
         )
 
-    name_elements = [
+    name_elements: list[str] = [
         prefix,
         workload_name,
         env,

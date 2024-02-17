@@ -1,3 +1,3 @@
-from .assignment import iam_assignment
+from .assignment import IamAssignmentConfig, iam_assignment
 
-__all__ = ["iam_assignment"]
+__all__ = ["iam_assignment", "IamAssignmentConfig"]

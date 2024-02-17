@@ -1,18 +1,18 @@
 from typing import Optional
 
 import pulumi
-from pulumi_azure_native import containerregistry
+from pulumi_azure_native import containerregistry, operationalinsights
 
 from orbitcloud_graviton.az_acr import (
     ContainerRegistryConfig,
     container_registry,
 )
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
+from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
 from orbitcloud_graviton.az_monitor import LogWorkspaceConfig, log_workspace
 from orbitcloud_graviton.az_providerhub import provider_registration
 from orbitcloud_graviton.entra import (
-    AzureRbacPermission,
     EntraApp,
     EntraAppConfig,
     GitHubOIDCCredentials,
@@ -37,13 +37,15 @@ class LandingZoneConfig(PulumiConfig):
     has_keyvault: Optional[bool] = True
     has_containerregistry: Optional[bool] = True
 
+    pulumi_app_additional_permissions: Optional[list[IamAssignmentConfig]] = None
+
     github_cr_app: Optional[GitHubOIDCCredentials] = None
     resource_providers: Optional[list[str]] = None
 
 
 def deploy_landing_zone() -> None:
     config: LandingZoneConfig = LandingZoneConfig.model_validate({})
-    entra_config = EntraBase.model_validate({})
+    entra_config: EntraBase = EntraBase.model_validate({})
     generate_stack_schema(model=LandingZoneConfig, output_file=".stack_schema.json")
 
     # Get Azure Stack and export resource group
@@ -52,7 +54,7 @@ def deploy_landing_zone() -> None:
     ##########################################
     # Log Workspace
     ##########################################
-    logs = log_workspace(
+    logs: operationalinsights.Workspace = log_workspace(
         config=config.log_workspace,
         stack=stack,
         opts=pulumi.ResourceOptions(parent=stack.resource_group),
@@ -94,7 +96,8 @@ def deploy_landing_zone() -> None:
     ##########################################
     #   Entra App for Pulumi deployments
     ##########################################
-    entra_pulumi_app = EntraApp(
+
+    pulumi_app = EntraApp(
         stack=stack,
         entra=entra_config,
         config=EntraAppConfig(
@@ -102,25 +105,44 @@ def deploy_landing_zone() -> None:
             federated_credentials=PulumiOIDCCredentials(
                 organization=pulumi.get_organization()
             ).credentials(),
-            azure_permissions=[
-                AzureRbacPermission(
-                    role_name="Contributor",
-                    scope=f"/subscriptions/{stack.subscription_id}",
-                ),
-                AzureRbacPermission(
-                    role_name="Role Based Access Control Administrator",
-                    scope=f"/subscriptions/{stack.subscription_id}",
-                ),
-                AzureRbacPermission(
-                    role_name="Key Vault Secrets Officer",
-                    scope=f"/subscriptions/{stack.subscription_id}",
-                ),
-            ],
         ),
     )
 
+    pulumi_app_permissions: list[IamAssignmentConfig] = [
+        IamAssignmentConfig(
+            name_prefix="lz",
+            role="Contributor",
+            scope=f"/subscriptions/{stack.subscription_id}",
+            description="Allows Pulumi to deploy resources in the subscription",
+        ),
+        IamAssignmentConfig(
+            name_prefix="lz",
+            role="Role Based Access Control Administrator",
+            scope=f"/subscriptions/{stack.subscription_id}",
+            description="Allows Pulumi to assign roles to resources in the subscription",
+        ),
+        IamAssignmentConfig(
+            name_prefix="lz",
+            role="Key Vault Secrets Officer",
+            scope=f"/subscriptions/{stack.subscription_id}",
+            description="Allows Pulumi to read and write secrets in Key Vault",
+        ),
+    ]
+    if config.pulumi_app_additional_permissions:
+        pulumi_app_permissions.extend(config.pulumi_app_additional_permissions)
+
+    for permission in pulumi_app_permissions:
+        iam_assignment(
+            stack=stack,
+            config=permission,
+            principal=pulumi_app.service_principal,
+            opts=pulumi.ResourceOptions(
+                parent=pulumi_app.service_principal, delete_before_replace=True
+            ),
+        )
+
     pulumi.Output.all(
-        entra_pulumi_app.app.client_id, entra_config.tenant_id, stack.subscription_id
+        pulumi_app.app.client_id, entra_config.tenant_id, stack.subscription_id
     ).apply(func=print_pulumi_esc_oidc_yaml)
 
     ##########################################

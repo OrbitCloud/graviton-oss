@@ -1,6 +1,6 @@
 import re
 from functools import reduce
-from typing import Annotated, Any, Union
+from typing import Annotated, Any, Optional, Union
 from uuid import UUID, uuid4
 
 import pulumi
@@ -81,8 +81,9 @@ class AzureResourceId:
         return {key: value for key, value in zip(keys, groups) if value is not None}
 
 
-def parse_stack_reference(v: str) -> tuple[str, str]:
+def parse_stack_reference(v: str) -> tuple[str, str, Optional[str]]:
     parts: list[str] = v.removeprefix("stack://").split("/")
+    path = None
     if len(parts) < 3 or len(parts) > 4:
         raise ValueError(
             f"{v} is not a valid stack reference (stack://project_name/stack_name/output_name)"
@@ -94,7 +95,12 @@ def parse_stack_reference(v: str) -> tuple[str, str]:
     else:
         stack_ref = pulumi.get_organization() + "/" + parts[0] + "/" + parts[1]
         output_name = parts[2]
-    return stack_ref, output_name
+
+    if "." in output_name:
+        path = ".".join(output_name.split(".")[1:])
+        output_name = output_name.split(".")[0]
+
+    return stack_ref, output_name, path
 
 
 def deep_get(obj: dict, path, default=None) -> Any | None:
@@ -116,69 +122,27 @@ def get_resource_id(
         return AzureResourceId(v).id
 
     if v.startswith("stack://"):
-        stack_ref, output_name = parse_stack_reference(v)
+        stack_ref, output_name, path = parse_stack_reference(v)
+        stack = pulumi.StackReference(name=f"{v}-{uuid4().hex.upper()[0:3]}", stack_name=stack_ref)
 
-        if "." in output_name:
-            stack = pulumi.StackReference(
-                name=f"{v}-{uuid4().hex.upper()[0:3]}", stack_name=stack_ref
-            )
-            parent: str = output_name.split(".")[0]
-            path: str = ".".join(output_name.split(".")[1:])
+        # Workaround until Pulumi supports async methods in Python
+        # https://github.com/pulumi/pulumi/issues/12172#issuecomment-1691499199
+        output: Any | type[None] | None = _sync_await(
+            awaitable=stack.get_output_details(name=output_name),
+        ).value
 
-            # Workaround until Pulumi supports async methods in Python
-            # https://github.com/pulumi/pulumi/issues/12172#issuecomment-1691499199
-            output: Any | type[None] | None = _sync_await(
-                awaitable=stack.get_output_details(name=parent),
-            ).value
+        if isinstance(output, dict) and path:
+            output = deep_get(output, path=path)
 
-            if output and isinstance(output, dict):
-                child: Any | None = deep_get(output, path=path)
-                if child:
-                    return str(child)
-                raise ValueError(f"Key path {output_name} not found in stack {stack_ref}")
+        if isinstance(output, str):
+            return str(output)
 
-        stack_output: pulumi.Output[str] = pulumi.StackReference(stack_ref).require_output(
-            name=output_name
-        )
-
-        return stack_output if stack_output.is_known() else stack_output.apply(lambda x: x)
+        raise ValueError(f"Output {v} not found or type {type(v)} is not a string")
 
     raise ValueError(f"{v} is not a valid resource ID reference")
-
-
-def get_resource_name(
-    v: Union[pulumi.Output[str], str],
-    info: ValidationInfo,
-) -> str | pulumi.Output[str] | None:
-    if isinstance(v, pulumi.Output):
-        if v.is_known():
-            return v
-        else:
-            return v.apply(lambda x: x)
-
-    if v.startswith("/subscriptions"):
-        return AzureResourceId(v).resource_name
-
-    if v.startswith("stack://"):
-        stack_ref, output_name = parse_stack_reference(v)
-
-        stack_output: pulumi.Output[str] = pulumi.StackReference(stack_ref).require_output(
-            name=output_name
-        )
-        if stack_output.is_known():
-            return stack_output
-        else:
-            return stack_output.apply(lambda x: x)
-
-    raise ValueError(f"{v} is not a valid resource name reference")
 
 
 AzureIdRef = Annotated[
     Union[str, pulumi.Output[str]],
     AfterValidator(func=get_resource_id),
-]
-
-AzureNameRef = Annotated[
-    Union[str, pulumi.Output[str]],
-    AfterValidator(func=get_resource_name),
 ]

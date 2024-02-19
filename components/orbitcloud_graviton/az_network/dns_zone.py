@@ -60,10 +60,10 @@ class DnsZone(pulumi.ComponentResource):
 
     def _records(self) -> List[network.RecordSet]:
         if self.config.records:
-            return [self._record(record) for record in self.config.records]
+            return [self.record(record) for record in self.config.records]
         return []
 
-    def _record(self, record: Record) -> network.RecordSet:
+    def record(self, record: Record) -> network.RecordSet:
         record_args = self._record_args(record)
         return network.RecordSet(
             resource_name=self.stack.name_for(

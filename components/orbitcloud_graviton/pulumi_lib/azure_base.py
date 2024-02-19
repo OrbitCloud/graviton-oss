@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Dict, Optional, Type
+from typing import Any, Dict, Optional, Type
 from uuid import UUID
 
 import pulumi
@@ -26,6 +26,9 @@ class AzureBase(PulumiConfig):
     )
     tags: Optional[Dict[str, str]] = None
 
+    skip_exports: Optional[bool] = False
+    exports_prefix: Optional[str] = ""
+
     resource_group_name: Optional[str] = None
     _resource_group: Optional[resources.ResourceGroup] = None
 
@@ -47,22 +50,27 @@ class AzureBase(PulumiConfig):
             location=self.location,
         )
 
+    def export(self, exports: Dict[str, Any]) -> None:
+        for k, v in exports.items():
+            pulumi.export(name=f"{self.exports_prefix}_{k}", value=v)
+
     model_config = SettingsConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
 
 @lru_cache
 def get_azure_stack() -> AzureBase:
     stack = AzureBase.model_validate({})
-    pulumi.export(
-        "stack",
-        {
-            "workload_name": stack.workload_name,
-            "subscription_id": str(stack.subscription_id),
-            "tenant_id": str(stack.tenant_id),
-            "location": stack.location,
-            "env": stack.env,
-        },
-    )
+    if not stack.skip_exports:
+        pulumi.export(
+            name="stack",
+            value={
+                "workload_name": stack.workload_name,
+                "subscription_id": str(stack.subscription_id),
+                "tenant_id": str(stack.tenant_id),
+                "location": stack.location,
+                "env": stack.env,
+            },
+        )
     return stack
 
 

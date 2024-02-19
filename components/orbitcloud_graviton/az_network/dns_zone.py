@@ -109,5 +109,10 @@ class DnsZone(pulumi.ComponentResource):
                 "records": self.records,
             }
         )
-        pulumi.export("dns_zone_id", self.zone.id)
-        pulumi.export("dns_zone_name", self.zone.name)
+        pulumi.export(
+            "dns_zone",
+            value={
+                "id": self.zone.id,
+                "name": self.zone.name,
+            },
+        )

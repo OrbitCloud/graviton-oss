@@ -135,3 +135,17 @@ class EntraApp(ComponentResource):
                 "service_principal": self.service_principal,
             }
         )
+        self.stack.export(
+            exports={
+                "entra_app": {
+                    "app": {
+                        "id": self.app.id,
+                        "client_id": self.app.object_id,
+                    },
+                    "service_principal": {
+                        "id": self.service_principal.id,
+                        "client_id": self.service_principal.client_id,
+                    },
+                },
+            }
+        )

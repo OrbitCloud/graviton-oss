@@ -51,8 +51,9 @@ class AzureBase(PulumiConfig):
         )
 
     def export(self, exports: Dict[str, Any]) -> None:
-        for k, v in exports.items():
-            pulumi.export(name=f"{self.exports_prefix}_{k}", value=v)
+        if not self.skip_exports:
+            for k, v in exports.items():
+                pulumi.export(name=f"{self.exports_prefix}_{k}", value=v)
 
     model_config = SettingsConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 

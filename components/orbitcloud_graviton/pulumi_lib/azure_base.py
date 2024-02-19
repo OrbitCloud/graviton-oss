@@ -52,7 +52,18 @@ class AzureBase(PulumiConfig):
 
 @lru_cache
 def get_azure_stack() -> AzureBase:
-    return AzureBase.model_validate({})
+    stack = AzureBase.model_validate({})
+    pulumi.export(
+        "stack",
+        {
+            "workload_name": stack.workload_name,
+            "subscription_id": str(stack.subscription_id),
+            "tenant_id": str(stack.tenant_id),
+            "location": stack.location,
+            "env": stack.env,
+        },
+    )
+    return stack
 
 
 class EntraBase(PulumiConfig):

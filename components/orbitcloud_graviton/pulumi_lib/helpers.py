@@ -7,7 +7,7 @@ def dash_formatted(v: str | Sequence) -> str:
     def format(v):
         return v.lower().replace(" ", "-").replace("_", "-").replace(".", "-")
 
-    if isinstance(v, Sequence):
+    if isinstance(v, Sequence) and not isinstance(v, str):
         return "-".join([format(str(n)) for n in v])
     return format(v)
 

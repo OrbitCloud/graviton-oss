@@ -44,15 +44,15 @@ PublicIPv4Network = Annotated[
 
 
 class ARecord(BaseModel):
-    relative_name: str = Field(..., pattern="^[a-zA-Z0-9-]+$")
+    relative_name: str = Field(..., pattern=r"^[a-zA-Z0-9-*]+$")
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["A"] = "A"
-    ip_addresses: List[IPv4Address]
+    ip_addresses: List[Union[IPv4Address, pulumi.Output[str]]]
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class CnameRecord(BaseModel):
-    relative_name: str = Field(..., pattern="^[a-zA-Z0-9-]+$")
+    relative_name: str = Field(..., pattern=r"^[a-zA-Z0-9-*]+$")
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["CNAME"] = "CNAME"
     value: DomainName
@@ -77,10 +77,10 @@ class MxRecord(BaseModel):
 
 
 class TxtRecord(BaseModel):
-    relative_name: str = Field(..., pattern="^[a-zA-Z0-9-]+$")
+    relative_name: str = Field(..., pattern=r"^[a-zA-Z0-9-*]+$")
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["TXT"] = "TXT"
-    values: List[str]
+    values: List[Union[str, pulumi.Output[str]]]
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 

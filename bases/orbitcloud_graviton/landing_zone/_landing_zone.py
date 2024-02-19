@@ -44,9 +44,9 @@ class LandingZoneConfig(PulumiConfig):
 
 
 def deploy_landing_zone() -> None:
+    generate_stack_schema(model=LandingZoneConfig, output_file=".stack_schema.json")
     config: LandingZoneConfig = LandingZoneConfig.model_validate({})
     entra_config: EntraBase = EntraBase.model_validate({})
-    generate_stack_schema(model=LandingZoneConfig, output_file=".stack_schema.json")
 
     # Get Azure Stack and export resource group
     stack: AzureBase = get_azure_stack()

@@ -2,6 +2,16 @@
 set -e
 set -o pipefail
 
+# Database
+export dns="20.107.205.202:1521/orbit1"
+
+# User
+export orbituser=ORBIT_QUEUE
+export orbitts=USERS
+export orbitpwd=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9-_!#$%^&*.,;:' | fold -w 24 | head -1)
+
+# Tables
+export tables="FTTEST.FYRIRTAEKI,FTTEST.ISATSKRA"
 
 testwd=$(pwd)
 cd /home/$USER/src/Graviton/components/orbitcloud_graviton/ora_queue/source

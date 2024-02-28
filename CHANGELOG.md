@@ -1,3 +1,9 @@
+## v0.31.0 (2024-02-28)
+
+### Feat
+
+- Oracle queue notifications to Azure Event hub  (#162)
+
 ## v0.30.0 (2024-02-17)
 
 ### Feat

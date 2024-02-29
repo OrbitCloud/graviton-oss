@@ -2,15 +2,15 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
-from orbitcloud_graviton.entra.entra_app import FederatedCredentials
+from orbitcloud_graviton.entra.entra_app import FederatedCredentialsConfig
 
 
 class PulumiOIDCCredentials(BaseModel):
     organization: str
 
-    def credentials(self) -> list[FederatedCredentials]:
+    def credentials(self) -> list[FederatedCredentialsConfig]:
         return [
-            FederatedCredentials(
+            FederatedCredentialsConfig(
                 issuer="https://api.pulumi.com/oidc",
                 audiences=[self.organization],
                 subject=f"pulumi:environments:org:{self.organization}:env:<yaml>",
@@ -29,7 +29,7 @@ class GitHubOIDCCredentials(BaseModel):
     tags: Optional[List[str]] = Field(default_factory=list)
     pull_request: Optional[bool] = False
 
-    def credentials(self) -> list[FederatedCredentials]:
+    def credentials(self) -> list[FederatedCredentialsConfig]:
         prefix: str = f"repo:{self.github_org}/{self.repo}:"
         creds = []
         self.environments = self.environments or []
@@ -44,7 +44,7 @@ class GitHubOIDCCredentials(BaseModel):
             else []
         ):
             creds.append(
-                FederatedCredentials(
+                FederatedCredentialsConfig(
                     issuer="https://github.com",
                     audiences=["api://AzureADTokenExchange"],
                     subject=subject,

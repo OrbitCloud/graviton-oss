@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.pulumi_lib.azure_base import AzureBase
-from orbitcloud_graviton.pulumi_lib.helpers import dash_formatted
+from orbitcloud_graviton.pulumi_lib.helpers import fmt_name
 
 from ._roles import get_role_id_by_name
 
@@ -32,7 +32,7 @@ def iam_assignment(
 ) -> authorization.RoleAssignment:
     role_definition_id = get_role_id_by_name(config.role)
 
-    workload_name: str = dash_formatted([config.name_prefix, config.role.lower()])
+    workload_name: str = fmt_name([config.name_prefix, config.role.lower()])
 
     return authorization.RoleAssignment(
         resource_name=stack.name_for(

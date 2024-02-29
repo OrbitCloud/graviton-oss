@@ -38,8 +38,6 @@ class AzureBase(PulumiConfig):
             return self._resource_group
 
         self._resource_group = resource_group(stack=self)
-        pulumi.export("resource_group_id", self._resource_group.id)
-        pulumi.export("resource_group_name", self._resource_group.name)
         return self._resource_group
 
     def name_for(self, resource_type: Type, workload_name: Optional[str] = None) -> str:
@@ -70,6 +68,7 @@ def get_azure_stack() -> AzureBase:
                 "tenant_id": str(stack.tenant_id),
                 "location": stack.location,
                 "env": stack.env,
+                "resource_group_name": stack.resource_group.name,
             },
         )
     return stack
@@ -78,3 +77,8 @@ def get_azure_stack() -> AzureBase:
 class EntraBase(PulumiConfig):
     tenant_id: UUID = Field(..., alias="azuread:tenantId")
     model_config = SettingsConfigDict(populate_by_name=True)
+
+
+@lru_cache
+def get_entra_stack() -> EntraBase:
+    return EntraBase.model_validate({})

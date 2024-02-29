@@ -1,16 +1,30 @@
 from typing import List, Optional, Union
 
 import pulumi
-from pulumi_azure_native import insights
-from pulumi_azure_native.app import v20230501 as app
+from pulumi_azure_native import insights, network
+from pulumi_azure_native.app import v20230801preview as app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from orbitcloud_graviton.az_lib.types import AzureIdRef
+from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
+from orbitcloud_graviton.az_network.dns_zone import DnsZone, DnsZoneConfig
+from orbitcloud_graviton.az_network.types import ARecord, TxtRecord
 from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib.types import DomainName
 
-from ._schema import ConsumptionProfile, CustomDomain, DedicatedProfile
+from ._schema import ConsumptionProfile, DedicatedProfile
 from .certificate import CertificateConfig, certificate
+
+
+class CustomDomain(BaseModel):
+    name: DomainName
+    dns_zone_id: Optional[AzureIdRef] = None
+    dns_zone_stack: Optional[DictRef] = None
+
+    cert_value: StrRef
+    cert_pass: StrRef
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class ContainerAppEnvConfig(BaseModel):
@@ -36,6 +50,7 @@ class ContainerAppEnvConfig(BaseModel):
     public_network_access: Optional[bool] = False
 
     certificates: Optional[List[CertificateConfig]] = None
+
     custom_domain: Optional[CustomDomain] = None
 
     dapr_appi_connstring: Optional[Union[str, pulumi.Output]] = None
@@ -46,7 +61,9 @@ class ContainerAppEnvConfig(BaseModel):
     @model_validator(mode="after")
     def zone_redundancy_requires_subnet(m: "ContainerAppEnvConfig") -> "ContainerAppEnvConfig":
         if m.zone_redundant and not m.subnet_id:
-            raise ValueError("VNET config required for Zone Redundancy. Please provide a subnet.")
+            raise ValueError(
+                "subnet_id config required for Zone Redundancy. Please provide a subnet."
+            )
         return m
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
@@ -73,6 +90,7 @@ class ContainerAppEnv(pulumi.ComponentResource):
         )
 
         self.environment: app.ManagedEnvironment = self._environment()
+        self.dns_records: List[network.RecordSet] | None = self._dns_records()
         self.certificates: list[app.Certificate] | None = self._certificates()
         self._diagnostic_settings()
 
@@ -105,6 +123,37 @@ class ContainerAppEnv(pulumi.ComponentResource):
 
         return environment
 
+    def _dns_records(self) -> List[network.RecordSet] | None:
+        if self.config.custom_domain and self.config.custom_domain.dns_zone_id:
+            if self.config.custom_domain.dns_zone_stack and isinstance(
+                self.config.custom_domain.dns_zone_stack, dict
+            ):
+                stack_args = self.config.custom_domain.dns_zone_stack
+                stack_args["skip_exports"] = True
+                stack = AzureBase.model_validate(obj=stack_args)
+
+            zone = DnsZone(
+                dns_zone_id=self.config.custom_domain.dns_zone_id,
+                config=DnsZoneConfig(
+                    name=self.config.custom_domain.name,
+                    records=[
+                        ARecord(
+                            relative_name="*",
+                            ip_addresses=[self.environment.static_ip],
+                        ),
+                        TxtRecord(
+                            relative_name="asuid",
+                            values=[
+                                self.environment.custom_domain_configuration.custom_domain_verification_id
+                            ],
+                        ),
+                    ],
+                ),
+                stack=stack or self.stack,
+                opts=self._opts,
+            )
+            return zone.records
+
     def _workload_profiles(self) -> list[app.WorkloadProfileArgs]:
         return [
             app.WorkloadProfileArgs(
@@ -131,12 +180,14 @@ class ContainerAppEnv(pulumi.ComponentResource):
         )
 
     def _custom_domain(self) -> app.CustomDomainConfigurationArgs | None:
-        if self.config.custom_domain:
-            return app.CustomDomainConfigurationArgs(
-                certificate_password=self.config.custom_domain.cert_password.get_secret_value(),
-                certificate_value=self.config.custom_domain.cert_contents.get_secret_value(),
-                dns_suffix=self.config.custom_domain.dns_suffix,
-            )
+        if not self.config.custom_domain:
+            return None
+
+        return app.CustomDomainConfigurationArgs(
+            certificate_password=str(self.config.custom_domain.cert_pass),
+            certificate_value=str(self.config.custom_domain.cert_value),
+            dns_suffix=self.config.custom_domain.name,
+        )
 
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:
@@ -166,10 +217,17 @@ class ContainerAppEnv(pulumi.ComponentResource):
 
     def _outputs(self) -> None:
         self.register_outputs(
-            {
+            outputs={
                 "environment": self.environment,
                 "certificates": self.certificates,
             }
         )
-        pulumi.export("containerapp_env_id", self.environment.id)
-        pulumi.export("containerapp_env_name", self.environment.name)
+        pulumi.export(
+            name="containerapp_env",
+            value={
+                "id": self.environment.id,
+                "name": self.environment.name,
+                "static_ip": self.environment.static_ip,
+                "custom_domain_verification_id": self.environment.custom_domain_configuration.custom_domain_verification_id,
+            },
+        )

@@ -18,7 +18,6 @@ def diagnostic_setting(
         resource_name=diag_name,
         resource_uri=resource.id,
         workspace_id=log_workspace_id,
-        log_analytics_destination_type="AzureDiagnostics",
         metrics=[
             insights.MetricSettingsArgs(
                 category=category,

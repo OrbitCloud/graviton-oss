@@ -3,6 +3,7 @@ from typing import Optional
 import pulumi
 from pulumi_azure_native import containerregistry, operationalinsights
 
+from orbitcloud_graviton.acme_ssl.acme import AcmeSsl, AcmeSslConfig
 from orbitcloud_graviton.az_acr import (
     ContainerRegistryConfig,
     container_registry,
@@ -11,6 +12,7 @@ from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
 from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
 from orbitcloud_graviton.az_monitor import LogWorkspaceConfig, log_workspace
+from orbitcloud_graviton.az_network.dns_zone import DnsZone, DnsZoneConfig
 from orbitcloud_graviton.az_providerhub import provider_registration
 from orbitcloud_graviton.entra import (
     EntraApp,
@@ -24,6 +26,7 @@ from orbitcloud_graviton.pulumi_lib import (
     PulumiConfig,
     generate_stack_schema,
     get_azure_stack,
+    get_entra_stack,
     print_pulumi_esc_oidc_yaml,
 )
 
@@ -42,6 +45,9 @@ class LandingZoneConfig(PulumiConfig):
     github_cr_app: Optional[GitHubOIDCCredentials] = None
     resource_providers: Optional[list[str]] = None
 
+    dns_zone: Optional[DnsZoneConfig] = None
+    acme_ssl: Optional[bool] = False
+
 
 def deploy_landing_zone() -> None:
     generate_stack_schema(model=LandingZoneConfig, output_file=".stack_schema.json")
@@ -50,6 +56,7 @@ def deploy_landing_zone() -> None:
 
     # Get Azure Stack and export resource group
     stack: AzureBase = get_azure_stack()
+    entra: EntraBase = get_entra_stack()
 
     ##########################################
     # Log Workspace
@@ -64,11 +71,34 @@ def deploy_landing_zone() -> None:
     #   Key Vault
     ##########################################
     if config.has_keyvault and config.keyvault:
-        KeyVault(
+        kv = KeyVault(
             stack=stack,
             config=config.keyvault.model_copy(update={"log_workspace_id": logs.id}),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
+
+    ##########################################
+    #   Dns Zone
+    ##########################################
+    if config.dns_zone:
+        dns = DnsZone(
+            stack=stack,
+            config=config.dns_zone,
+            opts=pulumi.ResourceOptions(parent=stack.resource_group),
+        )
+
+        if config.acme_ssl:
+            AcmeSsl(
+                stack=stack,
+                entra_config=entra,
+                config=AcmeSslConfig(
+                    dns_zone_id=dns.zone.id,
+                    dns_zone_name=config.dns_zone.name,
+                    keyvault_id=kv.vault.id,
+                    use_staging_issuer=True,
+                    ssl_contact_email="admin@orbit.is",
+                ),
+            )
 
     ##########################################
     #   Container Registry
@@ -101,7 +131,7 @@ def deploy_landing_zone() -> None:
         stack=stack,
         entra=entra_config,
         config=EntraAppConfig(
-            name=f"pulumi-deployments-{stack.workload_name}-{stack.env}",
+            name=f"pulumi-deployments-{stack.workload_name}",
             federated_credentials=PulumiOIDCCredentials(
                 organization=pulumi.get_organization()
             ).credentials(),

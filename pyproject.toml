@@ -57,7 +57,7 @@ pulumi-azure-native = "^2.30"
 pulumi-azuread = "^5.47.1"
 pulumiverse-time = "^0.0.16"
 pydantic = "^2.5.3"
-pydantic-settings = "^2.1.0"
+pydantic-settings = "^2.2.1"
 
 
 [tool.poetry.group.dev.dependencies]

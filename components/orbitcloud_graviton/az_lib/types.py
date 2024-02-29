@@ -1,12 +1,18 @@
 import re
 from functools import reduce
 from typing import Annotated, Any, Optional, Union
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import pulumi
 from pulumi.runtime.sync_await import _sync_await
 from pulumi_azure_native import resources
-from pydantic import AfterValidator, GetCoreSchemaHandler, ValidationInfo
+from pydantic import (
+    AfterValidator,
+    BeforeValidator,
+    GetCoreSchemaHandler,
+    SecretStr,
+    ValidationInfo,
+)
 from pydantic_core import core_schema
 
 
@@ -111,6 +117,36 @@ def deep_get(obj: dict, path, default=None) -> Any | None:
     )
 
 
+known_stacks: dict[str, pulumi.StackReference] = {}
+
+
+def get_stack_output(ref, info: ValidationInfo):
+    stack_ref, output_name, path = parse_stack_reference(ref)
+
+    if stack_ref in known_stacks:
+        stack = known_stacks[stack_ref]
+    else:
+        stack = pulumi.StackReference(name=ref, stack_name=stack_ref)
+        known_stacks[stack_ref] = stack
+
+    # Workaround until Pulumi supports async methods in Python
+    # https://github.com/pulumi/pulumi/issues/12172#issuecomment-1691499199
+    output: Any | type[None] | None = _sync_await(
+        awaitable=stack.get_output_details(name=output_name),
+    )
+
+    if isinstance(output, pulumi.StackReferenceOutputDetails):
+        output_value = output.secret_value if output.secret_value else output.value
+
+    if isinstance(output_value, dict) and path:
+        output_value = deep_get(output_value, path=path)
+
+    if output_value is None:
+        raise ValueError(f"Output not found in stack {stack_ref=} {output_name=} {path=}")
+
+    return output_value
+
+
 def get_resource_id(
     v: Union[pulumi.Output[str], str],
     info: ValidationInfo,
@@ -119,25 +155,10 @@ def get_resource_id(
         return v if v.is_known() else v.apply(lambda x: x)
 
     if v.startswith("/subscriptions"):
-        return AzureResourceId(v).id
+        return AzureResourceId(id=v).id
 
     if v.startswith("stack://"):
-        stack_ref, output_name, path = parse_stack_reference(v)
-        stack = pulumi.StackReference(name=f"{v}-{uuid4().hex.upper()[0:3]}", stack_name=stack_ref)
-
-        # Workaround until Pulumi supports async methods in Python
-        # https://github.com/pulumi/pulumi/issues/12172#issuecomment-1691499199
-        output: Any | type[None] | None = _sync_await(
-            awaitable=stack.get_output_details(name=output_name),
-        ).value
-
-        if isinstance(output, dict) and path:
-            output = deep_get(output, path=path)
-
-        if isinstance(output, str):
-            return str(output)
-
-        raise ValueError(f"Output {v} not found or type {type(v)} is not a string")
+        return str(get_stack_output(ref=v, info=info))
 
     raise ValueError(f"{v} is not a valid resource ID reference")
 
@@ -145,4 +166,14 @@ def get_resource_id(
 AzureIdRef = Annotated[
     Union[str, pulumi.Output[str]],
     AfterValidator(func=get_resource_id),
+]
+
+StrRef = Annotated[Union[str, pulumi.Output], AfterValidator(func=get_stack_output)]
+SecretStrRef = Annotated[
+    Union[SecretStr, pulumi.Output[str]], AfterValidator(func=get_stack_output)
+]
+
+DictRef = Annotated[
+    Union[dict[str, Any], str],
+    BeforeValidator(func=get_stack_output),
 ]

@@ -12,11 +12,11 @@
       "preLaunchTask": "Run pulumi pre and wait to start",
       "pathMappings": [
         {
-          "localRoot": "${workspaceFolder}",
-          "remoteRoot": "${relativeFileDirname}"
+          "localRoot": "${workspaceFolder}/",
+          "remoteRoot": "${workspaceFolder}/"
         }
       ],
-      "justMyCode": false
+      "justMyCode": true
     }
   ]
 }

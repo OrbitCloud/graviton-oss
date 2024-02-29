@@ -2,10 +2,10 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "pulumi pre",
+      "label": "run-pulumi",
       "type": "shell",
       "isBackground": true,
-      "command": "DEBUG=true pulumi pre",
+      "command": "PULUMI_DEBUG=true pulumi up",
       "presentation": {
         "reveal": "silent"
       },
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "label": "Wait 10 seconds",
+      "label": "wait-for-pulumi",
       "type": "shell",
       "command": "sleep 10",
       "presentation": {
@@ -40,7 +40,7 @@
     },
     {
       "label": "Run pulumi pre and wait to start",
-      "dependsOn": ["pulumi pre", "Wait 10 seconds"]
+      "dependsOn": ["run-pulumi", "wait-for-pulumi"]
     },
     {
       "label": "Initilize Project",

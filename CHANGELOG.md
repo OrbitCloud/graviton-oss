@@ -1,3 +1,29 @@
+## v0.32.0 (2024-03-01)
+
+### Feat
+
+- **ContainerAppEnv**: Automate creation of DNS records needed for custom domain configuration
+- **LandingZone**: Add DnsZone with AcmeSsl deployment options
+- **DnsZone**: Ability to create NS records for child in an existing parent zone
+- **az_lib**: Add StrRef, SecretStrRef and DictRef stack reference types
+- **AcmeSsl**: New component for acquiring wildcard plus certificates via DNS challenge
+- **AzureBase**: Add helper for stack exports and skip_exports & exports_prefix options
+- **AzureBase**: Add exports for subscriptionId, tenantId, location, env and workload name
+- **DnsZone**: Allow "*" as record relative name for wildcard records
+- **DnsZone**: Make .record publicly accessible
+
+### Fix
+
+- **diagnostic_settings**: Revert attempt to fix constant parameter change detection during refreshes
+- **EventHub**: Fix hub naming and adjust parents/dependencies
+- **debugpy**: Fix VScode launch options
+- **EntraApp**: Add stack exports
+- **KeyVault**: Add AzurePolicyEvaluationDetails to diagnostic logging
+- **pulumi_lib**: Fix a bug where dash_formatted helper would take strings as list sequences
+- **DnsZone**: Fix TXT record input types
+- **AzMonitor**: Add parameter causing constant change detection
+- **config**: Generate JSON schema before validation
+
 ## v0.31.0 (2024-02-28)
 
 ### Feat

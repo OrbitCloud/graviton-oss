@@ -33,7 +33,7 @@ test: ##@ Run tests
 
 .PHONY: fmt
 fmt: ##@ Ruff formatter and linter (autofix)
-	poetry run ruff --fix .
+	poetry run ruff check --fix .
 	poetry run ruff format .
 
 .PHONY: lint

@@ -66,9 +66,9 @@ class EntraApp(ComponentResource):
         self.app: azuread.Application = self._app()
         self.service_principal: azuread.ServicePrincipal = self._service_principal()
         self.client_credentials: List[azuread.ApplicationPassword] = self._client_credentials()
-        self.federated_credentials: list[
-            azuread.ApplicationFederatedIdentityCredential
-        ] = self._federated_credentials()
+        self.federated_credentials: list[azuread.ApplicationFederatedIdentityCredential] = (
+            self._federated_credentials()
+        )
 
         self._outputs()
 

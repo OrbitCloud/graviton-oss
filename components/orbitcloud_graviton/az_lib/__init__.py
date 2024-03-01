@@ -1,4 +1,4 @@
-""" Azure helper functions for OrbitCloud Graviton """
+"""Azure helper functions for OrbitCloud Graviton"""
 
 from .naming import get_prefix, location_abbr, resource_namer
 from .network import is_public_ip

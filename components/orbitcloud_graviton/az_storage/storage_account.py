@@ -22,9 +22,9 @@ class StorageAccountConfig(BaseModel):
 
     allow_blob_public_access: Optional[bool] = False
     allow_shared_key_access: Optional[bool] = False
-    public_network_access: Optional[
-        storage.PublicNetworkAccess
-    ] = storage.PublicNetworkAccess.DISABLED
+    public_network_access: Optional[storage.PublicNetworkAccess] = (
+        storage.PublicNetworkAccess.DISABLED
+    )
 
     nfs_v3: Optional[bool] = False
 

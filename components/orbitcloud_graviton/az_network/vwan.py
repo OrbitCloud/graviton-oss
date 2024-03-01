@@ -47,9 +47,9 @@ class VirtualWan(ComponentResource):
 
         self.vwan: network.VirtualWan = self._vwan()
         self.vhub: network.VirtualHub = self._vhub()
-        self.vhub_vnet_connections: List[
-            network.HubVirtualNetworkConnection
-        ] | None = self.vhub_vnet_connection()
+        self.vhub_vnet_connections: List[network.HubVirtualNetworkConnection] | None = (
+            self.vhub_vnet_connection()
+        )
 
         self._outputs()
 

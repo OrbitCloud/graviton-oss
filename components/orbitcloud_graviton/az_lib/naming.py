@@ -1,4 +1,4 @@
-""" Helper functions for creating Azure related resources """
+"""Helper functions for creating Azure related resources"""
 
 import re
 from typing import Any, Dict

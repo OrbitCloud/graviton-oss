@@ -69,7 +69,7 @@ commitizen = "^3.16.0"
 pyright = "^1.1.350"
 pre-commit = "^3.6.2"
 debugpy = "^1.8.1"
-ruff = "^0.2.1"
+ruff = "^0.3.0"
 pytest-sugar = "^1.0.0"
 
 [tool.pyright]

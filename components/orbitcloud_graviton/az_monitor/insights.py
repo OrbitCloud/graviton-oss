@@ -1,4 +1,5 @@
 """Azure Application Insights Module"""
+
 from typing import Optional
 
 import pulumi

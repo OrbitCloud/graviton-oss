@@ -15,9 +15,9 @@ class EventHubConfig(BaseModel):
     name: str
     partition_count: Optional[int] = 1
     retention_hours: Optional[int] = 1
-    cleanup_policy: Optional[
-        pul_eventhub.CleanupPolicyRetentionDescription
-    ] = pul_eventhub.CleanupPolicyRetentionDescription.DELETE
+    cleanup_policy: Optional[pul_eventhub.CleanupPolicyRetentionDescription] = (
+        pul_eventhub.CleanupPolicyRetentionDescription.DELETE
+    )
 
 
 class NamespaceConfig(BaseModel):

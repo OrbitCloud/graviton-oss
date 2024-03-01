@@ -1,4 +1,5 @@
-""" Core module for creating Azure LogAnalytics Workspaces """
+"""Core module for creating Azure LogAnalytics Workspaces"""
+
 from typing import Literal, Optional
 
 import pulumi
@@ -9,12 +10,12 @@ from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
 class LogWorkspaceConfig(BaseModel):
-    public_network_access_for_ingestion: Optional[
-        operationalinsights.PublicNetworkAccessType
-    ] = operationalinsights.PublicNetworkAccessType.ENABLED
-    public_network_access_for_query: Optional[
-        operationalinsights.PublicNetworkAccessType
-    ] = operationalinsights.PublicNetworkAccessType.ENABLED
+    public_network_access_for_ingestion: Optional[operationalinsights.PublicNetworkAccessType] = (
+        operationalinsights.PublicNetworkAccessType.ENABLED
+    )
+    public_network_access_for_query: Optional[operationalinsights.PublicNetworkAccessType] = (
+        operationalinsights.PublicNetworkAccessType.ENABLED
+    )
 
     retention_in_days: Optional[Literal[30, 31, 60, 90, 120, 180, 270, 365, 550, 730]] = 30
     sku: operationalinsights.WorkspaceSkuNameEnum = Field(

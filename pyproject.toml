@@ -6,11 +6,9 @@ authors = ["Orbit Team <admin@orbit.is>"]
 license = "MIT"
 readme = "README.md"
 packages = [
-    # Lib and helpers
     { include = "orbitcloud_graviton/pulumi_mocks", from = "components" },
     { include = "orbitcloud_graviton/az_lib", from = "components" },
     { include = "orbitcloud_graviton/pulumi_lib",from = "components" },
-    # Azure Components
     { include = "orbitcloud_graviton/az_acr", from = "components" },
     { include = "orbitcloud_graviton/az_app", from = "components" },
     { include = "orbitcloud_graviton/az_appservice", from = "components" },
@@ -23,7 +21,6 @@ packages = [
     { include = "orbitcloud_graviton/entra",from = "components" },
     { include = "orbitcloud_graviton/az_eventhub",from = "components" },
     {include = "orbitcloud_graviton/az_providerhub",from = "components"},
-    # Bases
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
     { include = "orbitcloud_graviton/landing_zone",from = "bases" },
     { include = "orbitcloud_graviton/hubspoke",from = "bases" },
@@ -71,6 +68,7 @@ pre-commit = "^3.6.2"
 debugpy = "^1.8.1"
 ruff = "^0.3.0"
 pytest-sugar = "^1.0.0"
+copier = "^9.1.1"
 
 [tool.pyright]
 include = ["components", "bases", "development", "test"]

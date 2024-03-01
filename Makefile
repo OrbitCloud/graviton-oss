@@ -45,6 +45,13 @@ lint: ##@ Ruff formatter and linter (check mode)
 pyright: ##@ Run Pyright type checker
 	poetry run pyright -p .
 
+##@
+##@ Scaffolding
+##@
+
+.PHONY: component
+component: ##@ Create a new component
+	copier copy templates/component_class .
 
 ##@
 ##@ Dependency choirs

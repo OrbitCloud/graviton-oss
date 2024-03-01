@@ -1,0 +1,8 @@
+# questions
+component_name:
+  type: str
+  help: What is the name of the component?
+
+class_name:
+  type: str
+  help: What is the name of the component class?

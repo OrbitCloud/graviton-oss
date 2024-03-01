@@ -22,7 +22,7 @@ def container_registry(
 ) -> containerregistry.Registry:
     """Create container registry"""
 
-    return containerregistry.Registry(
+    cr = containerregistry.Registry(
         resource_name=stack.name_for(containerregistry.Registry),
         admin_user_enabled=config.admin_user_enabled,
         location=stack.location,
@@ -45,3 +45,15 @@ def container_registry(
         ),
         opts=opts,
     )
+
+    stack.export(
+        exports={
+            "container_registry": {
+                "id": cr.id,
+                "name": cr.name,
+                "login_server": cr.login_server,
+            },
+        }
+    )
+
+    return cr

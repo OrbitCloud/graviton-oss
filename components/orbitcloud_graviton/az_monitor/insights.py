@@ -41,8 +41,14 @@ def app_insights(
         ),
     )
 
-    pulumi.export("app_insights_id", appi.id)
-    pulumi.export("app_insights_key", appi.instrumentation_key)
-    pulumi.export("app_insights_connstr", appi.connection_string)
+    stack.export(
+        exports={
+            "app_insights": {
+                "id": appi.id,
+                "instrumentation_key": appi.instrumentation_key,
+                "connection_string": appi.connection_string,
+            }
+        }
+    )
 
     return appi

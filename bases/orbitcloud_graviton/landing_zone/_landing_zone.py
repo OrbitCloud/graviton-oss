@@ -1,7 +1,7 @@
 from typing import Optional
 
 import pulumi
-from pulumi_azure_native import containerregistry, operationalinsights
+from pulumi_azure_native import operationalinsights
 
 from orbitcloud_graviton.acme_ssl.acme import AcmeSsl, AcmeSslConfig
 from orbitcloud_graviton.az_acr import (
@@ -38,7 +38,7 @@ class LandingZoneConfig(PulumiConfig):
     log_workspace: LogWorkspaceConfig = LogWorkspaceConfig()
 
     has_keyvault: Optional[bool] = True
-    has_containerregistry: Optional[bool] = True
+    has_container_registry: Optional[bool] = True
 
     pulumi_app_additional_permissions: Optional[list[IamAssignmentConfig]] = None
 
@@ -103,14 +103,12 @@ def deploy_landing_zone() -> None:
     ##########################################
     #   Container Registry
     ##########################################
-    if config.has_containerregistry and config.container_registry:
-        az_cr: containerregistry.Registry = container_registry(
+    if config.has_container_registry and config.container_registry:
+        container_registry(
             stack=stack,
             config=config.container_registry,
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
-        pulumi.export("containerregistry_server", az_cr.login_server)
-        pulumi.export("containerregistry_id", az_cr.id)
 
     ##########################################
     #   Event Hub
@@ -128,7 +126,7 @@ def deploy_landing_zone() -> None:
     ##########################################
 
     pulumi_app = EntraApp(
-        stack=stack,
+        stack=stack.model_copy(update={"exports_prefix": "pulumi"}),
         entra=entra_config,
         config=EntraAppConfig(
             name=f"pulumi-deployments-{stack.workload_name}",
@@ -179,17 +177,14 @@ def deploy_landing_zone() -> None:
     #   Entra App for GitHub Container Registry
     ##########################################
     if config.github_cr_app:
-        entra_app_github = EntraApp(
-            stack=stack,
+        EntraApp(
+            stack=stack.model_copy(update={"exports_prefix": "github"}),
             entra=entra_config,
             config=EntraAppConfig(
                 name=f"github-cr-{stack.workload_name}-{stack.env}",
                 federated_credentials=config.github_cr_app.credentials(),
             ),
         )
-        pulumi.export("github_cr_app_client_id", entra_app_github.app.client_id)
-        pulumi.export("github_cr_app_tenant_id", entra_config.tenant_id)
-        pulumi.export("github_cr_app_subscription_id", stack.subscription_id)
 
     if config.resource_providers:
         for provider in config.resource_providers:

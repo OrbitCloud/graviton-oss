@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 import pulumi
-from pulumi import ComponentResource, ResourceOptions
+from pulumi import ComponentResource
 from pulumi_azure_native import insights, keyvault
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -66,7 +66,7 @@ class KeyVault(ComponentResource):
         self,
         stack: AzureBase,
         config: KeyVaultConfig,
-        opts: Optional[ResourceOptions] = None,
+        opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
         self.stack: AzureBase = stack
         self.config: KeyVaultConfig = config
@@ -96,7 +96,7 @@ class KeyVault(ComponentResource):
                 soft_delete_retention_in_days=90,
                 network_acls=self._vault_network_rules(),
             ),
-            opts=ResourceOptions(parent=self),
+            opts=pulumi.ResourceOptions(parent=self),
         )
 
     def _vault_network_rules(self) -> keyvault.NetworkRuleSetArgs | None:
@@ -134,6 +134,13 @@ class KeyVault(ComponentResource):
             )
 
     def _outputs(self) -> None:
-        self.register_outputs({"vault": self.vault})
-        pulumi.export("keyvault_name", value=self.vault.name)
-        pulumi.export("keyvault_id", value=self.vault.id)
+        self.register_outputs(outputs={"vault": self.vault})
+
+        self.stack.export(
+            exports={
+                "keyvault": {
+                    "id": self.vault.id,
+                    "name": self.vault.name,
+                }
+            }
+        )

@@ -23,6 +23,10 @@ install-poly: ##@ Install polylith plugins
 ##@ Local development
 ##@
 
+.PHONY: stacks
+stacks: ##@ Check for changes in development stacks
+	@./bin/run_stacks.sh
+
 .PHONY: test
 test: ##@ Run tests
 	poetry run pytest --cov --cov-report=term-missing:skip-covered --junitxml=pytest.xml | tee pytest-coverage.txt

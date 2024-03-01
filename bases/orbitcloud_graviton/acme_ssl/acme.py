@@ -224,11 +224,13 @@ class AcmeSsl(ComponentResource):
                 "certificate": self.certificate,
             },
         )
-        pulumi.export(
-            "ssl_cert",
-            {
-                "value": self.certificate.stdout.apply(lambda x: x),
-                "pass": self.pfx_pass,
-                "keyvault_secret_id": self.keyvault_secret.id if self.keyvault_secret else None,
-            },
+
+        self.stack.export(
+            exports={
+                "ssl_cert": {
+                    "value": self.certificate.stdout,
+                    "pass": self.pfx_pass,
+                    "keyvault_secret_id": self.keyvault_secret.id if self.keyvault_secret else None,
+                }
+            }
         )

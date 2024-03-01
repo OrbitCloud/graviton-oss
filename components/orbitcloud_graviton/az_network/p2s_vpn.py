@@ -117,5 +117,14 @@ class P2sVpnGw(ComponentResource):
             "p2s_vpngw_config": self.server_config,
             "p2s_vpngw_client_address_pool": str(self.config.client_address_pool),
         }
-        pulumi.export("p2s_vpngw_id", self.p2s_vpngw.id)
         self.register_outputs(self.outputs)
+
+        self.stack.export(
+            exports={
+                "p2s_vpn": {
+                    "id": self.p2s_vpngw.id,
+                    "name": self.p2s_vpngw.name,
+                    "client_address_pool": str(self.config.client_address_pool),
+                }
+            }
+        )

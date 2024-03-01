@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import pulumi
 from pulumi import ComponentResource
@@ -44,7 +44,8 @@ class VnetConfig(BaseModel):
         # Check if subnets are within at least one of the vnet address spaces
         for subnet in m.subnets:
             if not any(
-                subnet.address_prefix.subnet_of(address_space) for address_space in m.address_space
+                subnet.address_prefix.subnet_of(other=address_space)
+                for address_space in m.address_space
             ):
                 raise ValueError(
                     f"Subnet {subnet.name} address prefix {subnet.address_prefix} is not within any of the vnet address spaces"
@@ -52,7 +53,7 @@ class VnetConfig(BaseModel):
 
             # Check if subnet overlaps with any other subnet
             if any(
-                subnet.address_prefix.overlaps(other_subnet.address_prefix)
+                subnet.address_prefix.overlaps(other=other_subnet.address_prefix)
                 for other_subnet in m.subnets
                 if other_subnet != subnet
             ):
@@ -73,7 +74,7 @@ class Vnet(ComponentResource):
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
         self.stack: AzureBase = stack
-        self.config = config
+        self.config: VnetConfig = config
 
         super().__init__(
             "Graviton:az_network:Vnet",
@@ -156,14 +157,14 @@ class Vnet(ComponentResource):
 
     def _outputs(self) -> None:
         self.register_outputs(
-            {
+            outputs={
                 "vnet": self.vnet,
                 "subnets": self.subnets,
             }
         )
 
         def _subnet_export() -> dict:
-            subnet_export = {}
+            subnet_export: dict[str, Any] = {}
             for name, subnet in self.subnets.items():
                 subnet_export[name] = {
                     "name": subnet.name.apply(lambda x: x),
@@ -172,10 +173,12 @@ class Vnet(ComponentResource):
                 }
             return subnet_export
 
-        pulumi.export("vnet_id", self.vnet.id)
-        pulumi.export("vnet_name", self.vnet.name)
-        pulumi.export(
-            name="subnets",
-            value=_subnet_export(),
-            # pulumi.Output.all(*[subnet_export()]).apply(lambda x: x),
+        self.stack.export(
+            exports={
+                "vnet": {
+                    "id": self.vnet.id,
+                    "name": self.vnet.name,
+                },
+                "subnets": _subnet_export(),
+            }
         )

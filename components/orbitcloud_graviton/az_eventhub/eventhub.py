@@ -133,6 +133,21 @@ class EventHub(ComponentResource):
                 "hubs": self.hubs,
             }
         )
-        pulumi.export("eventhub_endpoint", self.namespace.service_bus_endpoint)
-        pulumi.export("eventhub_namespace_id", self.namespace.id)
-        pulumi.export("eventhub_namespace_name", self.namespace.name)
+
+        self.stack.export(
+            exports={
+                "eventhub": {
+                    "namespace": {
+                        "id": self.namespace.id,
+                        "name": self.namespace.name,
+                    },
+                    "hubs": [
+                        {
+                            "id": hub.id,
+                            "name": hub.name,
+                        }
+                        for hub in self.hubs
+                    ],
+                },
+            }
+        )

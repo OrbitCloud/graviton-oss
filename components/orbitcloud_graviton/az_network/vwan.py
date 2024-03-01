@@ -133,13 +133,32 @@ class VirtualWan(ComponentResource):
         return vnet_connections
 
     def _outputs(self) -> None:
-        self.outputs = {
-            "vwan": self.vwan,
-            "vhub": self.vhub,
-        }
-        pulumi.export("vwan_id", self.vwan.id)
-        pulumi.export("vwan_name", self.vwan.name)
-        pulumi.export("vhub_id", self.vhub.id)
-        pulumi.export("vhub_name", self.vhub.name)
+        self.register_outputs(
+            outputs={
+                "vwan": self.vwan,
+                "vhub": self.vhub,
+            }
+        )
 
-        self.register_outputs(self.outputs)
+        self.stack.export(
+            exports={
+                "vwan": {
+                    "id": self.vwan.id,
+                    "name": self.vwan.name,
+                },
+                "vhub": {
+                    "id": self.vhub.id,
+                    "name": self.vhub.name,
+                    "address_prefix": self.vhub.address_prefix,
+                    "vnet_connections": [
+                        {
+                            "id": vnet.id,
+                            "name": vnet.name,
+                        }
+                        for vnet in self.vhub_vnet_connections
+                    ]
+                    if self.vhub_vnet_connections
+                    else [],
+                },
+            }
+        )

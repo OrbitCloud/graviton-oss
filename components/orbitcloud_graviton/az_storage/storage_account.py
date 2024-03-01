@@ -34,7 +34,7 @@ class StorageAccountConfig(BaseModel):
     private_endpoints: Optional[list[PrivateEndpointConfig]] = None
     storage_tables: Optional[List[str]] = None
 
-    stack_output_prefix: Optional[str] = None
+    exports_prefix: Optional[str] = None
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -157,24 +157,38 @@ class StorageAccount(pulumi.ComponentResource):
             else None
         )
 
-    def _outputs(self):
+    def _outputs(self) -> None:
         self.register_outputs(
             {
                 "storage_account": self.storage_account,
                 "private_endpoints": self.private_endpoints,
             }
         )
-        pulumi.export(
-            name=f"{self.config.stack_output_prefix or " "}storage_account",
-            value={
-                "name": self.storage_account.name.apply(lambda x: x),
-                "id": self.storage_account.id,
-                "tables_endpoint": self.storage_account.primary_endpoints.apply(lambda x: x.table),
-                "blob_endpoint": self.storage_account.primary_endpoints.apply(lambda x: x.blob),
-                "file_endpoint": self.storage_account.primary_endpoints.apply(lambda x: x.file),
-                "queue_endpoint": self.storage_account.primary_endpoints.apply(lambda x: x.queue),
-            },
-        )
 
-        if self.private_endpoints:
-            pulumi.export("private_endpoints", [endpoint.id for endpoint in self.private_endpoints])
+        pep_export = (
+            [
+                {
+                    "id": endpoint.id,
+                    "name": endpoint.name,
+                    "fqdn": endpoint.custom_dns_configs.fqdn,
+                    "ip": endpoint.custom_dns_configs.ip_addresses,
+                }
+                for endpoint in self.private_endpoints
+            ]
+            if self.private_endpoints
+            else []
+        )
+        self.stack.export(
+            exports={
+                "storage_account": {
+                    "name": self.storage_account.name,
+                    "id": self.storage_account.id,
+                    "tables_endpoint": self.storage_account.primary_endpoints.table,
+                    "blob_endpoint": self.storage_account.primary_endpoints.blob,
+                    "file_endpoint": self.storage_account.primary_endpoints.file,
+                    "queue_endpoint": self.storage_account.primary_endpoints.queue,
+                    "private_endpoints": pep_export,
+                },
+            },
+            prefix=self.config.exports_prefix,
+        )

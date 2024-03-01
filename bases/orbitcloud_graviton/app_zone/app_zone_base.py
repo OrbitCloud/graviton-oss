@@ -4,7 +4,7 @@ import pulumi
 from pulumi_azure_native import insights, operationalinsights
 from pydantic import Field
 
-from orbitcloud_graviton.az_acr.registry import ContainerRegistryConfig
+from orbitcloud_graviton.az_acr.registry import ContainerRegistryConfig, container_registry
 from orbitcloud_graviton.az_app import ContainerAppEnv, ContainerAppEnvConfig
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
 from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
@@ -28,7 +28,10 @@ class AppZoneBaseConfig(PulumiConfig):
         default=KeyVaultConfig(), title="Key Vault Config", description="Key Vault Configuration"
     )
     event_hub: Optional[NamespaceConfig] = None
-    container_registry: Optional[ContainerRegistryConfig] = None
+
+    has_container_registry: Optional[bool] = False
+    container_registry: Optional[ContainerRegistryConfig] = ContainerRegistryConfig()
+
     app_insights: Optional[AppInsightsConfig] = None
     storage_accounts: Optional[List[StorageAccountConfig]] = None
 
@@ -73,6 +76,16 @@ def deploy() -> None:
         ),
         opts=pulumi.ResourceOptions(parent=stack.resource_group),
     )
+
+    ##########################################
+    #   Container Registry
+    ##########################################
+    if config.has_container_registry and config.container_registry:
+        container_registry(
+            stack=stack,
+            config=config.container_registry,
+            opts=pulumi.ResourceOptions(parent=stack.resource_group),
+        )
 
     ##########################################
     # Key Vault

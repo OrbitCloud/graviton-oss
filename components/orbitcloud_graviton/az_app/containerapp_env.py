@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 import pulumi
 from pulumi_azure_native import insights, network
@@ -128,9 +128,9 @@ class ContainerAppEnv(pulumi.ComponentResource):
             if self.config.custom_domain.dns_zone_stack and isinstance(
                 self.config.custom_domain.dns_zone_stack, dict
             ):
-                stack_args = self.config.custom_domain.dns_zone_stack
+                stack_args: dict[str, Any] = self.config.custom_domain.dns_zone_stack
                 stack_args["skip_exports"] = True
-                stack = AzureBase.model_validate(obj=stack_args)
+                stack: AzureBase = AzureBase.model_validate(obj=stack_args)
 
             zone = DnsZone(
                 dns_zone_id=self.config.custom_domain.dns_zone_id,
@@ -222,12 +222,14 @@ class ContainerAppEnv(pulumi.ComponentResource):
                 "certificates": self.certificates,
             }
         )
-        pulumi.export(
-            name="containerapp_env",
-            value={
-                "id": self.environment.id,
-                "name": self.environment.name,
-                "static_ip": self.environment.static_ip,
-                "custom_domain_verification_id": self.environment.custom_domain_configuration.custom_domain_verification_id,
-            },
+
+        self.stack.export(
+            exports={
+                "containerapp_env": {
+                    "id": self.environment.id,
+                    "name": self.environment.name,
+                    "static_ip": self.environment.static_ip,
+                    "custom_domain_verification_id": self.environment.custom_domain_configuration.custom_domain_verification_id,
+                }
+            }
         )

@@ -170,11 +170,11 @@ class DnsZone(pulumi.ComponentResource):
                 "records": self.records,
             }
         )
-        if not self.stack.skip_exports:
-            pulumi.export(
-                "dns_zone",
-                value={
+        self.stack.export(
+            exports={
+                "dns_zone": {
                     "id": self.zone.id,
                     "name": self.zone.name,
-                },
-            )
+                }
+            }
+        )

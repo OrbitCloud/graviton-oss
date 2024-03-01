@@ -27,7 +27,7 @@ class AzureBase(PulumiConfig):
     tags: Optional[Dict[str, str]] = None
 
     skip_exports: Optional[bool] = False
-    exports_prefix: Optional[str] = ""
+    exports_prefix: Optional[str] = None
 
     resource_group_name: Optional[str] = None
     _resource_group: Optional[resources.ResourceGroup] = None
@@ -48,29 +48,33 @@ class AzureBase(PulumiConfig):
             location=self.location,
         )
 
-    def export(self, exports: Dict[str, Any]) -> None:
+    def export(self, exports: Dict[str, Any], prefix=None) -> None:
         if not self.skip_exports:
+            pre: str | None = prefix or self.exports_prefix
             for k, v in exports.items():
-                pulumi.export(name=f"{self.exports_prefix}_{k}", value=v)
+                key: str = f"{pre}_{k}" if pre else k
+                pulumi.export(name=key, value=v)
 
     model_config = SettingsConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
 
 @lru_cache
 def get_azure_stack() -> AzureBase:
-    stack = AzureBase.model_validate({})
+    stack: AzureBase = AzureBase.model_validate({})
     if not stack.skip_exports:
-        pulumi.export(
-            name="stack",
-            value={
-                "workload_name": stack.workload_name,
-                "subscription_id": str(stack.subscription_id),
-                "tenant_id": str(stack.tenant_id),
-                "location": stack.location,
-                "env": stack.env,
-                "resource_group_name": stack.resource_group.name,
-            },
+        stack.export(
+            exports={
+                "stack": {
+                    "workload_name": stack.workload_name,
+                    "subscription_id": str(stack.subscription_id),
+                    "tenant_id": str(stack.tenant_id),
+                    "location": stack.location,
+                    "env": stack.env,
+                    "resource_group_name": stack.resource_group.name,
+                }
+            }
         )
+
     return stack
 
 

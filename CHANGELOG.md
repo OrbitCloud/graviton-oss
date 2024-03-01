@@ -1,3 +1,9 @@
+## v0.33.0 (2024-03-01)
+
+### Feat
+
+- **copier**: Add copier and component class template (#168)
+
 ## v0.32.0 (2024-03-01)
 
 ### Feat

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "orbitcloud_graviton"
-version = "0.29.0"
+version = "0.31.0"
 description = ""
 authors = ["Orbit Team <admin@orbit.is>"]
 license = "MIT"
@@ -27,9 +27,11 @@ packages = [
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
     { include = "orbitcloud_graviton/landing_zone",from = "bases" },
     { include = "orbitcloud_graviton/hubspoke",from = "bases" },
+    {include = "orbitcloud_graviton/ora_queue",from = "components"},
     {include = "orbitcloud_graviton/app_zone",from = "bases"},
     {include = "orbitcloud_graviton/acme_ssl",from = "bases"},
 ]
+
 
 [tool.polylith]
 namespace = "orbitcloud_graviton"
@@ -51,21 +53,21 @@ enabled = false
 python = "^3.12"
 azure-mgmt-authorization = "^4.0.0"
 pulumi = "^3.106"
-pulumi-azure-native = "^2.28"
+pulumi-azure-native = "^2.30"
 pulumi-azuread = "^5.47.1"
 pulumiverse-time = "^0.0.16"
 pydantic = {extras = ["email"], version = "^2.6.3"}
-pydantic-settings = "^2.1.0"
+pydantic-settings = "^2.2.1"
 pulumi-command = "^0.9.2"
 pulumi-random = "^4.16.0"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
+pytest = "^8.0.2"
 pytest-cov = "^4.1.0"
-commitizen = "^3.14.1"
+commitizen = "^3.16.0"
 pyright = "^1.1.350"
-pre-commit = "^3.6.1"
+pre-commit = "^3.6.2"
 debugpy = "^1.8.1"
 ruff = "^0.2.1"
 pytest-sugar = "^1.0.0"
@@ -139,7 +141,7 @@ known-first-party = ["orbitcloud_graviton"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.29.0"
+version = "0.31.0"
 tag_format = "v$version"
 version_files = [
     "VERSION",

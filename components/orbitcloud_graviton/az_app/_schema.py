@@ -1,6 +1,6 @@
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 from orbitcloud_graviton.pulumi_lib.types import DomainName
 
@@ -8,6 +8,8 @@ from orbitcloud_graviton.pulumi_lib.types import DomainName
 class ConsumptionProfile(BaseModel):
     workload_type: Literal["Consumption"] = "Consumption"
     name: Literal["Consumption"] = "Consumption"
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class DedicatedProfile(BaseModel):
@@ -25,8 +27,12 @@ class DedicatedProfile(BaseModel):
         ..., title="Maximum number of instances to run"
     )
 
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
 
 class CustomDomain(BaseModel):
     dns_suffix: DomainName
     cert_password: SecretStr
     cert_contents: SecretStr
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")

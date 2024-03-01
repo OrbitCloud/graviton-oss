@@ -128,6 +128,7 @@ class KeyVault(ComponentResource):
                 metric_categories=["AllMetrics"],
                 log_categories=[
                     "AuditEvent",
+                    "AzurePolicyEvaluationDetails",
                 ],
                 opts=pulumi.ResourceOptions(parent=self.vault),
             )

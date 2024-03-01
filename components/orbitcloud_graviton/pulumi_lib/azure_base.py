@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Dict, Optional, Type
+from typing import Any, Dict, Optional, Type
 from uuid import UUID
 
 import pulumi
@@ -26,6 +26,9 @@ class AzureBase(PulumiConfig):
     )
     tags: Optional[Dict[str, str]] = None
 
+    skip_exports: Optional[bool] = False
+    exports_prefix: Optional[str] = ""
+
     resource_group_name: Optional[str] = None
     _resource_group: Optional[resources.ResourceGroup] = None
 
@@ -35,8 +38,6 @@ class AzureBase(PulumiConfig):
             return self._resource_group
 
         self._resource_group = resource_group(stack=self)
-        pulumi.export("resource_group_id", self._resource_group.id)
-        pulumi.export("resource_group_name", self._resource_group.name)
         return self._resource_group
 
     def name_for(self, resource_type: Type, workload_name: Optional[str] = None) -> str:
@@ -47,14 +48,37 @@ class AzureBase(PulumiConfig):
             location=self.location,
         )
 
+    def export(self, exports: Dict[str, Any]) -> None:
+        if not self.skip_exports:
+            for k, v in exports.items():
+                pulumi.export(name=f"{self.exports_prefix}_{k}", value=v)
+
     model_config = SettingsConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
 
 @lru_cache
 def get_azure_stack() -> AzureBase:
-    return AzureBase.model_validate({})
+    stack = AzureBase.model_validate({})
+    if not stack.skip_exports:
+        pulumi.export(
+            name="stack",
+            value={
+                "workload_name": stack.workload_name,
+                "subscription_id": str(stack.subscription_id),
+                "tenant_id": str(stack.tenant_id),
+                "location": stack.location,
+                "env": stack.env,
+                "resource_group_name": stack.resource_group.name,
+            },
+        )
+    return stack
 
 
 class EntraBase(PulumiConfig):
     tenant_id: UUID = Field(..., alias="azuread:tenantId")
     model_config = SettingsConfigDict(populate_by_name=True)
+
+
+@lru_cache
+def get_entra_stack() -> EntraBase:
+    return EntraBase.model_validate({})

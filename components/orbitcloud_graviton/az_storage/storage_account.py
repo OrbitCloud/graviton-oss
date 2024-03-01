@@ -145,6 +145,7 @@ class StorageAccount(pulumi.ComponentResource):
                         table_name=table,
                         account_name=self.storage_account.name,
                         resource_group_name=self.stack.resource_group.name,
+                        signed_identifiers=[],
                         opts=self._opts._merge_instance(
                             pulumi.ResourceOptions(parent=self.storage_account)
                         ),
@@ -164,25 +165,15 @@ class StorageAccount(pulumi.ComponentResource):
             }
         )
         pulumi.export(
-            f"{self.config.stack_output_prefix}storage_account_name",
-            self.storage_account.name.apply(lambda x: x),
-        )
-        pulumi.export(f"{self.config.stack_output_prefix}_id", self.storage_account.id)
-        pulumi.export(
-            f"{self.config.stack_output_prefix}_tables_endpoint",
-            self.storage_account.primary_endpoints.apply(lambda x: x.table),
-        )
-        pulumi.export(
-            f"{self.config.stack_output_prefix}_blob_endpoint",
-            self.storage_account.primary_endpoints.apply(lambda x: x.blob),
-        )
-        pulumi.export(
-            f"{self.config.stack_output_prefix}_file_endpoint",
-            self.storage_account.primary_endpoints.apply(lambda x: x.file),
-        )
-        pulumi.export(
-            f"{self.config.stack_output_prefix}_queue_endpoint",
-            self.storage_account.primary_endpoints.apply(lambda x: x.queue),
+            name=f"{self.config.stack_output_prefix or " "}storage_account",
+            value={
+                "name": self.storage_account.name.apply(lambda x: x),
+                "id": self.storage_account.id,
+                "tables_endpoint": self.storage_account.primary_endpoints.apply(lambda x: x.table),
+                "blob_endpoint": self.storage_account.primary_endpoints.apply(lambda x: x.blob),
+                "file_endpoint": self.storage_account.primary_endpoints.apply(lambda x: x.file),
+                "queue_endpoint": self.storage_account.primary_endpoints.apply(lambda x: x.queue),
+            },
         )
 
         if self.private_endpoints:

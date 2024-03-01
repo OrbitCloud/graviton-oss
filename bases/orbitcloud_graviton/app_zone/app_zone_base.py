@@ -30,13 +30,12 @@ class AppZoneBaseConfig(PulumiConfig):
     event_hub: Optional[NamespaceConfig] = None
     container_registry: Optional[ContainerRegistryConfig] = None
     app_insights: Optional[AppInsightsConfig] = None
-
     storage_accounts: Optional[List[StorageAccountConfig]] = None
 
 
 def deploy() -> None:
-    config: AppZoneBaseConfig = AppZoneBaseConfig.model_validate({})
     generate_stack_schema(model=AppZoneBaseConfig, output_file=".stack_schema.json")
+    config: AppZoneBaseConfig = AppZoneBaseConfig.model_validate({})
 
     stack: AzureBase = get_azure_stack()
 

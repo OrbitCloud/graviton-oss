@@ -109,3 +109,10 @@ msbuild.wrn
 # IDEs and editors
 .vs/
 .idea
+
+# Certificates
+*.pem
+*.cer
+*.crt
+*.key
+.lego/

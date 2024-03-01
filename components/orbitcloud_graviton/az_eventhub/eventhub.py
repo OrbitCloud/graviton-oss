@@ -83,14 +83,21 @@ class EventHub(ComponentResource):
         return (
             [
                 pul_eventhub.EventHub(
-                    resource_name=self.stack.name_for(pul_eventhub.EventHub),
-                    event_hub_name=self.stack.name_for(pul_eventhub.EventHub),
+                    resource_name=self.stack.name_for(
+                        pul_eventhub.EventHub, workload_name=hub.name
+                    ),
+                    event_hub_name=self.stack.name_for(
+                        pul_eventhub.EventHub, workload_name=hub.name
+                    ),
                     resource_group_name=self.stack.resource_group.name,
                     namespace_name=self.namespace.name,
                     partition_count=hub.partition_count,
                     retention_description=pul_eventhub.RetentionDescriptionArgs(
                         cleanup_policy=hub.cleanup_policy,
                         retention_time_in_hours=hub.retention_hours,
+                    ),
+                    opts=pulumi.ResourceOptions.merge(
+                        self._opts, pulumi.ResourceOptions(parent=self.namespace)
                     ),
                 )
                 for hub in self.config.hubs

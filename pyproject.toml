@@ -29,7 +29,7 @@ packages = [
     { include = "orbitcloud_graviton/hubspoke",from = "bases" },
     {include = "orbitcloud_graviton/ora_queue",from = "components"},
     {include = "orbitcloud_graviton/app_zone",from = "bases"},
-    {include = "orbitcloud_graviton/acme_app",from = "bases"},
+    {include = "orbitcloud_graviton/acme_ssl",from = "bases"},
 ]
 
 
@@ -56,8 +56,10 @@ pulumi = "^3.106"
 pulumi-azure-native = "^2.30"
 pulumi-azuread = "^5.47.1"
 pulumiverse-time = "^0.0.16"
-pydantic = "^2.5.3"
+pydantic = {extras = ["email"], version = "^2.6.3"}
 pydantic-settings = "^2.2.1"
+pulumi-command = "^0.9.2"
+pulumi-random = "^4.16.0"
 
 
 [tool.poetry.group.dev.dependencies]

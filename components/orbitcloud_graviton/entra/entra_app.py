@@ -9,13 +9,13 @@ from pydantic import BaseModel, ConfigDict, Field
 from orbitcloud_graviton.pulumi_lib import AzureBase, EntraBase
 
 
-class ClientCredentials(BaseModel):
+class ClientCredentialsConfig(BaseModel):
     display_name: str
     expires_after_months: Optional[int] = 6
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
-class FederatedCredentials(BaseModel):
+class FederatedCredentialsConfig(BaseModel):
     issuer: str
     audiences: List[str]
     subject: str
@@ -35,8 +35,8 @@ class EntraAppConfig(BaseModel):
             "PersonalMicrosoftAccount",
         ]
     ] = "AzureADMyOrg"
-    client_credentials: Optional[List[ClientCredentials]] = Field(default_factory=list)
-    federated_credentials: Optional[List[FederatedCredentials]] = Field(default_factory=list)
+    client_credentials: Optional[List[ClientCredentialsConfig]] = Field(default_factory=list)
+    federated_credentials: Optional[List[FederatedCredentialsConfig]] = Field(default_factory=list)
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -55,7 +55,7 @@ class EntraApp(ComponentResource):
 
         super().__init__(
             "Graviton:Entra:EntraApp",
-            name=f"ea-{self.stack.workload_name}-{self.config.name}",
+            name=f"ea-{self.stack.workload_name}-{self.config.name}-{self.stack.env}",
             props=None,
             opts=opts,
         )
@@ -93,13 +93,15 @@ class EntraApp(ComponentResource):
             return []
         for cred in self.config.client_credentials:
             rotation: time.Rotating = time.Rotating(
-                resource_name=f"secret-{cred.display_name}",
+                resource_name=f"eapw-{self.config.name}-{cred.display_name}",
                 rotation_months=cred.expires_after_months,
+                opts=self._opts,
             )
 
             creds.append(
                 azuread.ApplicationPassword(
-                    f"secret-{self.config.name}",
+                    f"eapw-{self.config.name}",
+                    display_name=cred.display_name,
                     application_id=self.app.id,
                     rotate_when_changed={
                         "rotation": rotation.id.apply(lambda id: id),
@@ -133,5 +135,19 @@ class EntraApp(ComponentResource):
             {
                 "app": self.app,
                 "service_principal": self.service_principal,
+            }
+        )
+        self.stack.export(
+            exports={
+                "entra_app": {
+                    "app": {
+                        "id": self.app.id,
+                        "client_id": self.app.object_id,
+                    },
+                    "service_principal": {
+                        "id": self.service_principal.id,
+                        "client_id": self.service_principal.client_id,
+                    },
+                },
             }
         )

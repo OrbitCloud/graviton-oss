@@ -25,8 +25,8 @@ class NetworkBaseConfig(PulumiConfig):
 
 
 def deploy_hub_spoke():
-    config: NetworkBaseConfig = NetworkBaseConfig.model_validate({})
     generate_stack_schema(model=NetworkBaseConfig, output_file=".stack_schema.json")
+    config: NetworkBaseConfig = NetworkBaseConfig.model_validate({})
 
     stack: AzureBase = get_azure_stack()
     rg: resources.ResourceGroup = stack.resource_group

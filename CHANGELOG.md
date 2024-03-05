@@ -1,3 +1,22 @@
+## v0.34.0 (2024-03-05)
+
+### Feat
+
+- **workload_identities**: Create Azure DevOps OIDC service principal
+- **LandingZone**: Add credential_type to federated credentials
+- **acmessl**: Stop using staging server by default for cert creation
+- **workload_identities**: Add base for managing Entra Apps with OIDC credentials
+
+### Fix
+
+- **workload_identities**: Add missing .stack_schema.json
+- **workload_identities**: Include base in pyproject.toml
+
+### Refactor
+
+- **managed_environment**: Remove old sandbox deployment
+- **EntraApp**: Adjust naming to include workload+env
+
 ## v0.33.0 (2024-03-01)
 
 ### Feat

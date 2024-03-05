@@ -69,7 +69,7 @@ class AcmeSsl(ComponentResource):
             stack=self.stack,
             entra=self.entra_config,
             config=EntraAppConfig(
-                name=f"acmessl-{self.stack.env}",
+                name="acmessl",
                 client_credentials=[
                     ClientCredentialsConfig(
                         display_name="acmessl-credentials",
@@ -145,13 +145,13 @@ class AcmeSsl(ComponentResource):
         )
 
     def _lego_cmd_args(self) -> str:
-        is_staging: str = (
+        staging_server: str = (
             "--server=https://acme-staging-v02.api.letsencrypt.org/directory"
             if self.config.use_staging_issuer
             else ""
         )
         cmd_create: str = (
-            f"lego --accept-tos {is_staging}"
+            f"lego --accept-tos {staging_server}"
             f" --domains '*.{self.config.dns_zone_name}'"
             f" --email {self.config.ssl_contact_email}"
             " --dns azuredns --pfx run"
@@ -190,7 +190,12 @@ class AcmeSsl(ComponentResource):
         cmd = local.Command(
             resource_name="cmd-cert-output",
             create=f"base64 -i '{cert_path}'",
-            triggers=[{"cert_script": cert_script}],
+            triggers=[
+                {
+                    "cert_script_stdout": cert_script.stdout,
+                    "cert_script_stderr": cert_script.stderr,
+                }
+            ],
             opts=pulumi.ResourceOptions(
                 parent=cert_script, depends_on=[cert_script], additional_secret_outputs=["stdout"]
             ),

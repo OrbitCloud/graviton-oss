@@ -95,7 +95,6 @@ def deploy_landing_zone() -> None:
                     dns_zone_id=dns.zone.id,
                     dns_zone_name=config.dns_zone.name,
                     keyvault_id=kv.vault.id,
-                    use_staging_issuer=True,
                     ssl_contact_email="admin@orbit.is",
                 ),
             )
@@ -129,7 +128,7 @@ def deploy_landing_zone() -> None:
         stack=stack.model_copy(update={"exports_prefix": "pulumi"}),
         entra=entra_config,
         config=EntraAppConfig(
-            name=f"pulumi-deployments-{stack.workload_name}",
+            name="pulumi-deployments",
             federated_credentials=PulumiOIDCCredentials(
                 organization=pulumi.get_organization()
             ).credentials(),

@@ -67,4 +67,4 @@ def generate_stack_schema(model, output_file: str):
 
     # Write the schema to a file
     with open(file=output_file, mode="w") as f:
-        f.write(json.dumps(config_schema, indent=2))
+        f.write(json.dumps(config_schema, indent=2) + "\n")

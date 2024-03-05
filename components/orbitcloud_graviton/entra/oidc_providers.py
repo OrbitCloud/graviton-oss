@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
+from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -6,6 +7,7 @@ from orbitcloud_graviton.entra.entra_app import FederatedCredentialsConfig
 
 
 class PulumiOIDCCredentials(BaseModel):
+    credential_type: Literal["pulumi"] = "pulumi"
     organization: str
 
     def credentials(self) -> list[FederatedCredentialsConfig]:
@@ -19,7 +21,26 @@ class PulumiOIDCCredentials(BaseModel):
         ]
 
 
+class AzureDevOpsOIDCCredentials(BaseModel):
+    credential_type: Literal["azuredevops"] = "azuredevops"
+    ado_org_id: UUID
+    ado_org_name: str
+    ado_project_name: str
+    ado_service_connection_name: str
+
+    def credentials(self) -> list[FederatedCredentialsConfig]:
+        return [
+            FederatedCredentialsConfig(
+                issuer=f"https://vstoken.dev.azure.com/{self.ado_org_id}",
+                audiences=["api://AzureADTokenExchange"],
+                subject=f"sc://{self.ado_org_name}/{self.ado_project_name}/{self.ado_service_connection_name}",
+                description="Azure DevOps Service Connection Credentials",
+            )
+        ]
+
+
 class GitHubOIDCCredentials(BaseModel):
+    credential_type: Literal["github"] = "github"
     github_org: str
     repo: str
 

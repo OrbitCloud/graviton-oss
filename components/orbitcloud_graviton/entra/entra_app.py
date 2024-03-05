@@ -49,13 +49,13 @@ class EntraApp(ComponentResource):
         config: EntraAppConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
-        self.stack = stack
-        self.entra = entra
-        self.config = config
+        self.stack: AzureBase = stack
+        self.entra: EntraBase = entra
+        self.config: EntraAppConfig = config
 
         super().__init__(
             "Graviton:Entra:EntraApp",
-            name=f"ea-{self.stack.workload_name}-{self.config.name}-{self.stack.env}",
+            name=f"ea-{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
             props=None,
             opts=opts,
         )
@@ -74,15 +74,15 @@ class EntraApp(ComponentResource):
 
     def _app(self) -> azuread.Application:
         return azuread.Application(
-            f"ea-{self.config.name}",
-            display_name=self.config.display_name or self.config.name,
+            resource_name=f"ea-{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
+            display_name=f"{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
             sign_in_audience=self.config.audience,
             opts=self._opts,
         )
 
     def _service_principal(self) -> azuread.ServicePrincipal:
         return azuread.ServicePrincipal(
-            f"sp-{self.config.name}",
+            resource_name=f"sp-{self.config.name}-{self.stack.env}",
             client_id=self.app.client_id,
             opts=self._opts,
         )
@@ -93,14 +93,14 @@ class EntraApp(ComponentResource):
             return []
         for cred in self.config.client_credentials:
             rotation: time.Rotating = time.Rotating(
-                resource_name=f"eapw-{self.config.name}-{cred.display_name}",
+                resource_name=f"rotate-{self.config.name}-{cred.display_name}-{self.stack.workload_name}-{self.stack.env}",
                 rotation_months=cred.expires_after_months,
                 opts=self._opts,
             )
 
             creds.append(
                 azuread.ApplicationPassword(
-                    f"eapw-{self.config.name}",
+                    resource_name=f"eapw-{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
                     display_name=cred.display_name,
                     application_id=self.app.id,
                     rotate_when_changed={
@@ -115,7 +115,7 @@ class EntraApp(ComponentResource):
         return (
             [
                 azuread.ApplicationFederatedIdentityCredential(
-                    f"oidc-{self.config.name}",
+                    f"oidc-{self.config.name}-{self.stack.env}",
                     display_name=f"oidc-{self.config.name}",
                     application_id=self.app.id,
                     issuer=cred.issuer,

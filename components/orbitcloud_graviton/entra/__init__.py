@@ -1,5 +1,5 @@
 from .entra_app import ClientCredentialsConfig, EntraApp, EntraAppConfig, FederatedCredentialsConfig
-from .oidc_providers import GitHubOIDCCredentials, PulumiOIDCCredentials
+from .oidc_providers import AzureDevOpsOIDCCredentials, GitHubOIDCCredentials, PulumiOIDCCredentials
 
 __all__ = [
     "EntraApp",
@@ -8,4 +8,5 @@ __all__ = [
     "GitHubOIDCCredentials",
     "FederatedCredentialsConfig",
     "ClientCredentialsConfig",
+    "AzureDevOpsOIDCCredentials",
 ]

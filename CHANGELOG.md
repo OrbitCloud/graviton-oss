@@ -1,3 +1,9 @@
+## v0.34.1 (2024-03-06)
+
+### Fix
+
+- **json_schema**: Add final newline to .json file for pre-commit validation
+
 ## v0.34.0 (2024-03-05)
 
 ### Feat

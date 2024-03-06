@@ -63,7 +63,7 @@ pulumi-random = "^4.16.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.2"
 pytest-cov = "^4.1.0"
-commitizen = "^3.16.0"
+commitizen = "^3.17.0"
 pyright = "^1.1.350"
 pre-commit = "^3.6.2"
 debugpy = "^1.8.1"

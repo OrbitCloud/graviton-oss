@@ -28,6 +28,7 @@ packages = [
     {include = "orbitcloud_graviton/app_zone",from = "bases"},
     {include = "orbitcloud_graviton/acme_ssl",from = "bases"},
     {include = "orbitcloud_graviton/workload_identities",from = "bases"},
+    {include = "orbitcloud_graviton/app_workload",from = "bases"},
 ]
 
 

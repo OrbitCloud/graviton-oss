@@ -1,3 +1,9 @@
+## v0.35.1 (2024-03-08)
+
+### Fix
+
+- **pyproject**: Include app_workload in package
+
 ## v0.35.0 (2024-03-08)
 
 ### Feat

@@ -1,23 +1,31 @@
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import pulumi
 from pulumi_azure_native import insights, network
-from pulumi_azure_native.app import v20230801preview as app
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pulumi_azure_native.app import v20231102preview as app
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SecretStr,
+    model_validator,
+)
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
 from orbitcloud_graviton.az_network.dns_zone import DnsZone, DnsZoneConfig
 from orbitcloud_graviton.az_network.types import ARecord, TxtRecord
 from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib.helpers import fmt_name
 from orbitcloud_graviton.pulumi_lib.types import DomainName
 
-from ._schema import ConsumptionProfile, DedicatedProfile
+from ._env_schema import ConsumptionProfile, DedicatedProfile
 from .certificate import CertificateConfig, certificate
 
 
-class CustomDomain(BaseModel):
+class CustomDomainConfig(BaseModel):
     name: DomainName
+    create_dns_suffix: Optional[bool] = False
     dns_zone_id: Optional[AzureIdRef] = None
     dns_zone_stack: Optional[DictRef] = None
 
@@ -51,7 +59,7 @@ class ContainerAppEnvConfig(BaseModel):
 
     certificates: Optional[List[CertificateConfig]] = None
 
-    custom_domain: Optional[CustomDomain] = None
+    custom_domain: Optional[CustomDomainConfig] = None
 
     dapr_appi_connstring: Optional[Union[str, pulumi.Output]] = None
     dapr_appi_instrumentation_key: Optional[Union[str, pulumi.Output]] = None
@@ -91,7 +99,7 @@ class ContainerAppEnv(pulumi.ComponentResource):
 
         self.environment: app.ManagedEnvironment = self._environment()
         self.dns_records: List[network.RecordSet] | None = self._dns_records()
-        self.certificates: list[app.Certificate] | None = self._certificates()
+        self.certificates: Dict[str, app.Certificate] = self._certificates()
         self._diagnostic_settings()
 
         self._outputs()
@@ -147,6 +155,12 @@ class ContainerAppEnv(pulumi.ComponentResource):
                                 self.environment.custom_domain_configuration.custom_domain_verification_id
                             ],
                         ),
+                        TxtRecord(
+                            relative_name="*",
+                            values=[
+                                self.environment.custom_domain_configuration.custom_domain_verification_id
+                            ],
+                        ),
                     ],
                 ),
                 stack=stack or self.stack,
@@ -183,11 +197,12 @@ class ContainerAppEnv(pulumi.ComponentResource):
         if not self.config.custom_domain:
             return None
 
-        return app.CustomDomainConfigurationArgs(
-            certificate_password=str(self.config.custom_domain.cert_pass),
-            certificate_value=str(self.config.custom_domain.cert_value),
-            dns_suffix=self.config.custom_domain.name,
-        )
+        if self.config.custom_domain.create_dns_suffix:
+            return app.CustomDomainConfigurationArgs(
+                certificate_password=str(self.config.custom_domain.cert_pass),
+                certificate_value=str(self.config.custom_domain.cert_value),
+                dns_suffix=self.config.custom_domain.name,
+            )
 
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:
@@ -203,17 +218,33 @@ class ContainerAppEnv(pulumi.ComponentResource):
                 opts=pulumi.ResourceOptions(parent=self.environment),
             )
 
-    def _certificates(self) -> list[app.Certificate] | None:
-        if self.config.certificates:
-            return [
-                certificate(
+    def _certificates(self) -> Dict[str, app.Certificate]:
+        # Also add the custom domain certificate as a certificate resource if it doesn't exist
+        self.config.certificates = self.config.certificates or []
+        if self.config.custom_domain and not any(
+            cert.name == self.config.custom_domain.name for cert in self.config.certificates
+        ):
+            self.config.certificates.append(
+                CertificateConfig(
+                    name=self.config.custom_domain.name,
+                    cert_value=SecretStr(str(self.config.custom_domain.cert_value)),
+                    cert_pass=SecretStr(str(self.config.custom_domain.cert_pass)),
+                ),
+            )
+
+        return (
+            {
+                cert.name: certificate(
                     stack=self.stack,
                     environment=self.environment,
                     cert=cert,
                     opts=self._opts,
                 )
                 for cert in self.config.certificates
-            ]
+            }
+            if self.config.certificates
+            else {}
+        )
 
     def _outputs(self) -> None:
         self.register_outputs(
@@ -223,13 +254,27 @@ class ContainerAppEnv(pulumi.ComponentResource):
             }
         )
 
-        self.stack.export(
-            exports={
-                "containerapp_env": {
-                    "id": self.environment.id,
-                    "name": self.environment.name,
-                    "static_ip": self.environment.static_ip,
-                    "custom_domain_verification_id": self.environment.custom_domain_configuration.custom_domain_verification_id,
+        def _cert_exports() -> dict[str, dict[str, Any]]:
+            _certs: dict[Any, Any] = {}
+            for key, val in self.certificates.items():
+                _certs[fmt_name(key)] = {
+                    "id": val.id,
+                    "name": val.name,
+                    "subject_name": val.properties.subject_name,
+                    "issue_date": val.properties.issue_date,
+                    "expiration_date": val.properties.expiration_date,
+                    "thumbprint": val.properties.thumbprint,
+                    "valid": val.properties.valid,
                 }
-            }
+            return _certs
+
+        self.stack.export(
+            {
+                "id": self.environment.id,
+                "name": self.environment.name,
+                "static_ip": self.environment.static_ip,
+                "custom_domain_verification_id": self.environment.custom_domain_configuration.custom_domain_verification_id,
+                "dns_suffix": self.environment.custom_domain_configuration.dns_suffix,
+                "certificates": _cert_exports(),
+            },
         )

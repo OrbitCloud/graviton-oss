@@ -19,6 +19,11 @@ install-poly: ##@ Install polylith plugins
 	poetry self add poetry-polylith-plugin
 
 
+.PHONY: install-lego
+install-lego: ##@ Install lego acme cli
+	brew install lego
+
+
 ##@
 ##@ Local development
 ##@

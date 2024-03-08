@@ -50,7 +50,7 @@ enabled = false
 [tool.poetry.dependencies]
 python = "^3.12"
 azure-mgmt-authorization = "^4.0.0"
-pulumi = "^3.108"
+pulumi = "^3.109"
 pulumi-azure-native = "^2.30"
 pulumi-azuread = "^5.47.1"
 pulumiverse-time = "^0.0.16"

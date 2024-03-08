@@ -1,3 +1,9 @@
+## v0.35.0 (2024-03-08)
+
+### Feat
+
+- **AppWorkload**: Base for deploying Azure Container Apps
+
 ## v0.34.1 (2024-03-06)
 
 ### Fix

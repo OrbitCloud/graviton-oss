@@ -10,7 +10,8 @@ jobs:
       contents: read
       pull-requests: write
     name: Test & lint
-    runs-on: ubuntu-latest-xl
+    runs-on:
+      group: ubuntu-latest-xl
     steps:
       - uses: actions/checkout@v4
 
@@ -68,7 +69,8 @@ jobs:
           junitxml-path: ./pytest.xml
   release:
     if: ${{ !startsWith(github.event.head_commit.message, 'bump:') && github.ref == 'refs/heads/main' }}
-    runs-on: ubuntu-latest-xl
+    runs-on:
+      group: ubuntu-latest-xl
     needs: test
     name: Release
     environment: release

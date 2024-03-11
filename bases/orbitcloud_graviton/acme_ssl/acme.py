@@ -164,7 +164,6 @@ class AcmeSsl(ComponentResource):
 
         cert_script = local.Command(
             resource_name="cmd-lego-cert",
-            asset_paths=[cert_path],
             environment=self._lego_env_vars(),
             create=self._lego_cmd_args(),
             delete="rm -rf .lego",

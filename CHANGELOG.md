@@ -1,4 +1,10 @@
-## v0.36.0 (2024-03-11)
+## v0.36.1 (2024-03-12)
+
+### Refactor
+
+- Use pulumi-acme provider instead of lego cli (#190)
+
+## 0.36.0 (2024-03-11)
 
 ### BREAKING CHANGE
 

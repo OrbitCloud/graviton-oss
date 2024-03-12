@@ -34,6 +34,14 @@ search_and_execute() {
     fi
 }
 
-search_and_execute .
+# If arguments are passed, use them as directories to search
+if [ $# -gt 0 ]; then
+    for dir in "$@"; do
+        search_and_execute "$dir"
+    done
+else
+    search_and_execute .
+fi
+
 
 printf "\nDone\n"

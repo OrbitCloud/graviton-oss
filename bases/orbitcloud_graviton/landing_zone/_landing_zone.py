@@ -95,7 +95,7 @@ def deploy_landing_zone() -> None:
                     dns_zone_id=dns.zone.id,
                     dns_zone_name=config.dns_zone.name,
                     keyvault_id=kv.vault.id,
-                    ssl_contact_email="admin@orbit.is",
+                    acme_account_email="admin@orbit.is",
                 ),
             )
 

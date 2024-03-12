@@ -2,7 +2,9 @@
 import re
 from typing import Annotated
 
-from pydantic import BeforeValidator
+import pulumi
+from pulumi_random import RandomString
+from pydantic import AfterValidator, BeforeValidator, EmailStr
 
 
 def domain_validator(domain: str) -> str:
@@ -16,3 +18,20 @@ def domain_validator(domain: str) -> str:
 
 
 DomainName = Annotated[str, BeforeValidator(domain_validator)]
+
+
+def email_random_plus(email: EmailStr) -> EmailStr | pulumi.Output[EmailStr]:
+    if "+" not in email.split("@")[0]:
+        random = RandomString(
+            resource_name=f"rand-plus-{email}",
+            length=5,
+            special=False,
+        )
+
+        return pulumi.Output.concat(
+            email.split("@")[0], "+", random.result, "@", email.split("@")[1]
+        )
+    return email
+
+
+RandomPlusEmail = Annotated[EmailStr, AfterValidator(email_random_plus)]

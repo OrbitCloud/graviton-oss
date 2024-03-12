@@ -33,7 +33,7 @@
     {
       "label": "wait-for-pulumi",
       "type": "shell",
-      "command": "sleep 10",
+      "command": "sleep 15",
       "presentation": {
         "reveal": "silent"
       }

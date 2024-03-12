@@ -269,12 +269,14 @@ class ContainerAppEnv(pulumi.ComponentResource):
             return _certs
 
         self.stack.export(
-            {
-                "id": self.environment.id,
-                "name": self.environment.name,
-                "static_ip": self.environment.static_ip,
-                "custom_domain_verification_id": self.environment.custom_domain_configuration.custom_domain_verification_id,
-                "dns_suffix": self.environment.custom_domain_configuration.dns_suffix,
-                "certificates": _cert_exports(),
+            exports={
+                "containerapp_env": {
+                    "id": self.environment.id,
+                    "name": self.environment.name,
+                    "static_ip": self.environment.static_ip,
+                    "custom_domain_verification_id": self.environment.custom_domain_configuration.custom_domain_verification_id,
+                    "dns_suffix": self.environment.custom_domain_configuration.dns_suffix,
+                    "certificates": _cert_exports(),
+                }
             },
         )

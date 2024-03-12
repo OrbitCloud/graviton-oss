@@ -1,3 +1,3 @@
-from .acme import AcmeSsl, AcmeSslConfig
+from .acme import AcmeSsl, AcmeSslBaseConfig, AcmeSslConfig, deploy
 
-__all__ = ["AcmeSslConfig", "AcmeSsl"]
+__all__ = ["AcmeSslConfig", "AcmeSsl", "AcmeSslBaseConfig", "deploy"]

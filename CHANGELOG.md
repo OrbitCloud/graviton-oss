@@ -1,3 +1,9 @@
+## v0.37.0 (2024-03-18)
+
+### Feat
+
+- **LandingZone**: Add Workload identities (#199)
+
 ## v0.36.1 (2024-03-12)
 
 ### Refactor

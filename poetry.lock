@@ -1038,12 +1038,12 @@ files = [
 
 [[package]]
 name = "pulumi"
-version = "3.109.0"
+version = "3.111.1"
 description = "Pulumi's Python SDK"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pulumi-3.109.0-py3-none-any.whl", hash = "sha256:7af108068f183d68b05a1ba5a1b33a6aed3b54aeb25458859c2c2b3f3bceb1b0"},
+    {file = "pulumi-3.111.1-py3-none-any.whl", hash = "sha256:70c1b384545897833ed50d25d6362d7ee44811f377a31a1333c31924d397a3c4"},
 ]
 
 [package.dependencies]
@@ -1710,4 +1710,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "a16cdc3d6741c5c0ab639e7e0108003c79e983c7a43abbe868f5cb92b5b00d34"
+content-hash = "774fdff7cf3fc6ae3e47b3208651f5adb46f4d6c65fde86f3b734cd1fc62cefa"

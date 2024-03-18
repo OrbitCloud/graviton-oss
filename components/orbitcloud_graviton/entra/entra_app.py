@@ -137,6 +137,21 @@ class EntraApp(ComponentResource):
                 "service_principal": self.service_principal,
             }
         )
+
+        def _federated_credentials_outputs() -> list:
+            return (
+                [
+                    {
+                        "issuer": cred.issuer,
+                        "audiences": cred.audiences,
+                        "subject": cred.subject,
+                    }
+                    for cred in self.federated_credentials
+                ]
+                if self.federated_credentials
+                else []
+            )
+
         self.stack.export(
             exports={
                 "entra_app": {
@@ -147,7 +162,9 @@ class EntraApp(ComponentResource):
                     "service_principal": {
                         "id": self.service_principal.id,
                         "client_id": self.service_principal.client_id,
+                        "tenant_id": self.service_principal.application_tenant_id,
                     },
+                    "federated_credentials": _federated_credentials_outputs(),
                 },
             }
         )

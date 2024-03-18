@@ -1,8 +1,9 @@
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig
 from orbitcloud_graviton.entra.entra_app import FederatedCredentialsConfig
 
 
@@ -19,6 +20,8 @@ class PulumiOIDCCredentials(BaseModel):
                 description="Pulumi Environment Credentials used for infrastructure deployments",
             )
         ]
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class AzureDevOpsOIDCCredentials(BaseModel):
@@ -38,6 +41,8 @@ class AzureDevOpsOIDCCredentials(BaseModel):
             )
         ]
 
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
 
 class GitHubOIDCCredentials(BaseModel):
     credential_type: Literal["github"] = "github"
@@ -45,39 +50,54 @@ class GitHubOIDCCredentials(BaseModel):
     repo: str
 
     # At least one of the following must be set
-    environments: Optional[List[str]] = Field(default_factory=list)
-    branches: Optional[List[str]] = Field(default_factory=list)
-    tags: Optional[List[str]] = Field(default_factory=list)
+    environments: Optional[List[str]] = None
+    branches: Optional[List[str]] = None
+    tags: Optional[List[str]] = None
     pull_request: Optional[bool] = False
 
     def credentials(self) -> list[FederatedCredentialsConfig]:
-        prefix: str = f"repo:{self.github_org}/{self.repo}:"
+        prefix: str = f"repo:{self.github_org}/{self.repo}"
         creds = []
-        self.environments = self.environments or []
-        self.branches = self.branches or []
-        self.tags = self.tags or []
-        for subject in (
+
+        self.environments = [] if not self.environments else self.environments
+        self.branches = [] if not self.branches else self.branches
+        self.tags = [] if not self.tags else self.tags
+
+        subjects = []
+        subjects.extend(
             [f"{prefix}:environment:{environment}" for environment in self.environments]
-            + [f"{prefix}/ref:refs/heads/{branch}" for branch in self.branches]
-            + [f"{prefix}/ref:refs/tags/{tag}" for tag in self.tags]
-            + [f"{prefix}/pull_request"]
-            if self.pull_request
-            else []
-        ):
+        )
+        subjects.extend([f"{prefix}:ref:refs/heads/{branch}" for branch in self.branches])
+        subjects.extend([f"{prefix}:ref:refs/tags/{tag}" for tag in self.tags])
+        subjects.extend([f"{prefix}:pull_request"] if self.pull_request else [])
+
+        for subject in subjects:
             creds.append(
                 FederatedCredentialsConfig(
-                    issuer="https://github.com",
+                    issuer="https://token.actions.githubusercontent.com",
                     audiences=["api://AzureADTokenExchange"],
                     subject=subject,
                 )
             )
+
         return creds
 
     @model_validator(mode="after")
     def at_least_one_gh_param(m: "GitHubOIDCCredentials") -> "GitHubOIDCCredentials":
-        if sum([not m.environments, not m.branches, not m.pull_request, not m.tags]) < 4:
+        if sum([not m.environments, not m.branches, not m.pull_request, not m.tags]) == 4:
             raise ValueError(
-                "One and only one of the following must be set: gh_environment, gh_branch, gh_pull_request, gh_tag"
+                "One and only one of the following must be set: environments, branches, pull_request, tags"
             )
 
         return m
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class WorkloadIdentityConfig(BaseModel):
+    workload: Union[AzureDevOpsOIDCCredentials, GitHubOIDCCredentials, PulumiOIDCCredentials] = (
+        Field(default=..., discriminator="credential_type")
+    )
+    azure_permissions: Optional[list[IamAssignmentConfig]] = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")

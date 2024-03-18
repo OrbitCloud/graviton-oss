@@ -7,6 +7,7 @@ from pydantic import Field
 from orbitcloud_graviton.az_acr.registry import ContainerRegistryConfig, container_registry
 from orbitcloud_graviton.az_app import ContainerAppEnv, ContainerAppEnvConfig
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
+from orbitcloud_graviton.az_iam.assignment import iam_assignment
 from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
 from orbitcloud_graviton.az_monitor import (
     AppInsightsConfig,
@@ -15,7 +16,10 @@ from orbitcloud_graviton.az_monitor import (
     log_workspace,
 )
 from orbitcloud_graviton.az_storage import StorageAccountConfig, storage_account
+from orbitcloud_graviton.entra.entra_app import EntraApp, EntraAppConfig
+from orbitcloud_graviton.entra.oidc_providers import WorkloadIdentityConfig
 from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
+from orbitcloud_graviton.pulumi_lib.azure_base import EntraBase, get_entra_stack
 from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
 
@@ -35,12 +39,15 @@ class AppZoneBaseConfig(PulumiConfig):
     app_insights: Optional[AppInsightsConfig] = None
     storage_accounts: Optional[List[StorageAccountConfig]] = None
 
+    workload_identities: Optional[List[WorkloadIdentityConfig]] = None
+
 
 def deploy() -> None:
     generate_stack_schema(model=AppZoneBaseConfig, output_file=".stack_schema.json")
     config: AppZoneBaseConfig = AppZoneBaseConfig.model_validate({})
 
     stack: AzureBase = get_azure_stack()
+    entra_config: EntraBase = get_entra_stack()
 
     ##########################################
     # Log Workspace
@@ -121,3 +128,27 @@ def deploy() -> None:
             ),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
+
+    ##########################################
+    # Entra Apps for VCS credentials
+    ##########################################
+    if config.workload_identities:
+        for cred in config.workload_identities:
+            entra_app = EntraApp(
+                stack=stack.model_copy(update={"exports_prefix": cred.workload.credential_type}),
+                entra=entra_config,
+                config=EntraAppConfig(
+                    name=f"{cred.workload.credential_type}",
+                    federated_credentials=cred.workload.credentials(),
+                ),
+            )
+
+            for permission in cred.azure_permissions or []:
+                iam_assignment(
+                    stack=stack,
+                    config=permission,
+                    principal=entra_app.service_principal,
+                    opts=pulumi.ResourceOptions(
+                        parent=entra_app.service_principal, delete_before_replace=True
+                    ),
+                )

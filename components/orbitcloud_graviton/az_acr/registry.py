@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import pulumi
 from pulumi_azure_native import containerregistry
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
@@ -13,6 +13,8 @@ class ContainerRegistryConfig(BaseModel):
     )
     ip_allow_list: Optional[List[str]] = Field(..., default_factory=list)
     admin_user_enabled: Optional[bool] = False
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 def container_registry(

@@ -1,18 +1,9 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import pulumi
-from pydantic import BaseModel, Field
 
-from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
-from orbitcloud_graviton.entra import (
-    EntraApp,
-    EntraAppConfig,
-    GitHubOIDCCredentials,
-)
-from orbitcloud_graviton.entra.oidc_providers import (
-    AzureDevOpsOIDCCredentials,
-    PulumiOIDCCredentials,
-)
+from orbitcloud_graviton.az_iam import iam_assignment
+from orbitcloud_graviton.entra import EntraApp, EntraAppConfig, WorkloadIdentityConfig
 from orbitcloud_graviton.pulumi_lib import (
     AzureBase,
     EntraBase,
@@ -23,15 +14,8 @@ from orbitcloud_graviton.pulumi_lib import (
 )
 
 
-class WorkloadCredentials(BaseModel):
-    workload: Union[AzureDevOpsOIDCCredentials, GitHubOIDCCredentials, PulumiOIDCCredentials] = (
-        Field(default=..., discriminator="credential_type")
-    )
-    azure_permissions: Optional[list[IamAssignmentConfig]] = None
-
-
 class WorkloadIdentitiesConfig(PulumiConfig):
-    identities: Optional[List[WorkloadCredentials]] = None
+    identities: Optional[List[WorkloadIdentityConfig]] = None
 
 
 def deploy() -> None:

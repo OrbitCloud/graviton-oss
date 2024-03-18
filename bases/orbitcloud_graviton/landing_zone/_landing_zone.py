@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 import pulumi
 from pulumi_azure_native import operationalinsights
@@ -13,13 +13,12 @@ from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
 from orbitcloud_graviton.az_monitor import LogWorkspaceConfig, log_workspace
 from orbitcloud_graviton.az_network.dns_zone import DnsZone, DnsZoneConfig
-from orbitcloud_graviton.az_providerhub import provider_registration
 from orbitcloud_graviton.entra import (
     EntraApp,
     EntraAppConfig,
-    GitHubOIDCCredentials,
     PulumiOIDCCredentials,
 )
+from orbitcloud_graviton.entra.oidc_providers import WorkloadIdentityConfig
 from orbitcloud_graviton.pulumi_lib import (
     AzureBase,
     EntraBase,
@@ -42,7 +41,7 @@ class LandingZoneConfig(PulumiConfig):
 
     pulumi_app_additional_permissions: Optional[list[IamAssignmentConfig]] = None
 
-    github_cr_app: Optional[GitHubOIDCCredentials] = None
+    workload_identities: Optional[List[WorkloadIdentityConfig]] = None
     resource_providers: Optional[list[str]] = None
 
     dns_zone: Optional[DnsZoneConfig] = None
@@ -173,22 +172,25 @@ def deploy_landing_zone() -> None:
     ).apply(func=print_pulumi_esc_oidc_yaml)
 
     ##########################################
-    #   Entra App for GitHub Container Registry
+    # Entra Apps for VCS credentials
     ##########################################
-    if config.github_cr_app:
-        EntraApp(
-            stack=stack.model_copy(update={"exports_prefix": "github"}),
-            entra=entra_config,
-            config=EntraAppConfig(
-                name=f"github-cr-{stack.workload_name}-{stack.env}",
-                federated_credentials=config.github_cr_app.credentials(),
-            ),
-        )
-
-    if config.resource_providers:
-        for provider in config.resource_providers:
-            provider_registration(
-                stack=stack,
-                provider_namespace=provider,
-                opts=pulumi.ResourceOptions(parent=stack.resource_group),
+    if config.workload_identities:
+        for cred in config.workload_identities:
+            entra_app = EntraApp(
+                stack=stack.model_copy(update={"exports_prefix": cred.workload.credential_type}),
+                entra=entra_config,
+                config=EntraAppConfig(
+                    name=f"{cred.workload.credential_type}",
+                    federated_credentials=cred.workload.credentials(),
+                ),
             )
+
+            for permission in cred.azure_permissions or []:
+                iam_assignment(
+                    stack=stack,
+                    config=permission,
+                    principal=entra_app.service_principal,
+                    opts=pulumi.ResourceOptions(
+                        parent=entra_app.service_principal, delete_before_replace=True
+                    ),
+                )

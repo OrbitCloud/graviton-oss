@@ -1,3 +1,9 @@
+## v0.38.0 (2024-03-19)
+
+### Feat
+
+- Application Configuration (#200)
+
 ## v0.37.0 (2024-03-18)
 
 ### Feat

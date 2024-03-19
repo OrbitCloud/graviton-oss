@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "orbitcloud_graviton"
-version = "0.37.0"
+version = "0.38.0"
 description = ""
 authors = ["Orbit Team <admin@orbit.is>"]
 license = "MIT"
@@ -146,7 +146,7 @@ known-first-party = ["orbitcloud_graviton"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.37.0"
+version = "0.38.0"
 tag_format = "v$version"
 version_files = [
     "VERSION",

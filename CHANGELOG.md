@@ -1,3 +1,9 @@
+## v0.39.0 (2024-03-19)
+
+### Feat
+
+- App Workload Dependencies (#201)
+
 ## v0.38.0 (2024-03-19)
 
 ### Feat

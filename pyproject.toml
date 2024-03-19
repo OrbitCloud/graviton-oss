@@ -67,7 +67,7 @@ pulumiverse-acme = "^0.0.1"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.2"
 pytest-cov = "^4.1.0"
-commitizen = "^3.18.0"
+commitizen = "^3.18.4"
 pyright = "^1.1.353"
 pre-commit = "^3.6.2"
 debugpy = "^1.8.1"

@@ -147,7 +147,7 @@ def deploy() -> None:
                 iam_assignment(
                     stack=stack,
                     config=permission,
-                    principal=entra_app.service_principal,
+                    principal_id=entra_app.service_principal.id,
                     opts=pulumi.ResourceOptions(
                         parent=entra_app.service_principal, delete_before_replace=True
                     ),

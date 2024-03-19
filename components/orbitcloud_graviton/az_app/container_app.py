@@ -3,10 +3,12 @@ from typing import Dict, List, Optional
 import pulumi
 from pulumi_azure_native import insights
 from pulumi_azure_native.app import v20231102preview as pam_app
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from orbitcloud_graviton.az_acr.outputs import AdminUserEnabledRegistryOutput
 from orbitcloud_graviton.az_app._app_schema import ContainerProbeConfig, ContainerResourcesConfig
 from orbitcloud_graviton.az_app.outputs import ContainerAppEnvOutput
+from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
 from orbitcloud_graviton.pulumi_lib import AzureBase
@@ -49,6 +51,7 @@ class ContainerConfig(BaseModel):
     resources: ContainerResourcesConfig = ContainerResourcesConfig()
 
     env_vars: Optional[dict[str, str]] = None
+    env_secrets: Optional[dict[str, str]] = None
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -56,9 +59,13 @@ class ContainerAppConfig(BaseModel):
     environment_output_ref: DictRef
     workload_profile_name: str
     containers: list[ContainerConfig]
+    secrets: Optional[Dict[str, str]] = Field(default_factory=dict)
     scaling: Optional[ContainerAppScaleConfig] = ContainerAppScaleConfig()
     ingress: IngressConfig
     log_workspace_id: Optional[AzureIdRef] = None
+    registry_output_ref: Optional[DictRef] = None
+
+    azure_permissions: Optional[List[IamAssignmentConfig]] = None
 
     @model_validator(mode="after")
     def validate_resources(m: "ContainerAppConfig") -> "ContainerAppConfig":
@@ -92,24 +99,27 @@ class ContainerApp(pulumi.ComponentResource):
         )
 
         self.app_name: str = self.stack.name_for(resource_type=pam_app.ContainerApp)
+
+        self.secrets: Dict[str, str] = self.config.secrets or {}
+        self.registry: AdminUserEnabledRegistryOutput | None = self._get_registry()
         self.environment: ContainerAppEnvOutput = self._get_environment()
         self.app: pam_app.ContainerApp = self._container_app()
+        self._azure_permissions()
 
         self._outputs()
 
     def _get_environment(self) -> ContainerAppEnvOutput:
-        if not self.config.environment_output_ref or not isinstance(
-            self.config.environment_output_ref, dict
-        ):
-            raise ValueError("environment_output_ref is required.")
+        return ContainerAppEnvOutput.model_validate(self.config.environment_output_ref)
 
-        env: ContainerAppEnvOutput = ContainerAppEnvOutput.model_validate(
-            self.config.environment_output_ref
+    def _get_registry(self) -> AdminUserEnabledRegistryOutput | None:
+        if not self.config.registry_output_ref:
+            return None
+
+        registry_output: AdminUserEnabledRegistryOutput = (
+            AdminUserEnabledRegistryOutput.model_validate(self.config.registry_output_ref)
         )
-        if not env or not env.id:
-            raise ValueError("environment_output_ref is required.")
-
-        return env
+        self.secrets["registry-secret"] = registry_output.admin_credentials["password"]
+        return registry_output
 
     def _container_app(self) -> pam_app.ContainerApp:
         return pam_app.ContainerApp(
@@ -122,7 +132,7 @@ class ContainerApp(pulumi.ComponentResource):
                 managed_environment_id=str(self.environment.id),
                 workload_profile_name=self.config.workload_profile_name,
                 template=self._containers(),
-                configuration=self._container_configuration_args(),
+                configuration=self._app_configuration_args(),
             ),
             opts=self._opts,
         )
@@ -130,13 +140,16 @@ class ContainerApp(pulumi.ComponentResource):
     def _containers(self) -> pam_app.TemplateArgs:
         _containers: list[pam_app.ContainerArgs] = []
         for container in self.config.containers:
+            image: pulumi.Output[str] | str = (
+                pulumi.Output.concat(self.registry.login_server, "/", container.image)
+                if self.registry
+                else container.image
+            )
             _containers.append(
                 pam_app.ContainerArgs(
                     name=container.name,
-                    image=container.image,
-                    env=self._container_env_vars(container.env_vars)
-                    if container.env_vars
-                    else None,
+                    image=image,
+                    env=self._container_env_vars(container=container),
                     resources=pam_app.ContainerResourcesArgs(
                         cpu=container.resources.cpu,
                         memory=str(container.resources.memory_gb) + "Gi",
@@ -163,15 +176,36 @@ class ContainerApp(pulumi.ComponentResource):
             log_level=pam_app.LogLevel.DEBUG,
         )
 
-    def _container_configuration_args(self) -> pam_app.ConfigurationArgs:
+    def _app_configuration_args(self) -> pam_app.ConfigurationArgs:
         return pam_app.ConfigurationArgs(
             ingress=pam_app.IngressArgs(
                 allow_insecure=not self.config.ingress.https_only,
                 external=self.config.ingress.external,
                 target_port=self.config.ingress.target_port,
                 custom_domains=self._custom_domain_args(),
-            )
+            ),
+            registries=(
+                [
+                    pam_app.RegistryCredentialsArgs(
+                        server=self.registry.login_server,
+                        username=self.registry.admin_credentials.get("username"),
+                        password_secret_ref="registry-secret",
+                    )
+                ]
+                if self.registry
+                else None
+            ),
+            secrets=self._app_secrets(),
         )
+
+    def _app_secrets(self) -> List[pam_app.SecretArgs]:
+        return [
+            pam_app.SecretArgs(
+                name=key,
+                value=val,
+            )
+            for key, val in self.secrets.items()
+        ]
 
     def _custom_domain_args(self) -> List[pam_app.CustomDomainArgs] | None:
         if not self.config.ingress.custom_domains:
@@ -207,14 +241,42 @@ class ContainerApp(pulumi.ComponentResource):
             opts=pulumi.ResourceOptions(custom_timeouts=pulumi.CustomTimeouts(create="1m")),
         )
 
-    def _container_env_vars(self, env_vars: Dict[str, str]) -> List[pam_app.EnvironmentVarArgs]:
-        return [
-            pam_app.EnvironmentVarArgs(
-                name=key,
-                value=val,
-            )
-            for key, val in env_vars.items()
-        ]
+    def _container_env_vars(self, container) -> List[pam_app.EnvironmentVarArgs]:
+        env_args: List[pam_app.EnvironmentVarArgs] = []
+        env_args.extend(
+            [
+                pam_app.EnvironmentVarArgs(
+                    name=key,
+                    value=val,
+                )
+                for key, val in container.env_vars.items()
+            ]
+        )
+        env_args.extend(
+            [
+                pam_app.EnvironmentVarArgs(
+                    name=key,
+                    secret_ref=val,
+                )
+                for key, val in container.env_secrets.items()
+            ]
+        )
+        return env_args
+
+    def _azure_permissions(self) -> None:
+        if self.config.azure_permissions:
+            for perm in self.config.azure_permissions:
+                iam_assignment(
+                    stack=self.stack,
+                    config=IamAssignmentConfig(
+                        name_prefix=self.app_name,
+                        role=perm.role,
+                        scope=perm.scope,
+                        description=perm.description,
+                    ),
+                    principal_id=self.app.identity.principal_id,
+                    opts=pulumi.ResourceOptions(parent=self.app, delete_before_replace=True),
+                )
 
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:

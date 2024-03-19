@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import pulumi
 from pulumi_azure_native import containerregistry
@@ -48,12 +48,28 @@ def container_registry(
         opts=opts,
     )
 
+    admin_credentials: dict[str, pulumi.Output[Any]] | None = None
+    if config.admin_user_enabled:
+        try:
+            creds = containerregistry.list_registry_credentials_output(
+                resource_group_name=stack.resource_group.name,
+                registry_name=cr.name,
+            )
+            admin_credentials = {
+                "username": pulumi.Output.secret(creds.username),
+                "password": pulumi.Output.secret(creds.passwords[0].value),
+            }
+        except Exception as e:
+            pulumi.warn(f"Failed to get admin credentials: {e}")
+
     stack.export(
         exports={
             "container_registry": {
                 "id": cr.id,
                 "name": cr.name,
                 "login_server": cr.login_server,
+                "admin_user_enabled": config.admin_user_enabled,
+                "admin_credentials": admin_credentials,
             },
         }
     )

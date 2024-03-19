@@ -127,7 +127,7 @@ class AcmeSsl(ComponentResource):
         return [
             iam_assignment(
                 stack=self.stack,
-                principal=self.entra_app.service_principal,
+                principal_id=self.entra_app.service_principal.id,
                 config=IamAssignmentConfig(**perm),
                 opts=pulumi.ResourceOptions.merge(
                     self._opts, pulumi.ResourceOptions(self.entra_app)

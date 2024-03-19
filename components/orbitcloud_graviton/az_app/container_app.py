@@ -1,7 +1,6 @@
 from typing import Dict, List, Optional
 
 import pulumi
-from pulumi_azure_native import insights
 from pulumi_azure_native.app import v20231102preview as pam_app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -10,7 +9,6 @@ from orbitcloud_graviton.az_app._app_schema import ContainerProbeConfig, Contain
 from orbitcloud_graviton.az_app.outputs import ContainerAppEnvOutput
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef
-from orbitcloud_graviton.az_monitor import diagnostic_setting
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
@@ -243,6 +241,7 @@ class ContainerApp(pulumi.ComponentResource):
 
     def _container_env_vars(self, container) -> List[pam_app.EnvironmentVarArgs]:
         env_args: List[pam_app.EnvironmentVarArgs] = []
+        # Env Vars
         env_args.extend(
             [
                 pam_app.EnvironmentVarArgs(
@@ -252,6 +251,7 @@ class ContainerApp(pulumi.ComponentResource):
                 for key, val in container.env_vars.items()
             ]
         )
+        # Env Secrets
         env_args.extend(
             [
                 pam_app.EnvironmentVarArgs(
@@ -277,18 +277,6 @@ class ContainerApp(pulumi.ComponentResource):
                     principal_id=self.app.identity.principal_id,
                     opts=pulumi.ResourceOptions(parent=self.app, delete_before_replace=True),
                 )
-
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
-        if self.config.log_workspace_id:
-            return diagnostic_setting(
-                resource=self.app,
-                log_workspace_id=self.config.log_workspace_id,
-                metric_categories=["AllMetrics"],
-                log_categories=[
-                    "SomeCategory",
-                ],
-                opts=pulumi.ResourceOptions(parent=self.app),
-            )
 
     def _outputs(self) -> None:
         self.register_outputs(

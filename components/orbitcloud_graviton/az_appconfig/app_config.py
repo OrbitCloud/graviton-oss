@@ -16,6 +16,7 @@ class AppConfigurationConfig(BaseModel):
     )
 
     keys: Optional[Dict[str, str]] = None
+    label: Optional[str] = None
 
     export_endpoint_as_secret: Optional[str] = Field(default=None, pattern="^[a-z0-9_-]+$")
 
@@ -74,7 +75,7 @@ class AppConfiguration(pulumi.ComponentResource):
                     args=pam_appconfig.KeyValueArgs(
                         config_store_name=self.app_config.name,
                         resource_group_name=self.stack.resource_group.name,
-                        key_value_name=key,
+                        key_value_name=f"{key}${self.config.label}" if self.config.label else key,
                         value=value,
                     ),
                     opts=pulumi.ResourceOptions.merge(

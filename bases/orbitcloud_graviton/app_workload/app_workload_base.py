@@ -1,23 +1,24 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import pulumi
 from pulumi_azure_native.resources import ResourceGroup
 
 from orbitcloud_graviton.az_app.container_app import ContainerApp, ContainerAppConfig
-from orbitcloud_graviton.az_appconfig.app_config import AppConfiguration, AppConfigurationConfig
-from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
+from orbitcloud_graviton.az_appconfig import AppConfiguration, AppConfigurationConfig
+from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig
+from orbitcloud_graviton.az_storage import StorageAccount, StorageAccountConfig
 from orbitcloud_graviton.pulumi_lib import (
     AzureBase,
     PulumiConfig,
     generate_stack_schema,
     get_azure_stack,
 )
-from orbitcloud_graviton.pulumi_lib.helpers import fmt_name
 
 
 class AppWorkloadConfig(PulumiConfig):
     apps: List[ContainerAppConfig]
     app_config: Optional[AppConfigurationConfig] = None
+    storage_accounts: Optional[List[StorageAccountConfig]] = None
 
 
 def deploy() -> None:
@@ -28,32 +29,62 @@ def deploy() -> None:
     rg: ResourceGroup = stack.resource_group
     opts = pulumi.ResourceOptions(parent=rg)
 
-    secrets: dict[str, str] = {}
+    # Secrets from dependencies to register in Container App
+    app_secrets: dict[str, Union[str, pulumi.Output[str] | None]] = {}
+    app_perms: List[IamAssignmentConfig] = []
+
+    ##########################################
+    # App Configuration Store
+    ##########################################
     if config.app_config:
-        app_config: AppConfiguration = AppConfiguration(
+        appcs: AppConfiguration = AppConfiguration(
             stack=stack,
             config=config.app_config,
         )
-        if config.app_config.export_endpoint_as_secret:
-            secret_name = fmt_name(config.app_config.export_endpoint_as_secret)
-            secrets[secret_name] = app_config.app_config.endpoint
-
-    for ca_config in config.apps:
-        if ca_config.secrets:
-            secrets.update(ca_config.secrets)
-
-        app = ContainerApp(
-            stack=stack,
-            config=ca_config.model_copy(update={"secrets": secrets}),
-            opts=opts,
+        app_secrets["appconfig-endpoint"] = appcs.app_config.endpoint
+        app_perms.append(
+            IamAssignmentConfig(
+                role="App Configuration Data Reader",
+                scope=appcs.app_config.id,
+            )
         )
 
-        if app_config:
-            iam_assignment(
-                stack=stack,
-                config=IamAssignmentConfig(
-                    role="App Configuration Data Reader",
-                    scope=app_config.app_config.id,
-                ),
-                principal_id=app.app.identity.apply(lambda x: x.principal_id),
+    ##########################################
+    # Storage Accounts
+    ##########################################
+    for st in config.storage_accounts or []:
+        _st = StorageAccount(
+            stack=stack.model_copy(update={"exports_prefix": st.name}),
+            config=st,
+            opts=opts,
+        )
+        app_secrets.update(_st.get_endpoints(suffix="endpoint"))
+
+        if st.app_permissions:
+            app_perms.extend(
+                [
+                    IamAssignmentConfig(
+                        role=role,
+                        scope=_st.storage_account.id,
+                    )
+                    for role in st.app_permissions.roles()
+                ]
             )
+
+    ##########################################
+    # App Configuration Store
+    ##########################################
+    for app_config in config.apps:
+        if app_config.secrets:
+            app_secrets.update(app_config.secrets)
+
+        perms = app_config.azure_permissions or []
+        perms.extend(app_perms)
+
+        ContainerApp(
+            stack=stack,
+            config=app_config.model_copy(
+                update={"secrets": app_secrets, "azure_permissions": perms}
+            ),
+            opts=opts,
+        )

@@ -1,5 +1,5 @@
 from ipaddress import IPv4Address
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pulumi
 from pulumi_azure_native import storage
@@ -11,7 +11,16 @@ from orbitcloud_graviton.az_network import (
     PrivateEndpointConfig,
     az_private_endpoint,
 )
+from orbitcloud_graviton.az_storage.iam_roles import StorageAccountAppPermissions
 from orbitcloud_graviton.pulumi_lib import AzureBase
+
+
+class StorageAccountRoutingConfig(BaseModel):
+    routing_preference: Optional[storage.RoutingChoice] = storage.RoutingChoice.MICROSOFT_ROUTING
+    publish_microsoft_endpoints: Optional[bool] = True
+    publish_internet_endpoints: Optional[bool] = False
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class StorageAccountConfig(BaseModel):
@@ -30,9 +39,13 @@ class StorageAccountConfig(BaseModel):
 
     allowed_private_subnets: Optional[List[AzureIdRef]] = None
     allowed_public_ips: Optional[List[IPv4Address]] = None
+    routing: StorageAccountRoutingConfig = StorageAccountRoutingConfig()
 
     private_endpoints: Optional[list[PrivateEndpointConfig]] = None
     storage_tables: Optional[List[str]] = None
+    storage_queues: Optional[List[str]] = None
+
+    app_permissions: Optional[StorageAccountAppPermissions] = None
 
     exports_prefix: Optional[str] = None
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
@@ -58,6 +71,8 @@ class StorageAccount(pulumi.ComponentResource):
             opts, pulumi.ResourceOptions(parent=self)
         )
 
+        self.name = self.stack.name_for(storage.StorageAccount, workload_name=self.config.name)
+
         self.storage_account: storage.StorageAccount = self._storage_account()
         self.private_endpoints: Optional[list[network.PrivateEndpoint]] = self._private_endpoints()
         self.storage_tables: list[storage.Table] | None = self._storage_tables()
@@ -66,26 +81,29 @@ class StorageAccount(pulumi.ComponentResource):
 
     def _storage_account(self) -> storage.StorageAccount:
         return storage.StorageAccount(
-            resource_name=self.stack.name_for(
-                storage.StorageAccount, workload_name=self.config.name
+            resource_name=self.name,
+            args=storage.StorageAccountArgs(
+                account_name=self.name,
+                location=self.stack.location,
+                resource_group_name=self.stack.resource_group.name,
+                # Storage Account type
+                kind=self.config.kind,
+                sku=storage.SkuArgs(name=str(self.config.sku.value)),
+                access_tier=self.config.tier,
+                # Network Access
+                public_network_access=self.config.public_network_access,
+                allow_blob_public_access=self.config.allow_blob_public_access,
+                allow_shared_key_access=self.config.allow_shared_key_access,
+                network_rule_set=self._network_rules(),
+                routing_preference=storage.RoutingPreferenceArgs(
+                    routing_choice=self.config.routing.routing_preference,
+                    publish_microsoft_endpoints=self.config.routing.publish_microsoft_endpoints,
+                    publish_internet_endpoints=self.config.routing.publish_internet_endpoints,
+                ),
+                # Protocols
+                minimum_tls_version=storage.MinimumTlsVersion.TLS1_2,
+                enable_nfs_v3=self.config.nfs_v3,
             ),
-            account_name=self.stack.name_for(
-                storage.StorageAccount, workload_name=self.config.name
-            ),
-            location=self.stack.location,
-            resource_group_name=self.stack.resource_group.name,
-            # Storage Account type
-            kind=self.config.kind,
-            sku=storage.SkuArgs(name=str(self.config.sku.value)),
-            access_tier=self.config.tier,
-            # Network Access
-            public_network_access=self.config.public_network_access,
-            allow_blob_public_access=self.config.allow_blob_public_access,
-            allow_shared_key_access=self.config.allow_shared_key_access,
-            network_rule_set=self._network_rules(),
-            # Protocols
-            minimum_tls_version=storage.MinimumTlsVersion.TLS1_2,
-            enable_nfs_v3=self.config.nfs_v3,
             opts=self._opts,
         )
 
@@ -141,7 +159,9 @@ class StorageAccount(pulumi.ComponentResource):
             (
                 [
                     storage.Table(
-                        resource_name=self.stack.name_for(storage.Table, table),
+                        resource_name=self.stack.name_for(
+                            resource_type=storage.Table, workload_name=table
+                        ),
                         table_name=table,
                         account_name=self.storage_account.name,
                         resource_group_name=self.stack.resource_group.name,
@@ -157,6 +177,59 @@ class StorageAccount(pulumi.ComponentResource):
             else None
         )
 
+    def _storage_queues(self) -> list[storage.Queue] | None:
+        return (
+            [
+                (
+                    storage.Queue(
+                        resource_name=self.stack.name_for(
+                            resource_type=storage.Queue, workload_name=queue
+                        ),
+                        queue_name=queue,
+                        account_name=self.storage_account.name,
+                        resource_group_name=self.stack.resource_group.name,
+                        opts=self._opts._merge_instance(
+                            pulumi.ResourceOptions(parent=self.storage_account)
+                        ),
+                    )
+                )
+                for queue in self.config.storage_queues
+            ]
+            if self.config.storage_queues
+            else None
+        )
+
+    def get_endpoints(
+        self, suffix: str | None = None
+    ) -> pulumi.Output[Dict[str, Any]] | dict[str, pulumi.Output[Any]]:
+        if (
+            self.config.routing.routing_preference is storage.RoutingChoice.MICROSOFT_ROUTING
+            and self.config.routing.publish_microsoft_endpoints
+        ):
+            endpoints: pulumi.Output[Any] = (
+                self.storage_account.primary_endpoints.microsoft_endpoints
+            )
+        else:
+            endpoints = self.storage_account.primary_endpoints
+
+        return {
+            f'tables{"-" + suffix if suffix else ""}': endpoints.table,
+            f'blob{"-" + suffix if suffix else ""}': endpoints.blob,
+            f'file{"-" + suffix if suffix else ""}': endpoints.file,
+            f'queue{"-" + suffix if suffix else ""}': endpoints.queue,
+        }
+
+    def get_private_endpoints(self) -> dict[str, dict[str, Union[str, pulumi.Output[str]]]] | None:
+        if self.private_endpoints:
+            return {
+                endpoint.type: {
+                    "name": endpoint.name,
+                    "fqdn": endpoint.custom_dns_configs.fqdn,
+                    "ip": endpoint.custom_dns_configs.ip_addresses,
+                }
+                for endpoint in self.private_endpoints
+            }
+
     def _outputs(self) -> None:
         self.register_outputs(
             {
@@ -165,29 +238,13 @@ class StorageAccount(pulumi.ComponentResource):
             }
         )
 
-        pep_export = (
-            [
-                {
-                    "id": endpoint.id,
-                    "name": endpoint.name,
-                    "fqdn": endpoint.custom_dns_configs.fqdn,
-                    "ip": endpoint.custom_dns_configs.ip_addresses,
-                }
-                for endpoint in self.private_endpoints
-            ]
-            if self.private_endpoints
-            else []
-        )
         self.stack.export(
             exports={
                 "storage_account": {
                     "name": self.storage_account.name,
                     "id": self.storage_account.id,
-                    "tables_endpoint": self.storage_account.primary_endpoints.table,
-                    "blob_endpoint": self.storage_account.primary_endpoints.blob,
-                    "file_endpoint": self.storage_account.primary_endpoints.file,
-                    "queue_endpoint": self.storage_account.primary_endpoints.queue,
-                    "private_endpoints": pep_export,
+                    "endpoints": self.get_endpoints(),
+                    "private_endpoints": self.get_private_endpoints(),
                 },
             },
             prefix=self.config.exports_prefix,

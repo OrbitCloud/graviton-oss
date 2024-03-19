@@ -29,7 +29,10 @@ def iam_assignment(
 ) -> authorization.RoleAssignment:
     role_definition_id = get_role_id_by_name(config.role)
 
-    workload_name: str = fmt_name([config.name_prefix, config.role.lower()])
+    if config.name_prefix:
+        workload_name: str = fmt_name([config.name_prefix, config.role.lower()])
+    else:
+        workload_name = fmt_name([stack.workload_name, config.role.lower()])
 
     return authorization.RoleAssignment(
         resource_name=stack.name_for(

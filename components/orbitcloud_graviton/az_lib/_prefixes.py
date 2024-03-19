@@ -76,6 +76,7 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.insights.component": {"prefix": "appi"},
     "pulumi_azure_native.network.zone": {"prefix": "dns"},
     "pulumi_azure_native.network.record_set": {"prefix": "dnsr"},
+    "pulumi_azure_native.network.private_record_set": {"prefix": "dnsr"},
     "pulumi_azure_native.authorization.role_assignment": {"prefix": "iam"},
     "pulumi_azure_native.appconfiguration.configuration_store": {"prefix": "appcs"},
     "pulumi_azure_native.appconfiguration.key_value": {"prefix": "appcsk"},

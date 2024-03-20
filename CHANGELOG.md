@@ -1,3 +1,9 @@
+## v0.41.0 (2024-03-20)
+
+### Feat
+
+- **EventGridDomain**: Add Event Grid Domain component (#203)
+
 ## v0.40.0 (2024-03-19)
 
 ### Feat

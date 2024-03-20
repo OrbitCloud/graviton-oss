@@ -80,4 +80,8 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.authorization.role_assignment": {"prefix": "iam"},
     "pulumi_azure_native.appconfiguration.configuration_store": {"prefix": "appcs"},
     "pulumi_azure_native.appconfiguration.key_value": {"prefix": "appcsk"},
+    "pulumi_azure_native.eventgrid.domain": {"prefix": "evgd"},
+    "pulumi_azure_native.eventgrid.domain_topic": {"prefix": "evgt"},
+    # See Cloud Adoption Framework Abbreviations:
+    # https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 }

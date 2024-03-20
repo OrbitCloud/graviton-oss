@@ -30,7 +30,7 @@ packages = [
     {include = "orbitcloud_graviton/workload_identities",from = "bases"},
     {include = "orbitcloud_graviton/app_workload",from = "bases"},
     {include = "orbitcloud_graviton/az_appconfig",from = "components"},
-
+    {include = "orbitcloud_graviton/az_eventgrid",from = "components"},
 ]
 
 

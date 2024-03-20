@@ -11,6 +11,9 @@ def diagnostic_setting(
     metric_categories: Optional[List[str]] = None,
     opts=None,
 ) -> insights.DiagnosticSetting:
+    # Have a look at the supported logs and metrics here:
+    # https://learn.microsoft.com/en-us/azure/azure-monitor/reference/supported-logs/logs-index
+
     metric_categories = metric_categories or ["AllMetrics"]
     diag_name: str = "diag-" + resource._name
 

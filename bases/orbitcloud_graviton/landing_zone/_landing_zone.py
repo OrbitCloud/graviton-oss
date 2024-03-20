@@ -8,6 +8,7 @@ from orbitcloud_graviton.az_acr import (
     ContainerRegistryConfig,
     container_registry,
 )
+from orbitcloud_graviton.az_eventgrid import EventGridDomain, EventGridDomainConfig
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
 from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
@@ -34,6 +35,7 @@ class LandingZoneConfig(PulumiConfig):
     container_registry: Optional[ContainerRegistryConfig] = ContainerRegistryConfig()
     keyvault: Optional[KeyVaultConfig] = KeyVaultConfig()
     eventhub: Optional[NamespaceConfig] = None
+    eventgrid_domain: Optional[EventGridDomainConfig] = None
     log_workspace: LogWorkspaceConfig = LogWorkspaceConfig()
 
     has_keyvault: Optional[bool] = True
@@ -116,6 +118,17 @@ def deploy_landing_zone() -> None:
         EventHub(
             stack=stack,
             config=config.eventhub.model_copy(update={"log_workspace_id": logs.id}),
+            opts=pulumi.ResourceOptions(parent=stack.resource_group),
+        )
+
+    ##########################################
+    #   Event Grid Domain
+    ##########################################
+    if config.eventgrid_domain:
+        # Event Hub
+        EventGridDomain(
+            stack=stack,
+            config=config.eventgrid_domain.model_copy(update={"log_workspace_id": logs.id}),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
 

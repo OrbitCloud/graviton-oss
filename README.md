@@ -1,37 +1,43 @@
-# Graviton SDK - Orbit's IaC library
+![Alt text](graviton.jpg)
+
+# Graviton CDK – "Infrastructure as Lego"
 
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 ![Build status](https://github.com/OrbitCloud/Graviton/actions/workflows/build.yml/badge.svg)
 
+## Overview
+
+Graviton CDK is a modular infrastructure as code (IaC) development kit that enables composing secure, reliable and manageable infrastructure stacks using reusable components akin to building Lego.
+
 ## Development
 
-```bash
-# Install dependencies
-make install
+```ansi
+Usage: make <command>
 
-# Install pre-commit hooks
-make install-precommit
+Initialize dev environment
+    install              Install Poetry dependencies
+    install-precommit    Install pre-commit hooks
+    install-poly         Install polylith plugins
+    install-lego         Install lego acme cli
 
-# Run tests:
-make test
+Local development
+    stacks               Check for changes in stacks
+    test                 Run tests
+    fmt                  Ruff formatter and linter (autofix)
+    lint                 Ruff formatter and linter (check mode)
+    pyright              Run Pyright type checker
 
-# Run linters:
-make lint
+Scaffolding
+    component            Create a new component
 
-# Run lint formatters (automatically apply Black/isort):
-make format
+Dependency choirs
+    outdated             Check for outdated Poetry dependencies
+    update               Update Poetry and pre-commit dependencies
 
-# Check outdated Python dependencies:
-make outdated
-
-# Update dependencies (runs poetry update and pre-commit autoupdate)
-make update
-
-# Use commitizen style git commits:
-cz commit
-
+Help
+    help                 (Default) Print listing of key targets with their descriptions
 ```
 
 ## Adding components & bases

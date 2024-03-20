@@ -29,7 +29,7 @@ install-lego: ##@ Install lego acme cli
 ##@
 
 .PHONY: stacks
-stacks: ##@ Check for changes in development stacks
+stacks: ##@ Check for changes in stacks
 	@./bin/run_stacks.sh
 
 .PHONY: test

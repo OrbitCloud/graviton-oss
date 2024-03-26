@@ -8,6 +8,8 @@ from orbitcloud_graviton.az_network import (
     DnsZoneConfig,
     P2sVpnGw,
     P2sVpnGwConfig,
+    PrivateDnsResolver,
+    PrivateDnsResolverConfig,
     PrivateDnsZone,
     PrivateDNSZoneConfig,
     VirtualWan,
@@ -25,6 +27,7 @@ class NetworkBaseConfig(PulumiConfig):
     p2s_vpn: Optional[P2sVpnGwConfig] = None
     dns_zone: Optional[DnsZoneConfig] = None
     private_dns_zones: Optional[List[PrivateDNSZoneConfig]] = None
+    private_dns_resolver: Optional[PrivateDnsResolverConfig] = None
 
 
 def deploy_hub_spoke():
@@ -68,6 +71,16 @@ def deploy_hub_spoke():
         DnsZone(
             stack=stack,
             config=config.dns_zone,
+            opts=pulumi.ResourceOptions(parent=rg),
+        )
+
+    ##########################################
+    # Private DNS Resolver
+    ##########################################
+    if config.private_dns_resolver:
+        PrivateDnsResolver(
+            stack=stack,
+            config=config.private_dns_resolver,
             opts=pulumi.ResourceOptions(parent=rg),
         )
 

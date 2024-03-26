@@ -1,3 +1,9 @@
+## v0.42.0 (2024-03-26)
+
+### Feat
+
+- Add component for Private DNS Resolver, added to hubspoke base (#206)
+
 ## v0.41.0 (2024-03-20)
 
 ### Feat

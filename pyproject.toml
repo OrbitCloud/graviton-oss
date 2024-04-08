@@ -54,7 +54,7 @@ enabled = false
 python = "^3.12"
 azure-mgmt-authorization = "^4.0.0"
 pulumi = "^3.111"
-pulumi-azure-native = "^2.32"
+pulumi-azure-native = "^2.36"
 pulumi-azuread = "^5.47.1"
 pulumiverse-time = "^0.0.17"
 pydantic = {extras = ["email"], version = "^2.6.4"}

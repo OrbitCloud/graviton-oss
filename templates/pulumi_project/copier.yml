@@ -1,0 +1,20 @@
+# questions
+project_name:
+  type: str
+  help: Pulumi Project name
+
+project_description:
+  type: str
+  help: Project description
+
+stack_name:
+  type: str
+  help: Initial stack name
+
+workload_name:
+  type: str
+  help: Workload name
+
+esc_env:
+  type: str
+  help: ESC env name to import

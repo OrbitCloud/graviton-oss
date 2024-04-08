@@ -27,7 +27,7 @@ def iam_assignment(
     principal_type: str = "ServicePrincipal",
     opts: Optional[pulumi.ResourceOptions] = None,
 ) -> authorization.RoleAssignment:
-    role_definition_id = get_role_id_by_name(config.role)
+    role_definition_id: pulumi.Output[str] = get_role_id_by_name(role_name=config.role)
 
     if config.name_prefix:
         workload_name: str = fmt_name([config.name_prefix, config.role.lower()])

@@ -1,9 +1,11 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 import pulumi
-from pulumi_azure_native import containerregistry
+from pulumi_azure_native.containerregistry import v20231101preview as containerregistry
 from pydantic import BaseModel, ConfigDict, Field
 
+from orbitcloud_graviton.az_lib.types import StrRef
+from orbitcloud_graviton.az_network.types import PrivateIPv4Network, PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
@@ -11,7 +13,9 @@ class ContainerRegistryConfig(BaseModel):
     public_network_access: containerregistry.PublicNetworkAccess = (
         containerregistry.PublicNetworkAccess.DISABLED
     )
-    ip_allow_list: Optional[List[str]] = Field(..., default_factory=list)
+    ip_allow_list: Optional[List[Union[PrivateIPv4Network, PublicIPv4Network, StrRef]]] = Field(
+        ..., default_factory=list
+    )
     admin_user_enabled: Optional[bool] = False
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
@@ -35,7 +39,7 @@ def container_registry(
             ip_rules=[
                 containerregistry.IPRuleArgs(
                     action="Allow",
-                    i_p_address_or_range=ip,
+                    i_p_address_or_range=str(ip),
                 )
                 for ip in config.ip_allow_list
             ],

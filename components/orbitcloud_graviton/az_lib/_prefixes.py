@@ -67,6 +67,7 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.eventhub.namespace": {"prefix": "evhns"},
     "pulumi_azure_native.eventhub.event_hub": {"prefix": "evh"},
     "pulumi_azure_native.storage.table": {"prefix": "sttbl"},
+    "pulumi_azure_native.storage.queue": {"prefix": "stq"},
     "pulumi_azure_native.providerhub.provider_registration": {"prefix": "proreg"},
     "pulumi_azure_native.providerhub.resource_type_registration": {"prefix": "prov"},
     "pulumi_azure_native.eventhub.namespace_authorization_rule": {"prefix": "evhns-key"},
@@ -86,6 +87,7 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.appconfiguration.key_value": {"prefix": "appcsk"},
     "pulumi_azure_native.eventgrid.domain": {"prefix": "evgd"},
     "pulumi_azure_native.eventgrid.domain_topic": {"prefix": "evgt"},
+    "pulumi_azure_native.network.private_endpoint": {"prefix": "pep"},
     # See Cloud Adoption Framework Abbreviations:
     # https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 }

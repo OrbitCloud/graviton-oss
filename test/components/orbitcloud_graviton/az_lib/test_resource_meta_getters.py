@@ -2,7 +2,7 @@ import pytest
 from pulumi_azure_native import containerregistry, keyvault, resources, storage
 from pulumi_azure_native.resources.v20220901 import ResourceGroup as VersionedResourceGroup
 
-from orbitcloud_graviton.az_lib.helpers import location_abbr
+from orbitcloud_graviton.az_lib.helpers import fmt_name, location_abbr
 from orbitcloud_graviton.az_lib.meta import resource_meta
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
@@ -19,12 +19,27 @@ def test_location_abbr_undefined() -> None:
         location_abbr("not_a_location")
 
 
-def test_resource_names(stack: AzureBase) -> None:
-    assert resource_meta(resources.ResourceGroup).autoname(stack=stack) == "rg-workload-test-neu-01"
+def test_resource_meta_basic(stack: AzureBase) -> None:
+    rg_meta = resource_meta(resources.ResourceGroup)
+    assert rg_meta.namespace == "Microsoft.Resources/resourceGroups"
+    assert rg_meta.resource_type == "resourceGroup"
+    assert rg_meta.naming.prefix == "rg"
+    assert rg_meta.public_dns_zone is None
 
 
 def test_versioned_resource_names(stack: AzureBase) -> None:
-    assert resource_meta(VersionedResourceGroup).autoname(stack) == "rg-workload-test-neu-01"
+    rg_meta = resource_meta(VersionedResourceGroup)
+    assert rg_meta.namespace == "Microsoft.Resources/resourceGroups"
+    assert rg_meta.resource_type == "resourceGroup"
+    assert rg_meta.naming.prefix == "rg"
+
+
+def test_fmt_name_title_no_sep() -> None:
+    assert fmt_name("rg-workload-test-neu-01", sep="", case="title") == "RgWorkloadTestNeu01"
+
+
+def test_fmt_name_title() -> None:
+    assert fmt_name("rg-workload-test-neu-01") == "rg-workload-test-neu-01"
 
 
 def test_alphanumeric_resource_names(stack: AzureBase) -> None:
@@ -36,15 +51,6 @@ def test_alphanumeric_lowercase_resource_names(stack: AzureBase) -> None:
     assert resource_meta(storage.StorageAccount).autoname(stack) == "stworkloadtestneu01"
 
 
-def test_resource_name_instance_number_none(stack: AzureBase) -> None:
-    assert (
-        resource_meta(storage.StorageAccount).autoname(stack, instance_number=None)
-        == "stworkloadtestneu"
-    )
-
-
-def test_resource_name_without_instance_number_empty(stack: AzureBase) -> None:
-    assert (
-        resource_meta(storage.StorageAccount).autoname(stack, instance_number="")
-        == "stworkloadtestneu"
-    )
+def test_resource_meta_notfound() -> None:
+    with pytest.raises(ValueError):
+        resource_meta(object)

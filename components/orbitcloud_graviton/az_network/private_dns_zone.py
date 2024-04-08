@@ -66,6 +66,9 @@ class PrivateDnsZone(ComponentResource):
                     private_zone_name=zone.name,
                     virtual_network=network.SubResourceArgs(id=v.id),
                     registration_enabled=False,
+                    opts=pulumi.ResourceOptions.merge(
+                        self._opts, pulumi.ResourceOptions(delete_before_replace=True)
+                    ),
                 )
         return zone
 

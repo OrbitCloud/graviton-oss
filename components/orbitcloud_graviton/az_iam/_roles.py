@@ -1,29 +1,47 @@
-from functools import lru_cache
+import asyncio
+from typing import AsyncIterable
 
 from azure.core.credentials import AccessToken
-from azure.mgmt.authorization import AuthorizationManagementClient
+from azure.core.credentials_async import AsyncTokenCredential
+from azure.mgmt.authorization.v2022_04_01.aio import AuthorizationManagementClient
+from azure.mgmt.authorization.v2022_04_01.models._models_py3 import RoleDefinition
 from pulumi_azure_native import authorization
 
+from orbitcloud_graviton.az_lib.aio import async_output
 
-class TokenCred:
-    def __init__(self, token):
+
+class TokenCred(AsyncTokenCredential):
+    def __init__(self, token) -> None:
         self.token = token
 
-    def get_token(self, *scopes, **kwargs) -> "AccessToken":
+    # @in_event_loop
+    async def get_token(self, *scopes, **kwargs) -> "AccessToken":
         return AccessToken(token=self.token, expires_on=-1)
 
 
-@lru_cache
-def get_role_id_by_name(name: str):
-    scope = ""
-    config = authorization.get_client_config()
-    client_token = authorization.get_client_token()
-    client = AuthorizationManagementClient(TokenCred(client_token.token), config.subscription_id)
-    def_pages = client.role_definitions.list(scope, filter=f"roleName eq '{name}'")
-    role = None
-    for x in def_pages:
-        role = x.id
-        break
-    if role is None:
-        raise Exception(f"role '{name}' not found at scope '{scope}'")
-    return role
+async def get_roles() -> AsyncIterable[RoleDefinition]:
+    client = AuthorizationManagementClient(
+        credential=TokenCred(token=authorization.get_client_token().token),
+        subscription_id="***REMOVED***",
+        api_version="2022-05-01-preview",
+    )
+    return client.role_definitions.list(scope="")
+
+
+loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
+get_roles_task: asyncio.Task[AsyncIterable[RoleDefinition]] = loop.create_task(get_roles())
+
+
+@async_output
+async def get_role_id_by_name(
+    role_name: str, get_role_task: asyncio.Task[AsyncIterable[RoleDefinition]] = get_roles_task
+) -> str:
+    async for role in await get_role_task:
+        if (
+            role.role_name == role_name
+            and role.id is not None
+            and isinstance(role.id, str)
+            and role.id != ""
+        ):
+            return role.id
+    raise ValueError(f"Role {role_name} not found")

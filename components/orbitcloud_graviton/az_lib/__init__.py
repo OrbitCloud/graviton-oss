@@ -1,8 +1,9 @@
 """Azure helper functions for OrbitCloud Graviton"""
 
-from .naming import get_prefix, location_abbr, resource_namer
+from .aio import async_output, in_event_loop
+from .helpers import fmt_name, location_abbr
+from .naming_v1 import get_prefix, resource_namer
 from .network import is_public_ip
-from .resources import get_resource_name_from_id
 from .types import AzureIdRef, AzureResourceId
 
 __all__ = [
@@ -10,7 +11,9 @@ __all__ = [
     "resource_namer",
     "location_abbr",
     "get_prefix",
-    "get_resource_name_from_id",
     "AzureResourceId",
     "AzureIdRef",
+    "fmt_name",
+    "async_output",
+    "in_event_loop",
 ]

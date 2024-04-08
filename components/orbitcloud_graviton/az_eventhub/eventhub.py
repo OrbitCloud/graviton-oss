@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import Any, List, Literal, Optional
 
 import pulumi
 from pulumi import ComponentResource
@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_monitor.az_diagnosticsetting import diagnostic_setting
+from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpoint, PrivateEndpointConfig
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
@@ -26,6 +27,7 @@ class NamespaceConfig(BaseModel):
     sku: Literal["Basic", "Standard", "Premium"] = "Standard"
 
     hubs: List[EventHubConfig]
+    private_endpoints: Optional[List[PrivateEndpointConfig]] = None
 
     log_workspace_id: Optional[AzureIdRef] = None
 
@@ -54,6 +56,7 @@ class EventHub(ComponentResource):
 
         self.namespace: pul_eventhub.Namespace = self._namespace()
         self.hubs: List[pul_eventhub.EventHub] = self._eventhubs()
+        self.private_endpoints: List[PrivateEndpoint] | None = self._private_endpoints()
         self._diagnostic_settings()
 
         self._outputs()
@@ -106,6 +109,18 @@ class EventHub(ComponentResource):
             else []
         )
 
+    def _private_endpoints(self) -> List[PrivateEndpoint] | None:
+        if self.config.private_endpoints:
+            return [
+                PrivateEndpoint(
+                    stack=self.stack,
+                    config=endpoint,
+                    target_resource=self.namespace,
+                    opts=self._opts,
+                )
+                for endpoint in self.config.private_endpoints
+            ]
+
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
@@ -133,21 +148,18 @@ class EventHub(ComponentResource):
                 "hubs": self.hubs,
             }
         )
+        exports: dict[str, Any] = {}
+
+        exports["namespace"] = {
+            "id": self.namespace.id,
+            "name": self.namespace.name,
+        }
+
+        if self.hubs:
+            exports["hubs"] = [hub.name for hub in self.hubs]
 
         self.stack.export(
             exports={
-                "eventhub": {
-                    "namespace": {
-                        "id": self.namespace.id,
-                        "name": self.namespace.name,
-                    },
-                    "hubs": [
-                        {
-                            "id": hub.id,
-                            "name": hub.name,
-                        }
-                        for hub in self.hubs
-                    ],
-                },
+                "eventhub": exports,
             }
         )

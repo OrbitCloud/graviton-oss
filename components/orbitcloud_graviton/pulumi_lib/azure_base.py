@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Type
 from uuid import UUID
 
 import pulumi
-from pulumi_azure_native import resources
+from pulumi_azure_native import Provider, resources
 from pydantic import Field
 from pydantic_settings import SettingsConfigDict
 
@@ -32,6 +32,8 @@ class AzureBase(PulumiConfig):
     resource_group_name: Optional[str] = None
     _resource_group: Optional[resources.ResourceGroup] = None
 
+    _providers: Optional[Dict[str, pulumi.ResourceOptions]] = None
+
     @property
     def resource_group(self) -> resources.ResourceGroup:
         if self._resource_group:
@@ -47,6 +49,29 @@ class AzureBase(PulumiConfig):
             env=self.env,
             location=self.location,
         )
+
+    def subscription_provider(
+        self, subscription_id: UUID, merge_opts: Optional[pulumi.ResourceOptions] = None
+    ) -> pulumi.ResourceOptions:
+        if not self._providers:
+            self._providers = {}
+        if str(subscription_id) in self._providers:
+            provider = self._providers[str(object=subscription_id)]
+        else:
+            provider = pulumi.ResourceOptions(
+                provider=Provider(
+                    resource_name=f"azure-native-{subscription_id}",
+                    subscription_id=str(object=subscription_id or self.subscription_id),
+                )
+            )
+            self._providers[str(subscription_id)] = provider
+
+        if merge_opts:
+            provider: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
+                opts1=provider, opts2=merge_opts
+            )
+
+        return provider
 
     def export(self, exports: Dict[str, Any], prefix=None) -> None:
         if not self.skip_exports:
@@ -71,6 +96,7 @@ def get_azure_stack() -> AzureBase:
                     "location": stack.location,
                     "env": stack.env,
                     "resource_group_name": stack.resource_group.name,
+                    "resource_group_id": stack.resource_group.id,
                 }
             }
         )

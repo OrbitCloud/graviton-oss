@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import pulumi
 from pulumi_azure_native import resources
@@ -19,6 +19,9 @@ from orbitcloud_graviton.az_network import (
 )
 from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
 from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
+from orbitcloud_graviton.pulumi_lib.types import DomainName
+
+from .privateendpoint_zones import default_private_endpoint_zones
 
 
 class NetworkBaseConfig(PulumiConfig):
@@ -63,6 +66,32 @@ def deploy_hub_spoke():
                 vhub=vwan.vhub,
                 opts=pulumi.ResourceOptions(parent=vwan.vwan),
             )
+
+        private_endpoint_dns_zones: Dict[DomainName, Dict[str, Any]] = {}
+        for zone_name in default_private_endpoint_zones():
+            if zone_name in private_endpoint_dns_zones:
+                continue
+
+            _pdns_zone = PrivateDnsZone(
+                stack=stack.model_copy(update={"skip_exports": True}),
+                config=PrivateDNSZoneConfig(
+                    name=zone_name,
+                    linked_vnets=[
+                        spoke.remote_vnet_id
+                        for spoke in list(config.vwan.hub_vnet_connections or [])
+                    ],
+                ),
+                opts=pulumi.ResourceOptions(parent=rg),
+            )
+            private_endpoint_dns_zones[zone_name] = {
+                "id": _pdns_zone.zone.id,
+            }
+
+        stack.export(
+            exports={
+                "private_endpoint_dns_zones": private_endpoint_dns_zones,
+            }
+        )
 
     ##########################################
     # DNS Zones

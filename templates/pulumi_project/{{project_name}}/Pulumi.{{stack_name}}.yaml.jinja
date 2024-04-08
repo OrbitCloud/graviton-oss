@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=.stack_schema.json
+{% if esc_env %}
+environment:
+  - {{ esc_env }}
+{% endif %}
+config:
+  workload_name: {{ workload_name }}

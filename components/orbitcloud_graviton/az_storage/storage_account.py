@@ -1,16 +1,13 @@
 from ipaddress import IPv4Address
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import pulumi
 from pulumi_azure_native import storage
-from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
-from orbitcloud_graviton.az_network import (
-    PrivateEndpointConfig,
-    az_private_endpoint,
-)
+from orbitcloud_graviton.az_network import PrivateEndpoint
+from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpointConfig
 from orbitcloud_graviton.az_storage.iam_roles import StorageAccountAppPermissions
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
@@ -19,6 +16,14 @@ class StorageAccountRoutingConfig(BaseModel):
     routing_preference: Optional[storage.RoutingChoice] = storage.RoutingChoice.MICROSOFT_ROUTING
     publish_microsoft_endpoints: Optional[bool] = True
     publish_internet_endpoints: Optional[bool] = False
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class StorageAccountPrivateEndpointConfig(BaseModel):
+    sub_types: List[Literal["blob", "file", "queue", "table"]]
+    subnet_id: AzureIdRef
+    private_dns_zone_id: AzureIdRef
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -41,7 +46,7 @@ class StorageAccountConfig(BaseModel):
     allowed_public_ips: Optional[List[IPv4Address]] = None
     routing: StorageAccountRoutingConfig = StorageAccountRoutingConfig()
 
-    private_endpoints: Optional[list[PrivateEndpointConfig]] = None
+    private_endpoints: Optional[list[StorageAccountPrivateEndpointConfig]] = None
     storage_tables: Optional[List[str]] = None
     storage_queues: Optional[List[str]] = None
 
@@ -74,8 +79,11 @@ class StorageAccount(pulumi.ComponentResource):
         self.name = self.stack.name_for(storage.StorageAccount, workload_name=self.config.name)
 
         self.storage_account: storage.StorageAccount = self._storage_account()
-        self.private_endpoints: Optional[list[network.PrivateEndpoint]] = self._private_endpoints()
-        self.storage_tables: list[storage.Table] | None = self._storage_tables()
+
+        self.storage_tables: List[storage.Table] = self._storage_tables()
+        self.storage_queues: List[storage.Queue] = self._storage_queues()
+
+        self.private_endpoints: List[PrivateEndpoint] = self._private_endpoints()
 
         self._outputs()
 
@@ -139,22 +147,32 @@ class StorageAccount(pulumi.ComponentResource):
             virtual_network_rules=vnet_rules,
         )
 
-    def _private_endpoints(self) -> list[network.PrivateEndpoint] | None:
-        endpoints: list[network.PrivateEndpoint] = []
+    def _private_endpoints(self) -> list[PrivateEndpoint]:
+        sub_type_resources = {
+            "blob": storage.BlobContainer,
+            "file": storage.FileShare,
+            "queue": storage.Queue,
+            "table": storage.Table,
+        }
+        endpoints: list[PrivateEndpoint] = []
         if self.config.private_endpoints:
             for endpoint in self.config.private_endpoints:
-                endpoints.append(
-                    az_private_endpoint(
-                        resource=self.storage_account,
-                        resource_group=self.stack.resource_group,
-                        private_endpoint_config=endpoint,
-                        tags=self.stack.tags,
-                        opts=self._opts,
+                for sub_type in endpoint.sub_types:
+                    endpoints.append(
+                        PrivateEndpoint(
+                            stack=self.stack,
+                            target_resource=sub_type_resources[sub_type],
+                            target_resource_name=self.name,
+                            config=PrivateEndpointConfig(
+                                subnet_id=endpoint.subnet_id,
+                                private_dns_zone_id=endpoint.private_dns_zone_id,
+                            ),
+                            opts=self._opts,
+                        )
                     )
-                )
-            return endpoints
+        return endpoints
 
-    def _storage_tables(self) -> list[storage.Table] | None:
+    def _storage_tables(self) -> List[storage.Table]:
         return (
             (
                 [
@@ -174,10 +192,10 @@ class StorageAccount(pulumi.ComponentResource):
                 ]
             )
             if self.config.storage_tables
-            else None
+            else []
         )
 
-    def _storage_queues(self) -> list[storage.Queue] | None:
+    def _storage_queues(self) -> List[storage.Queue]:
         return (
             [
                 (
@@ -196,7 +214,7 @@ class StorageAccount(pulumi.ComponentResource):
                 for queue in self.config.storage_queues
             ]
             if self.config.storage_queues
-            else None
+            else []
         )
 
     def get_endpoints(
@@ -222,10 +240,10 @@ class StorageAccount(pulumi.ComponentResource):
     def get_private_endpoints(self) -> dict[str, dict[str, Union[str, pulumi.Output[str]]]] | None:
         if self.private_endpoints:
             return {
-                endpoint.type: {
+                endpoint.private_endpoint.type: {
                     "name": endpoint.name,
-                    "fqdn": endpoint.custom_dns_configs.fqdn,
-                    "ip": endpoint.custom_dns_configs.ip_addresses,
+                    "fqdn": endpoint.private_endpoint.custom_dns_configs.fqdn,
+                    "ip": endpoint.private_endpoint.custom_dns_configs.ip_addresses,
                 }
                 for endpoint in self.private_endpoints
             }

@@ -1,3 +1,9 @@
+## v0.43.0 (2024-04-08)
+
+### Feat
+
+- Azure Metadata & private link DNS zone rework (#218)
+
 ## v0.42.0 (2024-03-26)
 
 ### Feat

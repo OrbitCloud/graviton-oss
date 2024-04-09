@@ -23,8 +23,8 @@ values
   ('OAuth2',
    'Authenticate',
    'POST',
-   'https://login.microsoftonline.com/{tenantId}/oauth2/token',
-   '{"grant_type":"client_credentials","client_id":"{client_id}","client_secret":"{client_secret}", "resource":"{resource}"}');
+   'https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token',
+   '{"grant_type":"client_credentials","client_id":"{client_id}","client_secret":"{client_secret}", "resource":"{resource}", "scope":"{scope}"}');
 commit;
 
 create table oqf_credential_types (
@@ -39,10 +39,23 @@ commit;
 create table oqf_credentials (
   id              number default on null to_number(sys_guid(),'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') primary key,
   credential_type varchar2(60 char) not null references oqf_credential_types(name),
-  created         date default on null sysdate,
+  description     varchar2(200 char),
   client_id       varchar2(256 char) invisible not null,
-  secret          varchar2(256 char) invisible not null
+  secret          varchar2(256 char) invisible not null,
+  created         date default on null sysdate
 );
+
+create table oqf_entra_tokens (
+  id         number default on null to_number(sys_guid(),'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') primary key,
+  credential number references oqf_credentials(id) not null,
+  scope      varchar2(256 char),
+  payload    blob,
+  created    timestamp default on null systimestamp,
+  expires    timestamp not null,
+  constraint chk_entratok_payloadjson check (payload is json),
+  constraint chk_entratok_uq unique (credential, scope)
+);
+create index idx_entratok_cred on oqf_entra_tokens(credential);
 
 create table oqf_event_hubs (
   namespace   varchar2(128 char) primary key,
@@ -67,12 +80,15 @@ create table oqf_tables (
   owner         varchar2(128 char),
   table_name    varchar2(128 char),
   queue         number references oqf_eventhub_queues(id) not null,
+  schema        varchar2(128 char) not null,
   version       varchar2(10) default on null 'v1' not null,
   regid         number,
-  created       date default on null sysdate,
-  updated       date,
+  updcol        varchar2(128 char),
   rowkey        varchar2(400 char),
   partition_key varchar2(400 char),
+  sql_filter    varchar2(2000 char),
+  created       date default on null sysdate,
+  updated       date,
   constraint pk_oqf_tables primary key (owner, table_name)
 );
 
@@ -80,17 +96,9 @@ create table oqf_table_columns (
   owner           varchar2(128 char),
   table_name      varchar2(128 char),
   column_name     varchar2(128 char),
-  is_updated_date number(1,0) default on null 0,
   column_order    number,
  constraint pk_oqf_table_columns primary key (owner, table_name, column_name)
 );
-
-create table oqf_log (
-  id      number default on null to_number(sys_guid(),'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') primary key,
-  created timestamp default on null systimestamp,
-  text    varchar2(200 char),
-  message clob
-) pctfree 0;
 
 /* Sequence for Azure Send Operation */
 create sequence s_az_send_op;

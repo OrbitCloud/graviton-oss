@@ -3,7 +3,7 @@ declare
   l_execute_privs table_arr := table_arr(&1);
   l_user_privs    table_arr;
   l_diff          table_arr;
-  function string_join(t in table_arr, sep in varchar2) return varchar2 is
+  function string_join(t in table_arr, sep in varchar2) return varchar2 deterministic is
     l_return varchar2(32767 char);
   begin
     <<string_join_loop>>

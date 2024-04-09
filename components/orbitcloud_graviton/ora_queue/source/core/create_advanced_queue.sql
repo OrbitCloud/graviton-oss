@@ -4,7 +4,7 @@ create or replace type t_table_changes as object (
   queue_id    number(38,0),
   table_name  varchar2(120 char),
   azure_queue varchar2(120 char),
-  data        clob
+  data        blob
 );
 /
 
@@ -22,7 +22,7 @@ begin
                           queue_table    => l_schema || '.' || l_queue_table,
                           queue_type     => sys.dbms_aqadm.normal_queue,
                           max_retries    => 3,
-                          retry_delay    => 0,
+                          retry_delay    => 10,
                           retention_time => 0,
                           comment        => 'Event Queue for Tracking Table DML');
   sys.dbms_aqadm.start_queue(queue_name => l_schema || '.' || l_queue_name);

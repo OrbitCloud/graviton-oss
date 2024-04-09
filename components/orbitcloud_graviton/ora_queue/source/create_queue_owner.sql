@@ -36,11 +36,16 @@ grant create session, create sequence, create procedure, create type, create tab
 
 PROMPT ..... Granting access to Change Notification and Advanced Queues
 
+/* Roles */
 grant change notification TO &queue_owner;
 
+/* System execute Privileges */
 grant execute on DBMS_CQ_NOTIFICATION TO &queue_owner;
 grant execute on DBMS_AQ TO &queue_owner;
 grant execute on DBMS_AQADM TO &queue_owner;
 grant execute on DBMS_CRYPTO TO &queue_owner;
+
+/* System select privileges */
+grant select on DBA_SUBSCR_REGISTRATIONS to &queue_owner;
 
 grant alter session to &queue_owner;

@@ -20,25 +20,33 @@ alter session set current_schema = &&queue_owner;
 
 @@check_sys_grants.sql "'CHANGE NOTIFICATION','CREATE SESSION','CREATE SEQUENCE','CREATE PROCEDURE','CREATE TYPE','CREATE TABLE','CREATE VIEW','CREATE TRIGGER'"
 @@check_execute_grants.sql "'DBMS_CHANGE_NOTIFICATION', 'DBMS_AQ', 'DBMS_AQADM', 'DBMS_CRYPTO'"
+@@check_select_grants.sql "'DBA_SUBSCR_REGISTRATIONS'"
 
 
 -- Objects
 prompt core/create_objects.sql
 @@core/create_objects.sql
+@@core/create_logger.sql
 prompt core/create_advanced_queue.sql &&queue_owner
 @@core/create_advanced_queue.sql
 
 -- Packages
 set define off
-prompt core/az_event_hubs
+prompt .....Package Specifications
+@@core/orb_log.pks
 @@core/az_event_hubs.pks
-@@core/az_event_hubs.pkb
-prompt core/az_change_notifications
 @@core/az_change_notifications.pks
+
+prompt .....Package Bodies
+@@core/az_event_hubs.pkb
+@@core/orb_log.pkb
 @@core/az_change_notifications.pkb
 
+prompt .....APEX Environments
+@@core/apex_environments.sql
 
---
+
+-- Check for compilation errors
 declare
   l_compile_errors boolean := false;
 begin

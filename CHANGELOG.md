@@ -1,3 +1,9 @@
+## v0.46.0 (2024-04-10)
+
+### Feat
+
+- **pulumi_lib**: Add TimeFromNow datatype (#224)
+
 ## v0.45.0 (2024-04-10)
 
 ### Feat

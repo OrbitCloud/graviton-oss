@@ -1,3 +1,9 @@
+## v0.44.0 (2024-04-10)
+
+### Feat
+
+- **ContainerApp**: Add option for ingress IP restrictions (#222)
+
 ## v0.43.0 (2024-04-08)
 
 ### Feat

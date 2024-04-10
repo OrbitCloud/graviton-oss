@@ -1,3 +1,9 @@
+## v0.46.1 (2024-04-10)
+
+### Fix
+
+- Add missing metadata and private endpoints (#225)
+
 ## v0.46.0 (2024-04-10)
 
 ### Feat

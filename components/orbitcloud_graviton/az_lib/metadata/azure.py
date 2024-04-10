@@ -262,6 +262,19 @@ _resources: dict[str, Any] = {
     },
 }
 
+_search: dict[str, Any] = {
+    "Service": {
+        "namespace": "Microsoft.Search/searchServices",
+        "resource_type": "searchServices",
+        "sub_resource_name": "searchService",
+        "naming": {
+            "prefix": "srch",
+        },
+        "public_dns_zone": "search.windows.net",
+        "private_dns_zone": "privatelink.search.windows.net",
+    },
+}
+
 """
 Storage
 """
@@ -379,6 +392,10 @@ _azure_resource_meta: dict[str, Any] = {
             "resources": _resources,
         },
         "sql": {},
+        "search": {
+            "namespace": "Microsoft.Search",
+            "resources": _search,
+        },
         "storage": {
             "namespace": "Microsoft.Storage",
             "resources": _storage,

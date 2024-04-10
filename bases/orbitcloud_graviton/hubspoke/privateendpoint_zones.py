@@ -4,6 +4,7 @@ from pulumi_azure_native import (
     eventgrid,
     eventhub,
     keyvault,
+    search,
     storage,
     web,
 )
@@ -32,6 +33,7 @@ def default_private_endpoint_zones() -> list[DomainName]:
             eventhub.Namespace,
             eventgrid.Domain,
             web.WebApp,
+            search.Service,
         ]
     ]
     return default_privatelink_zones

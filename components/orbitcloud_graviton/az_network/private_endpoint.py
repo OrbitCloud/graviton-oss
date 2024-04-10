@@ -82,6 +82,7 @@ class PrivateEndpoint(pulumi.ComponentResource):
                         group_ids=[self.target_type],
                     )
                 ],
+                custom_dns_configs=[],
             ),
             opts=self._opts,
         )
@@ -100,7 +101,12 @@ class PrivateEndpoint(pulumi.ComponentResource):
                     resource_group_name=self.stack.resource_group.name,
                     private_endpoint_name=self.name,
                 ),
-                opts=self._opts,
+                opts=pulumi.ResourceOptions.merge(
+                    self._opts,
+                    pulumi.ResourceOptions(
+                        parent=self.private_endpoint, deleted_with=self.private_endpoint
+                    ),
+                ),
             )
 
     def _outputs(self) -> None:

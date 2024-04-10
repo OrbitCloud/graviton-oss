@@ -88,6 +88,7 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.eventgrid.domain": {"prefix": "evgd"},
     "pulumi_azure_native.eventgrid.domain_topic": {"prefix": "evgt"},
     "pulumi_azure_native.network.private_endpoint": {"prefix": "pep"},
+    "pulumi_azure_native.search.service": {"prefix": "srch"},
     # See Cloud Adoption Framework Abbreviations:
     # https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 }

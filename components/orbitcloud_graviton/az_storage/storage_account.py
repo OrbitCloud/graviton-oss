@@ -135,7 +135,6 @@ class StorageAccount(pulumi.ComponentResource):
             vnet_rules: list[storage.VirtualNetworkRuleArgs] = []
 
             for subnet_id in self.config.allowed_private_subnets:
-                print(subnet_id)
                 vnet_rules.append(
                     storage.VirtualNetworkRuleArgs(virtual_network_resource_id=subnet_id)
                 )

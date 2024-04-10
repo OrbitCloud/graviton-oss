@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
+from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpoint, PrivateEndpointConfig
 from orbitcloud_graviton.az_network.types import PrivateIPv4Network, PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
@@ -25,6 +26,7 @@ class EventGridDomainConfig(BaseModel):
     # Networking
     public_network_access: Optional[bool] = False
     inbound_ip_rules: Optional[List[Union[PublicIPv4Network, PrivateIPv4Network, StrRef]]] = None
+    private_endpoints: Optional[List[PrivateEndpointConfig]] = None
 
     log_workspace_id: Optional[AzureIdRef] = None
 
@@ -98,6 +100,18 @@ class EventGridDomain(pulumi.ComponentResource):
             )
             for topic in self.config.topics or []
         ]
+
+    def _private_endpoint(self) -> list[PrivateEndpoint] | None:
+        if self.config.private_endpoints:
+            return [
+                PrivateEndpoint(
+                    stack=self.stack,
+                    config=pe,
+                    target_resource=self.eventgrid_domain,
+                    opts=self._opts,
+                )
+                for pe in self.config.private_endpoints
+            ]
 
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:

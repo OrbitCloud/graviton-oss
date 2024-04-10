@@ -3,6 +3,7 @@ from typing import List, Optional, Union
 import pulumi
 from pulumi_azure_native.resources import ResourceGroup
 
+from orbitcloud_graviton.az_ai.search_service import SearchService, SearchServiceConfig
 from orbitcloud_graviton.az_app.container_app import ContainerApp, ContainerAppConfig
 from orbitcloud_graviton.az_appconfig import AppConfiguration, AppConfigurationConfig
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig
@@ -19,6 +20,7 @@ class AppWorkloadConfig(PulumiConfig):
     apps: List[ContainerAppConfig]
     app_config: Optional[AppConfigurationConfig] = None
     storage_accounts: Optional[List[StorageAccountConfig]] = None
+    search_service: Optional[SearchServiceConfig] = None
 
 
 def deploy() -> None:
@@ -72,13 +74,23 @@ def deploy() -> None:
             )
 
     ##########################################
+    # Search Service
+    ##########################################
+    if config.search_service:
+        SearchService(
+            stack=stack,
+            config=config.search_service,
+            opts=opts,
+        )
+
+    ##########################################
     # App Configuration Store
     ##########################################
     for app_config in config.apps:
         if app_config.secrets:
             app_secrets.update(app_config.secrets)
 
-        perms = app_config.azure_permissions or []
+        perms: List[IamAssignmentConfig] = app_config.azure_permissions or []
         perms.extend(app_perms)
 
         ContainerApp(

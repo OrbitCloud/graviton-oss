@@ -2,16 +2,17 @@ from typing import List, Literal, Optional
 
 import pulumi
 import pulumi_azuread as azuread
-import pulumiverse_time as time
 from pulumi import ComponentResource
+from pulumiverse_time import Rotating
 from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.pulumi_lib import AzureBase, EntraBase
+from orbitcloud_graviton.pulumi_lib.types import TimeFromNow
 
 
 class ClientCredentialsConfig(BaseModel):
     display_name: str
-    expires_after_months: Optional[int] = 6
+    expires_after: TimeFromNow = TimeFromNow(after="6M")
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -92,9 +93,8 @@ class EntraApp(ComponentResource):
         if not self.config.client_credentials:
             return []
         for cred in self.config.client_credentials:
-            rotation: time.Rotating = time.Rotating(
+            rotation: Rotating = cred.expires_after.Rotating(
                 resource_name=f"rotate-{self.config.name}-{cred.display_name}-{self.stack.workload_name}-{self.stack.env}",
-                rotation_months=cred.expires_after_months,
                 opts=self._opts,
             )
 

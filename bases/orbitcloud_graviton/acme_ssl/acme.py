@@ -28,7 +28,7 @@ from orbitcloud_graviton.pulumi_lib.azure_base import get_azure_stack, get_entra
 from orbitcloud_graviton.pulumi_lib.config import PulumiConfig
 from orbitcloud_graviton.pulumi_lib.helpers import fmt_name
 from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
-from orbitcloud_graviton.pulumi_lib.types import email_random_plus
+from orbitcloud_graviton.pulumi_lib.types import TimeFromNow, email_random_plus
 
 
 class AcmeSslConfig(BaseModel):
@@ -96,7 +96,7 @@ class AcmeSsl(ComponentResource):
                 client_credentials=[
                     ClientCredentialsConfig(
                         display_name="acmessl-credentials",
-                        expires_after_months=1,
+                        expires_after=TimeFromNow(after="1M"),
                     )
                 ],
             ),

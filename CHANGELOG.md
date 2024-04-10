@@ -1,3 +1,9 @@
+## v0.45.0 (2024-04-10)
+
+### Feat
+
+- **az_ai**: Add Azure AI search component (#223)
+
 ## v0.44.0 (2024-04-10)
 
 ### Feat

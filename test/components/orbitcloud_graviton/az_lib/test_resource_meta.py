@@ -55,5 +55,5 @@ def test_alphanumeric_lowercase_resource_names(stack: AzureBase) -> None:
 
 
 def test_resource_meta_notfound() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(IndexError):
         resource_meta(object)

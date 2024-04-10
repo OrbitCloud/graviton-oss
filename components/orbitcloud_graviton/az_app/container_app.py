@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import pulumi
 from pulumi_azure_native.app import v20231102preview as pam_app
@@ -8,7 +8,8 @@ from orbitcloud_graviton.az_acr.outputs import AdminUserEnabledRegistryOutput
 from orbitcloud_graviton.az_app._app_schema import ContainerProbeConfig, ContainerResourcesConfig
 from orbitcloud_graviton.az_app.outputs import ContainerAppEnvOutput
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
-from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef
+from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
+from orbitcloud_graviton.az_network.types import PrivateIPv4Network, PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureBase
 
 
@@ -36,10 +37,15 @@ class IngressConfig(BaseModel):
     client_certificate_mode: pam_app.IngressClientCertificateMode = (
         pam_app.IngressClientCertificateMode.IGNORE
     )
-    external: Optional[bool] = False
     https_only: Optional[bool] = True
-    target_port: int
+    external: Optional[bool] = False
     custom_domains: Optional[List[CustomDomainConfig]] = None
+    ip_allow_list: Optional[List[Union[PrivateIPv4Network, PublicIPv4Network, StrRef]]] = Field(
+        ..., default_factory=list
+    )
+    target_port: int
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class ContainerConfig(BaseModel):
@@ -181,6 +187,14 @@ class ContainerApp(pulumi.ComponentResource):
                 external=self.config.ingress.external,
                 target_port=self.config.ingress.target_port,
                 custom_domains=self._custom_domain_args(),
+                ip_security_restrictions=[
+                    pam_app.IpSecurityRestrictionRuleArgs(
+                        name=f"allow-{ip}",
+                        action=pam_app.Action.ALLOW,
+                        ip_address_range=str(ip),
+                    )
+                    for ip in self.config.ingress.ip_allow_list or []
+                ],
             ),
             registries=(
                 [

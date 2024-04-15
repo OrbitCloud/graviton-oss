@@ -1,3 +1,9 @@
+## v0.46.2 (2024-04-15)
+
+### Refactor
+
+- **az_lib**: Change AzureBase name to AzureStack (#231)
+
 ## v0.46.1 (2024-04-10)
 
 ### Fix

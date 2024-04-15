@@ -1,6 +1,17 @@
 #!/bin/bash
 
-search_and_execute() {
+# Recursively searches for Pulumi projects and stacks
+#
+# Runs:
+# pulumi pre --expect-no-changes
+#
+# Reports back whether there are any errors or pending changes in stacks.
+#
+# Usage
+# chmod +x drift_detect.sh
+# ./drift_detect.sh <target directory> (defaults to current directory)
+
+pulumi_recursive_drift_detect() {
     while IFS= read -r line; do
         directories+=("$line")
     done < <(find "$1" -type f -name "Pulumi.*.yaml" -exec dirname {} \; | sort -u)
@@ -37,10 +48,10 @@ search_and_execute() {
 # If arguments are passed, use them as directories to search
 if [ $# -gt 0 ]; then
     for dir in "$@"; do
-        search_and_execute "$dir"
+        pulumi_recursive_drift_detect "$dir"
     done
 else
-    search_and_execute .
+    pulumi_recursive_drift_detect .
 fi
 
 

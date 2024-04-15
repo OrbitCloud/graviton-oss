@@ -23,7 +23,7 @@ from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_keyvault.secret import KeyvaultSecretConfig, keyvault_secret
 from orbitcloud_graviton.az_lib import AzureIdRef
 from orbitcloud_graviton.entra import ClientCredentialsConfig, EntraApp, EntraAppConfig
-from orbitcloud_graviton.pulumi_lib import AzureBase, EntraBase
+from orbitcloud_graviton.pulumi_lib import AzureStack, EntraStack
 from orbitcloud_graviton.pulumi_lib.azure_base import get_azure_stack, get_entra_stack
 from orbitcloud_graviton.pulumi_lib.config import PulumiConfig
 from orbitcloud_graviton.pulumi_lib.helpers import fmt_name
@@ -49,15 +49,15 @@ class AcmeSslBaseConfig(PulumiConfig):
 class AcmeSsl(ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
-        entra_config: EntraBase,
+        stack: AzureStack,
+        entra_config: EntraStack,
         config: AcmeSslConfig,
         entra_app: Optional[EntraApp] = None,
         opts: Optional[ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: AcmeSslConfig = config
-        self.entra_config: EntraBase = entra_config
+        self.entra_config: EntraStack = entra_config
 
         super().__init__(
             "Graviton:AcmeSsl",
@@ -300,8 +300,8 @@ class AcmeSsl(ComponentResource):
 
 def deploy() -> None:
     generate_stack_schema(model=AcmeSslBaseConfig, output_file=".stack_schema.json")
-    stack: AzureBase = get_azure_stack()
-    entra: EntraBase = get_entra_stack()
+    stack: AzureStack = get_azure_stack()
+    entra: EntraStack = get_entra_stack()
     config: AcmeSslBaseConfig = AcmeSslBaseConfig.model_validate({})
 
     AcmeSsl(

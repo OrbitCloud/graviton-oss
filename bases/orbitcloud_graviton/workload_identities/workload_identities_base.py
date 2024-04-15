@@ -5,8 +5,8 @@ import pulumi
 from orbitcloud_graviton.az_iam import iam_assignment
 from orbitcloud_graviton.entra import EntraApp, EntraAppConfig, WorkloadIdentityConfig
 from orbitcloud_graviton.pulumi_lib import (
-    AzureBase,
-    EntraBase,
+    AzureStack,
+    EntraStack,
     PulumiConfig,
     generate_stack_schema,
     get_azure_stack,
@@ -22,11 +22,11 @@ def deploy() -> None:
     generate_stack_schema(model=WorkloadIdentitiesConfig, output_file=".stack_schema.json")
 
     config: WorkloadIdentitiesConfig = WorkloadIdentitiesConfig.model_validate({})
-    entra_config: EntraBase = EntraBase.model_validate({})
+    entra_config: EntraStack = EntraStack.model_validate({})
 
     # Get Azure Stack and export resource group
-    stack: AzureBase = get_azure_stack()
-    entra_config: EntraBase = get_entra_stack()
+    stack: AzureStack = get_azure_stack()
+    entra_config: EntraStack = get_entra_stack()
 
     ##########################################
     #   Entra Apps for VCS credentials

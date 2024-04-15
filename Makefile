@@ -30,7 +30,7 @@ install-lego: ##@ Install lego acme cli
 
 .PHONY: stacks
 stacks: ##@ Check for changes in stacks
-	@./bin/run_stacks.sh
+	@./bin/drift_detect.sh
 
 .PHONY: test
 test: ##@ Run tests

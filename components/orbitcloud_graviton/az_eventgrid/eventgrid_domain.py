@@ -6,9 +6,9 @@ from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
-from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpoint, PrivateEndpointConfig
+from orbitcloud_graviton.az_network import PrivateEndpoint, PrivateEndpointConfig
 from orbitcloud_graviton.az_network.types import PrivateIPv4Network, PublicIPv4Network
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class EventGridDomainConfig(BaseModel):
@@ -36,11 +36,11 @@ class EventGridDomainConfig(BaseModel):
 class EventGridDomain(pulumi.ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: EventGridDomainConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: EventGridDomainConfig = config
 
         super().__init__(

@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class AppConfigurationConfig(BaseModel):
@@ -28,11 +28,11 @@ class AppConfigurationConfig(BaseModel):
 class AppConfiguration(pulumi.ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: AppConfigurationConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: AppConfigurationConfig = config
 
         super().__init__(

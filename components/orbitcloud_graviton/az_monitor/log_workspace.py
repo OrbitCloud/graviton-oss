@@ -6,7 +6,7 @@ import pulumi
 from pulumi_azure_native import operationalinsights
 from pydantic import BaseModel, ConfigDict, Field
 
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class LogWorkspaceConfig(BaseModel):
@@ -29,7 +29,7 @@ class LogWorkspaceConfig(BaseModel):
 
 def log_workspace(
     config: LogWorkspaceConfig,
-    stack: AzureBase,
+    stack: AzureStack,
     opts: Optional[pulumi.ResourceOptions] = None,
 ) -> operationalinsights.Workspace:
     pulumi.debug(config.sku)

@@ -6,7 +6,7 @@ from pulumi_azure_native import Provider, network
 from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, AzureResourceId
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 from orbitcloud_graviton.pulumi_lib.types import DomainName
 
 from .types import ARecord, CnameRecord, MxRecord, NsRecord, Record, TxtRecord
@@ -26,12 +26,12 @@ class DnsZoneConfig(BaseModel):
 class DnsZone(pulumi.ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: DnsZoneConfig,
         dns_zone_id: Optional[Union[str, pulumi.Output[str]]] = None,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: DnsZoneConfig = config
 
         super().__init__(

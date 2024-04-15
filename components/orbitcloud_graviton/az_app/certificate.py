@@ -4,7 +4,7 @@ import pulumi
 from pulumi_azure_native.app import v20231102preview as app
 from pydantic import BaseModel, Field, SecretStr
 
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 from orbitcloud_graviton.pulumi_lib.helpers import fmt_name
 
 
@@ -15,7 +15,7 @@ class CertificateConfig(BaseModel):
 
 
 def certificate(
-    stack: AzureBase,
+    stack: AzureStack,
     cert: CertificateConfig,
     environment: app.ManagedEnvironment,
     opts: Optional[pulumi.ResourceOptions] = None,

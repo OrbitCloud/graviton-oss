@@ -13,7 +13,7 @@ from orbitcloud_graviton.az_resources import resource_group
 from .config import PulumiConfig
 
 
-class AzureBase(PulumiConfig):
+class AzureStack(PulumiConfig):
     subscription_id: UUID = Field(..., validation_alias="azure-native:subscriptionId")
     tenant_id: UUID = Field(..., validation_alias="azure-native:tenantId")
     location: str = Field(..., validation_alias="azure-native:location")
@@ -84,8 +84,8 @@ class AzureBase(PulumiConfig):
 
 
 @lru_cache
-def get_azure_stack() -> AzureBase:
-    stack: AzureBase = AzureBase.model_validate({})
+def get_azure_stack() -> AzureStack:
+    stack: AzureStack = AzureStack.model_validate({})
     if not stack.skip_exports:
         stack.export(
             exports={
@@ -104,11 +104,11 @@ def get_azure_stack() -> AzureBase:
     return stack
 
 
-class EntraBase(PulumiConfig):
+class EntraStack(PulumiConfig):
     tenant_id: UUID = Field(..., alias="azuread:tenantId")
     model_config = SettingsConfigDict(populate_by_name=True)
 
 
 @lru_cache
-def get_entra_stack() -> EntraBase:
-    return EntraBase.model_validate({})
+def get_entra_stack() -> EntraStack:
+    return EntraStack.model_validate({})

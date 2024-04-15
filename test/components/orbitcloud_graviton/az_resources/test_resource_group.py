@@ -6,12 +6,12 @@ from orbitcloud_graviton.pulumi_mocks import set_mocks
 set_mocks()
 
 from orbitcloud_graviton.az_resources.rg import resource_group  # noqa
-from orbitcloud_graviton.pulumi_lib.azure_base import AzureBase  # noqa
+from orbitcloud_graviton.pulumi_lib.azure_base import AzureStack  # noqa
 
 
 @pulumi.runtime.test
 def test_resource_group(
-    stack: AzureBase,
+    stack: AzureStack,
 ) -> None:
     rg: resources.ResourceGroup = resource_group(
         stack=stack,

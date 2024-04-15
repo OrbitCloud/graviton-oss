@@ -5,7 +5,7 @@ from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 from .types import PrivateIPv4Network
 
@@ -27,12 +27,12 @@ class P2sVpnGwConfig(BaseModel):
 class P2sVpnGw(ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: P2sVpnGwConfig,
         vhub: network.VirtualHub,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: P2sVpnGwConfig = config
 
         super().__init__(

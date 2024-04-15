@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
-from orbitcloud_graviton.pulumi_lib.azure_base import AzureBase
+from orbitcloud_graviton.pulumi_lib.azure_base import AzureStack
 from orbitcloud_graviton.pulumi_lib.types import DomainName
 
 from .helpers import fmt_name, location_abbr
@@ -30,7 +30,7 @@ class AzureResourceMetadata(BaseModel):
 
     def autoname(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         workload_name: Optional[str] = None,
         separator: Optional[str] = "-",
         instance_number: Optional[str] = "01",

@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.meta import AzureResourceMetadata, resource_meta
 from orbitcloud_graviton.az_lib.types import AzureIdRef
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 from orbitcloud_graviton.pulumi_lib.types import DomainName
 
 
@@ -20,13 +20,13 @@ class PrivateEndpointConfig(BaseModel):
 class PrivateEndpoint(pulumi.ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: PrivateEndpointConfig,
         target_resource: Any,
         target_resource_name: Optional[str] = None,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: PrivateEndpointConfig = config
 
         super().__init__(

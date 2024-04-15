@@ -21,14 +21,14 @@ from orbitcloud_graviton.entra import (
 )
 from orbitcloud_graviton.entra.oidc_providers import WorkloadIdentityConfig
 from orbitcloud_graviton.pulumi_lib import (
-    AzureBase,
-    EntraBase,
+    AzureStack,
+    EntraStack,
     PulumiConfig,
-    generate_stack_schema,
     get_azure_stack,
     get_entra_stack,
     print_pulumi_esc_oidc_yaml,
 )
+from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
 
 class LandingZoneConfig(PulumiConfig):
@@ -53,11 +53,11 @@ class LandingZoneConfig(PulumiConfig):
 def deploy_landing_zone() -> None:
     generate_stack_schema(model=LandingZoneConfig, output_file=".stack_schema.json")
     config: LandingZoneConfig = LandingZoneConfig.model_validate({})
-    entra_config: EntraBase = EntraBase.model_validate({})
+    entra_config: EntraStack = EntraStack.model_validate({})
 
     # Get Azure Stack and export resource group
-    stack: AzureBase = get_azure_stack()
-    entra: EntraBase = get_entra_stack()
+    stack: AzureStack = get_azure_stack()
+    entra: EntraStack = get_entra_stack()
 
     ##########################################
     # Log Workspace

@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_monitor.az_diagnosticsetting import diagnostic_setting
 from orbitcloud_graviton.az_network.types import PublicIPv4Network
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class KeyVaultConfig(BaseModel):
@@ -64,11 +64,11 @@ class KeyVaultConfig(BaseModel):
 class KeyVault(ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: KeyVaultConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: KeyVaultConfig = config
 
         super().__init__(

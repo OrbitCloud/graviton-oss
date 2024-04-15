@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.az_lib.types import StrRef
 from orbitcloud_graviton.az_network.types import PrivateIPv4Network, PublicIPv4Network
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class ContainerRegistryConfig(BaseModel):
@@ -22,7 +22,7 @@ class ContainerRegistryConfig(BaseModel):
 
 
 def container_registry(
-    stack: AzureBase,
+    stack: AzureStack,
     config: ContainerRegistryConfig,
     opts: Optional[pulumi.ResourceOptions] = None,
 ) -> containerregistry.Registry:

@@ -7,7 +7,7 @@ from orbitcloud_graviton.az_lib.helpers import (
     location_abbr,
 )
 from orbitcloud_graviton.az_lib.meta import resource_meta
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 def test_location_abbr() -> None:
@@ -22,7 +22,7 @@ def test_location_abbr_undefined() -> None:
         location_abbr("not_a_location")
 
 
-def test_resource_meta_basic(stack: AzureBase) -> None:
+def test_resource_meta_basic(stack: AzureStack) -> None:
     rg_meta = resource_meta(resources.ResourceGroup)
     assert rg_meta.namespace == "Microsoft.Resources/resourceGroups"
     assert rg_meta.resource_type == "resourceGroup"
@@ -30,7 +30,7 @@ def test_resource_meta_basic(stack: AzureBase) -> None:
     assert rg_meta.public_dns_zone is None
 
 
-def test_versioned_resource_names(stack: AzureBase) -> None:
+def test_versioned_resource_names(stack: AzureStack) -> None:
     rg_meta = resource_meta(VersionedResourceGroup)
     assert rg_meta.namespace == "Microsoft.Resources/resourceGroups"
     assert rg_meta.resource_type == "resourceGroup"
@@ -45,12 +45,12 @@ def test_fmt_name_title() -> None:
     assert fmt_name("rg-workload-test-neu-01") == "rg-workload-test-neu-01"
 
 
-def test_alphanumeric_resource_names(stack: AzureBase) -> None:
+def test_alphanumeric_resource_names(stack: AzureStack) -> None:
     assert resource_meta(containerregistry.Registry).autoname(stack) == "CrWorkloadTestNeu01"
     assert resource_meta(keyvault.Vault).autoname(stack) == "KvWorkloadTestNeu01"
 
 
-def test_alphanumeric_lowercase_resource_names(stack: AzureBase) -> None:
+def test_alphanumeric_lowercase_resource_names(stack: AzureStack) -> None:
     assert resource_meta(storage.StorageAccount).autoname(stack) == "stworkloadtestneu01"
 
 

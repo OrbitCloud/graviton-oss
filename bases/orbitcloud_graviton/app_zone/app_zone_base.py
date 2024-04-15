@@ -19,8 +19,8 @@ from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpoint, Pri
 from orbitcloud_graviton.az_storage import StorageAccountConfig, storage_account
 from orbitcloud_graviton.entra.entra_app import EntraApp, EntraAppConfig
 from orbitcloud_graviton.entra.oidc_providers import WorkloadIdentityConfig
-from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
-from orbitcloud_graviton.pulumi_lib.azure_base import EntraBase, get_entra_stack
+from orbitcloud_graviton.pulumi_lib import AzureStack, PulumiConfig, get_azure_stack
+from orbitcloud_graviton.pulumi_lib.azure_base import EntraStack, get_entra_stack
 from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
 
@@ -47,8 +47,8 @@ def deploy() -> None:
     generate_stack_schema(model=AppZoneBaseConfig, output_file=".stack_schema.json")
     config: AppZoneBaseConfig = AppZoneBaseConfig.model_validate({})
 
-    stack: AzureBase = get_azure_stack()
-    entra_config: EntraBase = get_entra_stack()
+    stack: AzureStack = get_azure_stack()
+    entra_config: EntraStack = get_entra_stack()
 
     ##########################################
     # Log Workspace

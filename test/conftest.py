@@ -3,12 +3,12 @@ from uuid import UUID
 import pulumi
 import pytest
 
-from orbitcloud_graviton.pulumi_lib.azure_base import AzureBase
+from orbitcloud_graviton.pulumi_lib.azure_base import AzureStack
 
 
 @pytest.fixture
-def stack() -> AzureBase:
-    return AzureBase(
+def stack() -> AzureStack:
+    return AzureStack(
         subscription_id=UUID("00000000-0000-0000-0000-000000000000"),
         tenant_id=UUID("00000000-0000-0000-0000-000000000000"),
         location="northeurope",
@@ -18,7 +18,7 @@ def stack() -> AzureBase:
 
 
 @pytest.fixture(scope="session")
-def test_stack_params(stack: AzureBase, resource):
+def test_stack_params(stack: AzureStack, resource):
     def check(args):
         location, tags = args
 

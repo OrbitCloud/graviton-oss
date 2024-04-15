@@ -9,7 +9,7 @@ from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_network import PrivateEndpoint
 from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpointConfig
 from orbitcloud_graviton.az_storage.iam_roles import StorageAccountAppPermissions
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class StorageAccountRoutingConfig(BaseModel):
@@ -59,12 +59,12 @@ class StorageAccountConfig(BaseModel):
 class StorageAccount(pulumi.ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: StorageAccountConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
         self.config: StorageAccountConfig = config
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
 
         super().__init__(
             "Graviton:az_storage:StorageAccount",

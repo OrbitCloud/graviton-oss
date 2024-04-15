@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict
 from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_monitor.az_diagnosticsetting import diagnostic_setting
 from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpoint, PrivateEndpointConfig
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class EventHubConfig(BaseModel):
@@ -37,11 +37,11 @@ class NamespaceConfig(BaseModel):
 class EventHub(ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: NamespaceConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: NamespaceConfig = config
 
         super().__init__(

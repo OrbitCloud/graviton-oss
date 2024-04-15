@@ -9,7 +9,7 @@ from orbitcloud_graviton.az_appconfig import AppConfiguration, AppConfigurationC
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig
 from orbitcloud_graviton.az_storage import StorageAccount, StorageAccountConfig
 from orbitcloud_graviton.pulumi_lib import (
-    AzureBase,
+    AzureStack,
     PulumiConfig,
     generate_stack_schema,
     get_azure_stack,
@@ -26,7 +26,7 @@ class AppWorkloadConfig(PulumiConfig):
 def deploy() -> None:
     generate_stack_schema(model=AppWorkloadConfig, output_file=".stack_schema.json")
     config: AppWorkloadConfig = AppWorkloadConfig.model_validate({})
-    stack: AzureBase = get_azure_stack()
+    stack: AzureStack = get_azure_stack()
 
     rg: ResourceGroup = stack.resource_group
     opts = pulumi.ResourceOptions(parent=rg)

@@ -3,11 +3,11 @@ from typing import Optional
 import pulumi
 from pulumi_azure_native.providerhub import v20210901preview as providerhub
 
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 def provider_registration(
-    stack: AzureBase,
+    stack: AzureStack,
     provider_namespace: str,
     opts: Optional[pulumi.ResourceOptions] = None,
 ):

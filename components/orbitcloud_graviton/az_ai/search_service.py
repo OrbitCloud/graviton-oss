@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpoint, PrivateEndpointConfig
 from orbitcloud_graviton.az_network.types import PublicIPv4Network
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class SearchServiceConfig(BaseModel):
@@ -26,11 +26,11 @@ class SearchServiceConfig(BaseModel):
 class SearchService(pulumi.ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: SearchServiceConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: SearchServiceConfig = config
 
         super().__init__(

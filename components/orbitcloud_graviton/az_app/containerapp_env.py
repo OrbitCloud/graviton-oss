@@ -13,11 +13,9 @@ from pydantic import (
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
-from orbitcloud_graviton.az_network.dns_zone import DnsZone, DnsZoneConfig
+from orbitcloud_graviton.az_network import DnsZone, DnsZoneConfig
 from orbitcloud_graviton.az_network.types import ARecord, TxtRecord
-from orbitcloud_graviton.pulumi_lib import AzureBase
-from orbitcloud_graviton.pulumi_lib.helpers import fmt_name
-from orbitcloud_graviton.pulumi_lib.types import DomainName
+from orbitcloud_graviton.pulumi_lib import AzureStack, DomainName, fmt_name
 
 from ._env_schema import ConsumptionProfile, DedicatedProfile
 from .certificate import CertificateConfig, certificate
@@ -80,11 +78,11 @@ class ContainerAppEnvConfig(BaseModel):
 class ContainerAppEnv(pulumi.ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: ContainerAppEnvConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: ContainerAppEnvConfig = config
 
         super().__init__(
@@ -138,7 +136,7 @@ class ContainerAppEnv(pulumi.ComponentResource):
             ):
                 stack_args: dict[str, Any] = self.config.custom_domain.dns_zone_stack
                 stack_args["skip_exports"] = True
-                stack: AzureBase = AzureBase.model_validate(obj=stack_args)
+                stack: AzureStack = AzureStack.model_validate(obj=stack_args)
 
             zone = DnsZone(
                 dns_zone_id=self.config.custom_domain.dns_zone_id,

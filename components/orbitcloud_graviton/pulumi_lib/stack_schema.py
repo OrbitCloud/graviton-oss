@@ -5,7 +5,7 @@ from typing import Any, Callable, Optional, TypeVar
 from pydantic import BaseModel, ConfigDict, TypeAdapter, create_model
 from pydantic.fields import FieldInfo
 
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 T = TypeVar("T", bound="BaseModel")
 
@@ -49,7 +49,7 @@ def generate_stack_schema(model, output_file: str):
     # Edit AzureBase to have all fields optional except workload_name
     # as other fields can be set by the Pulumi ESC environment
     @_make_optional(exclude=["workload_name"])
-    class OptionalAzureBase(AzureBase):
+    class OptionalAzureBase(AzureStack):
         pass
 
     ConfigObject = create_model(

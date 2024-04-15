@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Self
 
 import pulumi
 import pulumi_azuread as azuread
@@ -6,7 +6,8 @@ from pulumi import ComponentResource
 from pulumiverse_time import Rotating
 from pydantic import BaseModel, ConfigDict, Field
 
-from orbitcloud_graviton.pulumi_lib import AzureBase, EntraBase
+from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
+from orbitcloud_graviton.pulumi_lib import AzureStack, EntraStack
 from orbitcloud_graviton.pulumi_lib.types import TimeFromNow
 
 
@@ -25,7 +26,9 @@ class FederatedCredentialsConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
-class EntraAppConfig(BaseModel):
+class EntraAppConfig(
+    BaseModel,
+):
     name: str
     display_name: Optional[str] = None
     audience: Optional[
@@ -45,13 +48,13 @@ class EntraAppConfig(BaseModel):
 class EntraApp(ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
-        entra: EntraBase,
+        stack: AzureStack,
+        entra: EntraStack,
         config: EntraAppConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
-        self.stack: AzureBase = stack
-        self.entra: EntraBase = entra
+        self.stack: AzureStack = stack
+        self.entra: EntraStack = entra
         self.config: EntraAppConfig = config
 
         super().__init__(
@@ -129,6 +132,19 @@ class EntraApp(ComponentResource):
             if self.config.federated_credentials
             else []
         )
+
+    def azure_permissions(self, assignments: List[IamAssignmentConfig]) -> Self:
+        for perm in assignments:
+            iam_assignment(
+                stack=self.stack,
+                config=perm,
+                principal_id=self.service_principal.id,
+                opts=pulumi.ResourceOptions(
+                    parent=self.service_principal,
+                    delete_before_replace=True,
+                ),
+            )
+        return self
 
     def _outputs(self) -> None:
         self.register_outputs(

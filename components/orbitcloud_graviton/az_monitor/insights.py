@@ -7,7 +7,7 @@ from pulumi_azure_native import insights
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
-from orbitcloud_graviton.pulumi_lib.azure_base import AzureBase
+from orbitcloud_graviton.pulumi_lib.azure_base import AzureStack
 
 
 class AppInsightsConfig(BaseModel):
@@ -18,7 +18,7 @@ class AppInsightsConfig(BaseModel):
 
 
 def app_insights(
-    stack: AzureBase,
+    stack: AzureStack,
     config: AppInsightsConfig,
     opts: Optional[pulumi.ResourceOptions] = None,
 ) -> insights.Component:

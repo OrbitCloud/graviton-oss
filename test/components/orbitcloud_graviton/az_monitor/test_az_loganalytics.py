@@ -2,14 +2,14 @@ import pulumi
 from pulumi_azure_native import operationalinsights
 
 from orbitcloud_graviton.az_monitor import LogWorkspaceConfig, log_workspace
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 from orbitcloud_graviton.pulumi_mocks import set_mocks
 
 set_mocks()
 
 
 @pulumi.runtime.test
-def test_log_logworkspace(stack: AzureBase) -> None:
+def test_log_logworkspace(stack: AzureStack) -> None:
     config = LogWorkspaceConfig(
         public_network_access_for_ingestion=operationalinsights.PublicNetworkAccessType.DISABLED,
         public_network_access_for_query=operationalinsights.PublicNetworkAccessType.DISABLED,

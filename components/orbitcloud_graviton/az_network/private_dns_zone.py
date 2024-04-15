@@ -7,7 +7,7 @@ from pulumi_azure_native.network import v20200601 as network
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, AzureResourceId
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 from .types import ARecord, CnameRecord, MxRecord, Record, TxtRecord
 
@@ -22,11 +22,11 @@ class PrivateDNSZoneConfig(BaseModel):
 class PrivateDnsZone(ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: PrivateDNSZoneConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: PrivateDNSZoneConfig = config
 
         super().__init__(

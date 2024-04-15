@@ -5,7 +5,7 @@ from pulumi_azure_native import keyvault
 from pydantic import BaseModel, ConfigDict, SecretStr
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
-from orbitcloud_graviton.pulumi_lib.azure_base import AzureBase
+from orbitcloud_graviton.pulumi_lib.azure_base import AzureStack
 
 
 class KeyvaultSecretConfig(BaseModel):
@@ -18,7 +18,7 @@ class KeyvaultSecretConfig(BaseModel):
 
 
 def keyvault_secret(
-    stack: AzureBase,
+    stack: AzureStack,
     config: KeyvaultSecretConfig,
     opts: Optional[pulumi.ResourceOptions] = None,
 ) -> keyvault.Secret:

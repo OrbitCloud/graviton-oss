@@ -5,7 +5,7 @@ from pulumi_azure_native import authorization
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
-from orbitcloud_graviton.pulumi_lib.azure_base import AzureBase
+from orbitcloud_graviton.pulumi_lib.azure_base import AzureStack
 from orbitcloud_graviton.pulumi_lib.helpers import fmt_name
 
 from ._roles import get_role_id_by_name
@@ -21,7 +21,7 @@ class IamAssignmentConfig(BaseModel):
 
 
 def iam_assignment(
-    stack: AzureBase,
+    stack: AzureStack,
     config: IamAssignmentConfig,
     principal_id: Union[str, pulumi.Output[str]],
     principal_type: str = "ServicePrincipal",

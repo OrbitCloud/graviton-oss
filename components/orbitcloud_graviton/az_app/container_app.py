@@ -10,7 +10,7 @@ from orbitcloud_graviton.az_app.outputs import ContainerAppEnvOutput
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.az_network.types import PrivateIPv4Network, PublicIPv4Network
-from orbitcloud_graviton.pulumi_lib import AzureBase
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class ContainerAppScaleConfig(BaseModel):
@@ -84,11 +84,11 @@ class ContainerAppConfig(BaseModel):
 class ContainerApp(pulumi.ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         config: ContainerAppConfig,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: ContainerAppConfig = config
 
         super().__init__(

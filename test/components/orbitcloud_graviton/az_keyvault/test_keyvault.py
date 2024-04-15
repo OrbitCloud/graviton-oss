@@ -6,11 +6,11 @@ from orbitcloud_graviton.pulumi_mocks import set_mocks
 set_mocks()
 
 from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig  # noqa
-from orbitcloud_graviton.pulumi_lib import AzureBase  # noqa
+from orbitcloud_graviton.pulumi_lib import AzureStack  # noqa
 
 
 @pulumi.runtime.test
-def test_key_vault(stack: AzureBase):
+def test_key_vault(stack: AzureStack):
     config = KeyVaultConfig(public_network_access=keyvault.PublicNetworkAccess.ENABLED)
     kv = KeyVault(stack, config).vault
     assert isinstance(kv, keyvault.Vault)

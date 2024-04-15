@@ -6,7 +6,7 @@ from pulumi_azure_native import resources
 from orbitcloud_graviton.az_appservice import (
     az_appservice_plan_from_config,
 )
-from orbitcloud_graviton.pulumi_lib import AzureBase, PulumiConfig, get_azure_stack
+from orbitcloud_graviton.pulumi_lib import AzureStack, PulumiConfig, get_azure_stack
 
 
 class AppserviceSuiteConfig(PulumiConfig):
@@ -16,7 +16,7 @@ class AppserviceSuiteConfig(PulumiConfig):
 
 
 def deploy() -> None:
-    stack: AzureBase = get_azure_stack()
+    stack: AzureStack = get_azure_stack()
     config: AppserviceSuiteConfig = AppserviceSuiteConfig()
 
     # Resource Group

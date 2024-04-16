@@ -30,6 +30,7 @@ class AzureStack(PulumiConfig):
     exports_prefix: Optional[str] = None
 
     resource_group_name: Optional[str] = None
+    resource_group_id: Optional[str] = None
     _resource_group: Optional[resources.ResourceGroup] = None
 
     _providers: Optional[Dict[str, pulumi.ResourceOptions]] = None

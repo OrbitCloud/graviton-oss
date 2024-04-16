@@ -15,7 +15,6 @@ from orbitcloud_graviton.az_monitor import (
     app_insights,
     log_workspace,
 )
-from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpoint, PrivateEndpointConfig
 from orbitcloud_graviton.az_storage import StorageAccountConfig, storage_account
 from orbitcloud_graviton.entra.entra_app import EntraApp, EntraAppConfig
 from orbitcloud_graviton.entra.oidc_providers import WorkloadIdentityConfig
@@ -98,21 +97,12 @@ def deploy() -> None:
     ##########################################
     # Key Vault
     ##########################################
-    kv = KeyVault(
+    KeyVault(
         stack=stack,
         config=config.keyvault.model_copy(
             update={"log_workspace_id": logs.id},
         ),
         opts=pulumi.ResourceOptions(parent=stack.resource_group),
-    )
-
-    PrivateEndpoint(
-        stack=stack,
-        target_resource=kv.vault,
-        config=PrivateEndpointConfig(
-            subnet_id="stack://hubspoke/dev/subnets.reserved.id",
-            private_dns_zone_id="/subscriptions/***REMOVED***/resourceGroups/rg-base-hub-neu-013b90b58b/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net",
-        ),
     )
 
     ##########################################

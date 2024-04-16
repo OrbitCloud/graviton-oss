@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
-from orbitcloud_graviton.pulumi_lib import AzureBase, EntraBase
+from orbitcloud_graviton.pulumi_lib import AzureStack, EntraBase
 
 
 class {{class_name}}Config(BaseModel):
@@ -25,12 +25,12 @@ class {{class_name}}Config(BaseModel):
 class {{class_name}}(pulumi.ComponentResource):
     def __init__(
         self,
-        stack: AzureBase,
+        stack: AzureStack,
         entra_config: EntraBase,
         config: {{class_name}}Config,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
-        self.stack: AzureBase = stack
+        self.stack: AzureStack = stack
         self.config: {{class_name}}Config = config
         self.entra_config: EntraBase = entra_config
 

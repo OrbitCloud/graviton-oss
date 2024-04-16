@@ -79,7 +79,7 @@ class AcmeSsl(ComponentResource):
             email=self.config.acme_account_email
         )
         self.pulumi_acme_provider: AcmeProvider = self._pulumi_acme_provider()
-        self.pfx_pass: str = self._pfx_pass()
+        self.pfx_pass: pulumi.Output[str] = self._pfx_pass()
         self.registration: Registration = self._registration()
         self.certificate: Certificate = self._certificate()
 
@@ -148,7 +148,7 @@ class AcmeSsl(ComponentResource):
             or self.stack.resource_group.name,
         }
 
-    def _pfx_pass(self) -> str:
+    def _pfx_pass(self) -> pulumi.Output[str]:
         return RandomPassword(
             resource_name=f"acme-pfx-pass-{fmt_name(self.config.dns_zone_name)}",
             args=RandomPasswordArgs(length=32),

@@ -1,5 +1,5 @@
 from ipaddress import IPv4Address
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional
 
 import pulumi
 from pulumi_azure_native import storage
@@ -236,7 +236,7 @@ class StorageAccount(pulumi.ComponentResource):
             f'queue{"-" + suffix if suffix else ""}': endpoints.queue,
         }
 
-    def get_private_endpoints(self) -> dict[str, dict[str, Union[str, pulumi.Output[str]]]] | None:
+    def get_private_endpoints(self) -> dict[pulumi.Output[str], dict[str, Any]] | None:
         if self.private_endpoints:
             return {
                 endpoint.private_endpoint.type: {

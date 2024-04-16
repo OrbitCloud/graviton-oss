@@ -84,6 +84,7 @@ ipykernel = "^6.29.3"
 
 [tool.pyright]
 include = ["components", "bases", "development", "test"]
+ignore = ["development"]
 extraPaths = ["components", "bases"]
 venvPath = "."
 venv = ".venv"

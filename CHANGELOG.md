@@ -1,3 +1,9 @@
+## v0.47.0 (2024-04-16)
+
+### Feat
+
+- ESC Azure Environments (#237)
+
 ## v0.46.2 (2024-04-15)
 
 ### Refactor

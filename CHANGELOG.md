@@ -1,3 +1,9 @@
+## v0.47.1 (2024-04-16)
+
+### Fix
+
+- **typing**: Fix typing after Pulumi 3.113 update (#238)
+
 ## v0.47.0 (2024-04-16)
 
 ### Feat

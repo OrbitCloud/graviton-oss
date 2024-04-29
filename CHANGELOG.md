@@ -1,3 +1,9 @@
+## v0.47.2 (2024-04-29)
+
+### Fix
+
+- Adding Todo list of things to fix within project before deploying it to customers
+
 ## v0.47.1 (2024-04-16)
 
 ### Fix

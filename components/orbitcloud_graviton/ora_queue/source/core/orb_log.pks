@@ -1,4 +1,4 @@
-create or replace package orb_log is
+create or replace package orb_log authid definer is
   procedure log_action(p_title      in varchar2,
                        p_owner      in varchar2 default null,
                        p_table_name in varchar2 default null,
@@ -27,5 +27,4 @@ create or replace package orb_log is
   procedure callback(ntfnds in SYS.chnf$_desc);
   procedure register_log_cqn;
 end orb_log;
-
 /

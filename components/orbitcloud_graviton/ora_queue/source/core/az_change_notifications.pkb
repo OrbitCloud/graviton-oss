@@ -3,7 +3,7 @@
     Enable Debug Mode:
     alter package az_change_notifications compile plsql_ccflags='debug_mode:true' reuse settings;
     Turn off is 'debug_mode:false'
-    
+
     Changes in debug mode:
       * JSON Body is validated before being sent
   */
@@ -23,7 +23,7 @@
   procedure dequeue_and_send(p_queue in varchar2) is
     e_end_of_fetch exception;
     pragma exception_init(e_end_of_fetch, -25228);
-  
+
     procedure dequeue(p_queue in varchar2) is
       l_dequeue_options    SYS.dbms_aq.dequeue_options_t;
       l_message_properties SYS.dbms_aq.message_properties_t;
@@ -73,7 +73,7 @@
                                  table_name  => p_table,
                                  azure_queue => p_azure_queue,
                                  data        => p_data);
-  
+
     sys.dbms_aq.enqueue(queue_name         => get_queue_table,
                         enqueue_options    => l_enqueue_options,
                         message_properties => l_message_properties,
@@ -93,7 +93,7 @@
   begin
     l_table := sys.dbms_assert.simple_sql_name(upper(p_table));
     l_owner := sys.dbms_assert.schema_name(upper(p_owner));
-  
+
     <<get_columns>>
     begin
       select lower(c.column_name)
@@ -103,7 +103,7 @@
        where c.table_name = l_table
          and c.owner = l_owner
        order by c.column_order;
-    
+
       if l_columns.count = 0 then
         select lower(c.column_name)
           bulk collect
@@ -114,15 +114,15 @@
          order by c.column_id;
       end if;
     end get_columns;
-  
+
     l_column_list := apex_String.join(p_table => l_columns, p_sep => ',');
-  
+
     l_sql := 'select json_object(' || l_column_list || ' returning clob) as cols from ' || l_owner || '.' || l_table || ' where rowid=:1';
-  
+
     execute immediate l_sql
       into l_result
       using p_rowid;
-  
+
     return l_result;
   end get_rowdata;
 
@@ -136,9 +136,9 @@
   begin
     l_row  := json_object_t.parse(get_rowdata(p_table => p_table, p_owner => p_owner, p_rowid => p_rowid));
     l_keys := l_row.get_Keys;
-  
+
     l_object := json_object_t();
-  
+
     <<cols>>
     for r in 1 .. l_keys.count loop
       l_col := l_row.get(l_keys(r));
@@ -158,7 +158,7 @@
           l_object.put(key => lower(l_key), val => l_row.get_String(l_keys(r)));
       end case;
     end loop cols;
-  
+
     return l_object.to_blob();
   end append_row;
 
@@ -188,12 +188,12 @@
         execute immediate l_sql bulk collect
           into l_rowids;
     end case;
-  
+
     orb_log.log_action(p_title   => 'changed_rows: ' || l_owner || '.' || l_table || ' result: ' || l_rowids.count || ' rows',
                        p_message => empty_clob());
-  
+
     return l_rowids;
-  
+
   end changed_rows;
 
   function get_update_column(p_table_name in varchar2, p_owner in varchar2) return varchar2 is
@@ -205,7 +205,7 @@
       from oqf_tables c
      where c.table_name = p_table_name
        and c.owner = p_owner;
-  
+
     return l_col;
   exception
     when no_data_Found then
@@ -315,15 +315,15 @@
   begin
     l_evh_queue := get_event_queue(p_queue => p_table.queue);
     l_evh       := get_event_hub(p_namespace => l_evh_queue.namespace);
-  
+
     l_fullname := upper(p_table.owner || '.' || p_table.table_name);
-  
+
     l_maxrows := l_evh.max_rows;
     l_maxsize := l_evh.max_size_kb * 1024; -- kb -> bytes
-  
+
     l_schema  := lower(p_table.schema || '.' || p_table.table_name || '.' || p_table.version);
     l_upd_col := get_update_column(p_table_name => p_table.table_name, p_owner => p_table.owner);
-  
+
     l_trunked := trunc(sysdate);
     l_opnum   := s_az_send_op.nextval;
     select json_object('transaction_id' value p_transaction_id,
@@ -339,14 +339,14 @@
                        'send_operation' value l_opnum returning blob)
       into l_userprop
       from dual;
-  
+
     /*
     0 = upsert / Init
     2 = sys.dbms_change_notification.insertop
     4 = sys.dbms_change_notification.updateop
     8 = sys.dbms_change_notification.deleteop
     */
-  
+
     l_sql := 'select json_object(''Body'' value az_change_notifications.get_rowdata(p_owner => :owner, p_table => :tabname, p_rowid => r.row_id),
                                           ''UserProperties'' value json_mergepatch(
                                                                         :uprop,
@@ -364,19 +364,19 @@
                else
                 null
              end;
-  
+
     open l_cursor for l_sql
       using p_table.owner, p_table.table_name, l_userprop, p_rowids;
-  
+
     l_json     := sys.utl_raw.cast_to_raw('[]');
     l_rowcount := 0;
-  
+
     fetch l_cursor
       into l_payload;
     <<json_loop>>
     while l_cursor%found loop
       l_rowcount := l_rowcount + 1; --  ## Using "l_rowcount" to skip the json parsing overhead of json_array_t.parse(l_json).get_size()
-    
+
       if l_rowcount >= l_maxrows or sys.dbms_lob.getlength(l_json) + sys.dbms_lob.getlength(l_payload) + length(',') > l_maxsize then
         $if $$debug_mode $then
         validate_body(p_data => l_json);
@@ -386,7 +386,7 @@
         l_json     := sys.utl_raw.cast_to_raw('[]');
         l_rowcount := 0;
       end if;
-    
+
       select json_transform(l_json, append '$' = l_payload format json returning blob) into l_json from dual;
       fetch l_cursor
         into l_payload;
@@ -404,7 +404,7 @@
     l_event_type pls_integer;
     l_numtables  pls_integer;
     l_dags       date;
-  
+
     l_empty   boolean := false;
     l_rowids  SYS.CHNF$_RDESC_ARRAY;
     l_table   oqf_tables%rowtype;
@@ -415,18 +415,18 @@
     l_numtables  := ntfnds.numtables;
     l_event_type := ntfnds.event_type;
     l_transid    := ntfnds.transaction_id;
-  
+
     if l_event_type = sys.dbms_change_notification.event_objchange then
-    
+
       <<t_table_loop>>
       for t in 1 .. l_numtables loop
         l_table_name := ntfnds.table_desc_array(t).table_name;
         l_table      := get_table(p_qualified_table_name => l_table_name);
-      
+
         if (bitand(ntfnds.table_desc_array(t).Opflags, sys.dbms_change_notification.ALL_ROWS) != 0) then
           l_empty := true;
         end if;
-      
+
         if l_empty then
           /* No rowids - cache invalidation initiated - gather rowids from update data columns */
           orb_log.log_action(p_title      => 'ALL_ROWS: reference date ' || to_char(l_dags, 'yyyy-mm-dd hh24:mi:ss'),
@@ -438,13 +438,13 @@
         else
           l_rowids := ntfnds.table_desc_array(t).row_desc_array;
         end if;
-      
+
         /* Rowid list,  */
         enqueue_rowids(p_transaction_id => l_transid, p_rowids => l_rowids, p_regid => l_regid, p_table => l_table);
-      
+
       end loop t_table_loop;
     end if;
-  
+
   exception
     when others then
       orb_log.log_action(p_title   => 'Table Callback ERROR ' || sqlcode,
@@ -467,9 +467,9 @@
     l_tablename := sys.dbms_assert.simple_sql_name(upper(p_table));
     l_owner     := sys.dbms_assert.schema_name(upper(p_owner));
     l_tbl       := get_table(p_owner => l_owner, p_table_name => l_tablename);
-  
+
     l_fullname := upper(l_tbl.owner || '.' || l_tbl.table_name);
-  
+
     /* Deregister any existing registrations */
     <<deregister_loop>>
     for x in (select r.regid
@@ -478,7 +478,7 @@
                   or replace(r.table_name, '"', null) = l_fullname) loop
       sys.dbms_change_notification.DEREGISTER(regid => x.regid);
     end loop deregister_loop;
-  
+
     /***  Change Notification registration ***/
     l_qosflags := sys.dbms_change_notification.qos_reliable + sys.dbms_change_notification.qos_rowids;
     l_regds    := sys.chnf$_reg_info(callback          => sys_context('USERENV', 'CURRENT_SCHEMA') || '.' || $$plsql_unit || '.cqn_callback',
@@ -486,15 +486,15 @@
                                      timeout           => 0,
                                      operations_filter => 0,
                                      transaction_lag   => 0);
-  
+
     l_regid := sys.dbms_change_notification.new_reg_start(l_regds);
-  
+
     l_sql := 'select 1 from ' || l_fullname || ' where 1 = 1 fetch next 1 row only';
     execute immediate l_sql
       into l_check;
     sys.dbms_change_notification.reg_end;
     sys.dbms_change_notification.set_rowid_threshold(tbname => l_fullname, threshold => 1000);
-  
+
     /* Since we now have a new registration ID, we need to update the table no matter if p_populate_work_tables is false or true */
     update oqf_tables t set t.regid = l_regid where t.table_name = l_tbl.table_name;
     commit;
@@ -515,7 +515,7 @@
     l_jarr        json_array_t;
   begin
     l_table := sys.dbms_assert.QUALIFIED_SQL_NAME(p_table);
-  
+
     if instr(l_table, '.') = 0 then
       l_table_name  := l_table;
       l_schema_name := sys_context('USERENV', 'CURRENT_SCHEMA');
@@ -523,13 +523,13 @@
       l_table_name  := substr(l_table, instr(l_table, '.', -1) + 1, 128);
       l_schema_name := substr(l_table, 1, instr(l_table, '.') - 1);
     end if;
-  
+
     /***  Populate Working tables  ***/
     <<populate_working_tables>>
     begin
       l_ctab.table_name := l_table_name;
       l_ctab.owner      := l_Schema_name;
-    
+
       l_ctab.queue         := p_queue;
       l_ctab.schema        := p_schema;
       l_ctab.version       := 'v1';
@@ -537,7 +537,7 @@
       l_ctab.created       := sysdate;
       l_ctab.updated       := sysdate;
       l_ctab.partition_key := p_partition_key;
-    
+
       if p_rowkey is not null then
         l_ctab.rowkey := p_rowkey;
       else
@@ -549,7 +549,7 @@
          where cc.owner = l_schema_name
            and c.table_name = l_table_name
            and c.constraint_type = 'P';
-      
+
         if l_ctab.rowkey is null then
           <<get_first_column>>
           begin
@@ -567,9 +567,9 @@
           end get_first_column;
         end if;
       end if;
-    
+
       insert into oqf_tables values l_ctab;
-    
+
       if p_column_list is null or json_array_t.parse(p_column_list).get_size = 0 then
         insert into oqf_table_columns
           (owner, table_name, column_name, column_order)
@@ -579,7 +579,7 @@
              and c.table_name = l_table_name;
       else
         l_jarr := json_array_t.parse(p_column_list);
-      
+
         <<column_list>>
         declare
           l_column sys.all_tab_columns.column_name%type;
@@ -599,12 +599,12 @@
         /* Table already present */
         null;
     end populate_working_tables;
-  
+
     /***  Register Event Hub Queue + initial load ***/
-  
+
     change_registration(p_owner => l_Schema_name, p_table => l_table_name);
     commit;
-  
+
     if p_initial_data_push then
       push_all_rows(p_owner => l_schema_name, p_table => l_table_name);
     end if;
@@ -617,7 +617,7 @@
     l_rowids sys.chnf$_rdesc_array;
   begin
     l_ctab := get_table(p_owner => p_owner, p_table_name => p_table);
-  
+
     l_sql := 'select sys.chnf$_rdesc(-1, rowid) as rid from ' || l_ctab.owner || '.' || l_ctab.table_name || case
                when l_ctab.sql_filter is not null then
                 ' where ' || l_ctab.sql_filter
@@ -628,8 +628,8 @@
     fetch l_cur bulk collect
       into l_rowids;
     close l_cur;
-  
-    enqueue_rowids(p_transaction_id => utl_i18n.string_to_raw(data => 'ALL_ROWS'), p_rowids => l_rowids, p_regid => -1, p_table => l_ctab);
+
+    enqueue_rowids(p_transaction_id => sys.utl_i18n.string_to_raw(data => 'ALL_ROWS'), p_rowids => l_rowids, p_regid => -1, p_table => l_ctab);
   end push_all_rows;
 
   procedure deregister_table(p_owner in varchar2, p_table in varchar2, p_cleanup in boolean default true) is
@@ -639,7 +639,7 @@
   begin
     l_table := sys.dbms_assert.simple_sql_name(upper(p_table));
     l_owner := sys.dbms_assert.schema_name(upper(p_owner));
-  
+
     <<table_setup>>
     begin
       <<change_registration>>
@@ -658,7 +658,7 @@
             raise_application_error(-20000, 'Multiple registrations for table ' || l_owner || '.' || l_table);
         end subcription;
       end if;
-    
+
       if l_tabconf.regid is not null then
         sys.dbms_change_notification.deregister(regid => l_tabconf.regid);
       else
@@ -675,7 +675,7 @@
       delete from oqf_tables t where t.table_name in (l_table);
       commit;
     end if;
-  
+
   end deregister_table;
 
   function generate_schema(p_table in varchar2) return clob is
@@ -689,23 +689,23 @@
     l_uri      varchar2(2000 char);
   begin
     l_tab := get_table(p_qualified_table_name => p_table);
-  
+
     l_uri := az_event_hubs.get_queue_url(p_evh_queue => l_tab.queue);
-  
+
     l_string.put(key => 'type', val => 'string');
     l_number.put(key => 'type', val => 'number');
-  
+
     l_schema.put(key => '$id', val => l_uri);
     l_schema.put(key => '$schema', val => 'https://json-schema.org/draft/2020-12/schema#');
     l_schema.put(key => 'title', val => 'Generated schema for  ' || p_table);
     l_schema.put(key => 'type', val => 'object');
-  
+
     l_obj.put(key => 'rowid', val => l_string);
     l_required.append('rowid');
     l_obj.put(key => 'send_operation', val => l_number);
     l_required.append('send_operation');
     l_obj.put(key => 'operation', val => l_string);
-  
+
     <<table_columns>>
     for i in (select tc.column_name, t.data_type, t.nullable
                 from all_tab_columns t
@@ -725,10 +725,10 @@
         l_required.append(lower(i.column_name));
       end if;
     end loop table_columns;
-  
+
     l_schema.put(key => 'properties', val => l_obj);
     l_schema.put(key => 'required', val => l_required);
-  
+
     return l_schema.to_Clob();
   end generate_schema;
 

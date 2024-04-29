@@ -1,4 +1,4 @@
-create or replace package az_event_hubs is
+create or replace package az_event_hubs authid definer is
 
   -- Author  : OLITR
   -- Created : 2023-10-20 1624:53i:36

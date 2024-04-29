@@ -39,7 +39,7 @@ end;
 /
 
 create or replace type t_logger as object (
-  credential          number(28,0),
+  credential          number(38,0),
   collection_endpoint varchar2(256 char),
   rule_immutable_id   varchar2(128 char),
   stream              varchar2(128 char),

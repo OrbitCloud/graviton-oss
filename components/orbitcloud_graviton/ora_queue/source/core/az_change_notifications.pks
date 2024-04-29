@@ -1,4 +1,4 @@
-create or replace package az_change_notifications is
+create or replace package az_change_notifications authid definer is
 
   -- Author  : OLITR
   -- Created : 07.09.2023 1624:6i:26

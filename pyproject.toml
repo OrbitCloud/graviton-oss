@@ -67,7 +67,7 @@ pulumi-random = "^4.16.0"
 pulumi-tls = "^5.0.1"
 cryptography = "^42.0.5"
 pulumiverse-acme = "^0.0.1"
-aiohttp = "^3.9.4"
+aiohttp = "^3.9.5"
 
 
 [tool.poetry.group.dev.dependencies]

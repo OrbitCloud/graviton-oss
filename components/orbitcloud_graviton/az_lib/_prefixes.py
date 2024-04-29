@@ -78,6 +78,7 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.network.zone": {"prefix": "dns"},
     "pulumi_azure_native.network.record_set": {"prefix": "dnsr"},
     "pulumi_azure_native.network.private_record_set": {"prefix": "dnsr"},
+    "pulumi_azure_native.network.vpn_gateway": {"prefix": "vpng"},
     "pulumi_azure_native.network.dns_resolver": {"prefix": "dnspr"},
     "pulumi_azure_native.network.inbound_endpoint": {"prefix": "in"},
     "pulumi_azure_native.network.outbound_endpoint": {"prefix": "out"},

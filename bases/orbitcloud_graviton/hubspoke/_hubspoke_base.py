@@ -6,8 +6,6 @@ from pulumi_azure_native import resources
 from orbitcloud_graviton.az_network import (
     DnsZone,
     DnsZoneConfig,
-    P2sVpnGw,
-    P2sVpnGwConfig,
     PrivateDnsResolver,
     PrivateDnsResolverConfig,
     PrivateDnsZone,
@@ -16,6 +14,10 @@ from orbitcloud_graviton.az_network import (
     VirtualWanConfig,
     Vnet,
     VnetConfig,
+    VwanP2sVpnGw,
+    VwanP2sVpnGwConfig,
+    VwanS2sVpnGatewayConfig,
+    VwanS2SVpnGw,
 )
 from orbitcloud_graviton.pulumi_lib import AzureStack, PulumiConfig, get_azure_stack
 from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
@@ -27,7 +29,8 @@ from .privateendpoint_zones import default_private_endpoint_zones
 class NetworkBaseConfig(PulumiConfig):
     vnet: VnetConfig
     vwan: Optional[VirtualWanConfig] = None
-    p2s_vpn: Optional[P2sVpnGwConfig] = None
+    p2s_vpn: Optional[VwanP2sVpnGwConfig] = None
+    s2s_vpn: Optional[VwanS2sVpnGatewayConfig] = None
     dns_zone: Optional[DnsZoneConfig] = None
     private_dns_zones: Optional[List[PrivateDNSZoneConfig]] = None
     private_dns_resolver: Optional[PrivateDnsResolverConfig] = None
@@ -50,7 +53,7 @@ def deploy_hub_spoke():
     )
 
     ##########################################
-    # Virtual WAN, HUB and P2S VPN
+    # Virtual WAN, HUB and VPN
     ##########################################
     if config.vwan:
         vwan = VirtualWan(
@@ -60,10 +63,19 @@ def deploy_hub_spoke():
         )
 
         if config.p2s_vpn:
-            P2sVpnGw(
+            VwanP2sVpnGw(
                 stack=stack,
                 config=config.p2s_vpn,
                 vhub=vwan.vhub,
+                opts=pulumi.ResourceOptions(parent=vwan.vwan),
+            )
+
+        if config.s2s_vpn:
+            VwanS2SVpnGw(
+                stack=stack,
+                config=config.s2s_vpn,
+                vhub=vwan.vhub,
+                vwan=vwan.vwan,
                 opts=pulumi.ResourceOptions(parent=vwan.vwan),
             )
 

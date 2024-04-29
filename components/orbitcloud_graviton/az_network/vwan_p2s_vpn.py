@@ -10,7 +10,7 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 from .types import PrivateIPv4Network
 
 
-class P2sVpnGwConfig(BaseModel):
+class VwanP2sVpnGwConfig(BaseModel):
     client_address_pool: PrivateIPv4Network
     entra_auth: Optional[bool] = True
     cert_auth_root_cert: Optional[str] = None
@@ -24,16 +24,16 @@ class P2sVpnGwConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
-class P2sVpnGw(ComponentResource):
+class VwanP2sVpnGw(ComponentResource):
     def __init__(
         self,
         stack: AzureStack,
-        config: P2sVpnGwConfig,
+        config: VwanP2sVpnGwConfig,
         vhub: network.VirtualHub,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
         self.stack: AzureStack = stack
-        self.config: P2sVpnGwConfig = config
+        self.config: VwanP2sVpnGwConfig = config
 
         super().__init__(
             "Graviton:az_network:P2sVpnGw",

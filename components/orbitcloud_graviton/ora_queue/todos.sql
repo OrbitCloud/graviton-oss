@@ -7,7 +7,12 @@
 -- # [ ] : Column UPDATED - Set Default to SYSTIMESTAMP AT LOCAL TIMEZONE, make sure user never has to think about it.
 -- # [ ] : Column UPDATED_BY - Set Default if null to coalesce(sys_context('APEX$SESSION','APP_USER'),user)
 -- # [ ] : Tables - All table should have auditing colums (CREATED, CREATED_BY, UPDATED, UPDATED_BY)
+-- # [ ] : Table OQF_EVENT_HUBS - Add column for Subscription ID.
+-- # [ ] : Apex - Page 0, add custom html attribute to P0_ENVIRONMENT - style="width: 250px;" 
+-- # [ ] : Apex - 
 -- # TODO : (Future) PLSQL API - EXPORT/IMPORT of configuration settings for a given environment
+-- # TODO : (Future) Versioning - Versioning of payloads dictates schemas being generated in cloud. Maybe a more robust handling is needed to make sure that schemas which are being used aren't deleted.
+
 
 -- Find all date columns 
 /*

@@ -115,3 +115,4 @@ msbuild.wrn
 *.crt
 *.key
 .lego/
+bjarni-m1.code-workspace

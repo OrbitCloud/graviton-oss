@@ -1678,13 +1678,13 @@ semver = ">=2.8.1"
 
 [[package]]
 name = "pulumi-random"
-version = "4.16.0"
+version = "4.16.1"
 description = "A Pulumi package to safely use randomness in Pulumi programs."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pulumi_random-4.16.0-py3-none-any.whl", hash = "sha256:e4be4899011dcee4fe0fe5aae8498148789d098e9d9b919645e2238bc8281fa6"},
-    {file = "pulumi_random-4.16.0.tar.gz", hash = "sha256:ac116f3551707be64cf0d6f691500f4b8b8038d1b704d2785777c5ed5b6a685f"},
+    {file = "pulumi_random-4.16.1-py3-none-any.whl", hash = "sha256:6d5a3a267de0ccb76e34ed362c261492c4c30c7e5ca676f8eb5cfcfc3b3a9d46"},
+    {file = "pulumi_random-4.16.1.tar.gz", hash = "sha256:f90fe3f58160802fa87137e7f0415b3204a294b75d8dfa779d64005e65c2fb83"},
 ]
 
 [package.dependencies]
@@ -2552,4 +2552,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "02379d1bdec31d127cd66a1879a28dcb835ffe3ab64fa854a1585d48bdddff50"
+content-hash = "766ed01d787533efb118e339b4c1a93dbd8778b526447bb508df6313e922267a"

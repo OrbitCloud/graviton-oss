@@ -23,23 +23,25 @@ create table oqf_environment_schemas (
    constraint  chk_tablearr check (tablearr is json)
 );
 
+insert into OQF_ENVIRONMENTS (NAME,DESCRIPTION) values ('Default','Default Environment');
+commit;
+
 create or replace function env_table_list(p_environment in number) return varchar2 SQL_MACRO is
 begin
   return q'{
-select s.owner || '.' || t.table_name as fullname --
+select s.owner || '.' || t.table_name as fullname
   from oqf_environment_schemas s
-  join oqf_tables t
+  join all_tables t
     on s.owner = t.owner
  where s.all_tables = 1
    and s.environment = env_table_list.p_environment
 union all
-select s.owner || '.' || j.tabname as fullname --
+select s.owner || '.' || j.tabname as fullname
   from oqf_environment_schemas s
   join json_table(s.tablearr, '$[*]' columns(tabname varchar2(128) path '$')) j
     on 1 = 1
  where s.all_tables = 0
   and s.environment = env_table_list.p_environment
-  and not exists (select 1 from oqf_tables t where j.tabname = t.table_name and s.owner = t.owner)
 }';
 end env_table_list;
 /

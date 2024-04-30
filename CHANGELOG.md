@@ -1,3 +1,9 @@
+## v0.47.3 (2024-04-30)
+
+### Fix
+
+- **ora_queue**: had a bug regarding display of available tables in specified Environment (#255)
+
 ## v0.47.2 (2024-04-29)
 
 ### Fix

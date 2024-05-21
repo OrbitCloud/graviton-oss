@@ -107,11 +107,17 @@ class Vnet(ComponentResource):
         )
 
     def _subnets(self) -> Dict[str, network.Subnet]:
+        special_subnets = {
+            "GatewaySubnet",
+            "AzureFirewallManagementSubnet",
+            "AzureFirewallSubnet",
+            "AzureBastionSubnet",
+        }
         return {
             subnet.name: network.Subnet(
-                resource_name=self.stack.name_for(
-                    resource_type=network.Subnet, workload_name=subnet.name
-                ),
+                resource_name=subnet.name
+                if subnet.name in special_subnets
+                else self.stack.name_for(resource_type=network.Subnet, workload_name=subnet.name),
                 args=network.SubnetInitArgs(
                     resource_group_name=self.stack.resource_group.name,
                     virtual_network_name=self.vnet.name,

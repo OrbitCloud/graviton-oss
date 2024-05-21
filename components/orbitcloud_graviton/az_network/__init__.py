@@ -4,8 +4,10 @@ from .dns_zone import DnsZone, DnsZoneConfig
 from .private_dns_resolver import PrivateDnsResolver, PrivateDnsResolverConfig
 from .private_dns_zone import PrivateDnsZone, PrivateDNSZoneConfig
 from .private_endpoint import PrivateEndpoint, PrivateEndpointConfig
+from .public_ip import PublicIp, PublicIpConfig
 from .types import PrivateIPv4Network, PublicIPv4Network
 from .vnet import SubnetConfig, Vnet, VnetConfig
+from .vpn import VirtualNetworkGateway, VirtualNetworkGatewayConfig
 from .vwan import VirtualWan, VirtualWanConfig
 from .vwan_p2s_vpn import VwanP2sVpnGw, VwanP2sVpnGwConfig
 from .vwan_s2s_vpn import VwanS2sVpnGatewayConfig, VwanS2SVpnGw
@@ -16,6 +18,8 @@ __all__ = [
     "SubnetConfig",
     "VnetConfig",
     "Vnet",
+    "VirtualNetworkGateway",
+    "VirtualNetworkGatewayConfig",
     "VirtualWan",
     "VirtualWanConfig",
     "VwanP2sVpnGw",
@@ -32,4 +36,6 @@ __all__ = [
     "PrivateEndpoint",
     "PrivateDnsResolverConfig",
     "PrivateDnsResolver",
+    "PublicIpConfig",
+    "PublicIp",
 ]

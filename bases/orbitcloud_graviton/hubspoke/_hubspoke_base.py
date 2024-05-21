@@ -10,6 +10,8 @@ from orbitcloud_graviton.az_network import (
     PrivateDnsResolverConfig,
     PrivateDnsZone,
     PrivateDNSZoneConfig,
+    VirtualNetworkGateway,
+    VirtualNetworkGatewayConfig,
     VirtualWan,
     VirtualWanConfig,
     Vnet,
@@ -34,6 +36,7 @@ class NetworkBaseConfig(PulumiConfig):
     dns_zone: Optional[DnsZoneConfig] = None
     private_dns_zones: Optional[List[PrivateDNSZoneConfig]] = None
     private_dns_resolver: Optional[PrivateDnsResolverConfig] = None
+    vpn: Optional[VirtualNetworkGatewayConfig] = None
 
 
 def deploy_hub_spoke():
@@ -103,6 +106,17 @@ def deploy_hub_spoke():
             exports={
                 "private_endpoint_dns_zones": private_endpoint_dns_zones,
             }
+        )
+
+    ##########################################
+    # VPN Gateway (S2S and/or P2S, non-VWAN)
+    ##########################################
+
+    if config.vpn:
+        VirtualNetworkGateway(
+            stack=stack,
+            config=config.vpn,
+            opts=pulumi.ResourceOptions(parent=rg),
         )
 
     ##########################################

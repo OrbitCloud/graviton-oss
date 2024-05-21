@@ -31,7 +31,7 @@ class PrivateEndpoint(pulumi.ComponentResource):
 
         super().__init__(
             "Graviton:PrivateEndpoint",
-            name=f"pep-{target_resource._name}-{stack.env}",
+            name=f"pep-{target_resource._name}",
             props=None,
             opts=pulumi.ResourceOptions.merge(
                 opts1=opts, opts2=pulumi.ResourceOptions(parent=target_resource)
@@ -55,10 +55,7 @@ class PrivateEndpoint(pulumi.ComponentResource):
         self.target_dns_zone_name: DomainName = self._target_meta.private_dns_zone
 
         # Use target_resource_name if supplied else use the target_resource._name
-        self.name: str = stack.name_for(
-            resource_type=network.PrivateEndpoint,
-            workload_name=target_resource_name or self.target_resource._name,
-        )
+        self.name: str = f"pep-{target_resource_name or self.target_resource._name}"
 
         self.private_endpoint: network.PrivateEndpoint = self._private_endpoint()
         self.private_dns_zone_group: network.PrivateDnsZoneGroup | None = (
@@ -84,7 +81,12 @@ class PrivateEndpoint(pulumi.ComponentResource):
                 ],
                 custom_dns_configs=[],
             ),
-            opts=self._opts,
+            opts=pulumi.ResourceOptions.merge(
+                self._opts,
+                pulumi.ResourceOptions(
+                    delete_before_replace=True,
+                ),
+            ),
         )
 
     def _private_dns_zone_group(self) -> network.PrivateDnsZoneGroup | None:
@@ -104,7 +106,8 @@ class PrivateEndpoint(pulumi.ComponentResource):
                 opts=pulumi.ResourceOptions.merge(
                     self._opts,
                     pulumi.ResourceOptions(
-                        parent=self.private_endpoint, deleted_with=self.private_endpoint
+                        parent=self.private_endpoint,
+                        delete_before_replace=True,
                     ),
                 ),
             )

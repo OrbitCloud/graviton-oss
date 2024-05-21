@@ -1,15 +1,40 @@
 from typing import List, Literal, Optional, Union
 from uuid import UUID
 
+import pulumi
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig
 from orbitcloud_graviton.entra.entra_app import FederatedCredentialsConfig
+from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
-class PulumiOIDCCredentials(BaseModel):
+class PulumiEscOidcProvider(BaseModel):
     credential_type: Literal["pulumi"] = "pulumi"
     organization: str
+    environment_name: str
+    allowed_in_childs: Optional[bool] = False
+    allowed_pulumi_logins: Optional[List[str]] = None
+
+    def _subject_attrs(self) -> tuple[list, list]:
+        attrs: list[tuple[str, str]] = [("pulumi.organization.login", self.organization)]
+
+        if self.allowed_in_childs:
+            attrs.append(("rootEnvironment.name", self.environment_name))
+        else:
+            attrs.append(("currentEnvironment.name", self.environment_name))
+
+        subject: str = "pulumi:environments:" + ":".join([f"{key}={value}" for key, value in attrs])
+
+        if self.allowed_pulumi_logins:
+            attrs.append(("pulumi.user.login", ""))
+            subjects = [
+                f"{subject}:pulumi.user.login:{login}" for login in self.allowed_pulumi_logins
+            ]
+        else:
+            subjects: List[str] = [subject]
+
+        return subjects, attrs
 
     def credentials(self) -> list[FederatedCredentialsConfig]:
         return [
@@ -20,6 +45,47 @@ class PulumiOIDCCredentials(BaseModel):
                 description="Pulumi Environment Credentials used for infrastructure deployments",
             )
         ]
+
+        # Waiting for https://github.com/pulumi/pulumi/issues/14509
+        # return [
+        #     FederatedCredentialsConfig(
+        #         issuer="https://api.pulumi.com/oidc",
+        #         audiences=[self.organization],
+        #         subject=_subject,
+        #         description="Pulumi Environment Credentials used for infrastructure deployments",
+        #     )
+        #     for _subject in self._subject_attrs()[0]
+        # ]
+
+    def azure_login(self, stack: AzureStack, client_id: pulumi.Output[str] | str) -> dict:
+        return {
+            "login": {
+                "fn::open::azure-login": {
+                    "clientId": client_id,
+                    "tenantId": str(object=stack.tenant_id),
+                    "subscriptionId": str(object=stack.subscription_id),
+                    "oidc": True,
+                    # Waiting for https://github.com/pulumi/pulumi/issues/14509
+                    # "subjectAttributes": [attr[0] for attr in self._subject_attrs()[1]],
+                }
+            }
+        }
+
+    def azure_env_vars(self) -> dict[str, str]:
+        return {
+            "ARM_USE_OIDC": "true",
+            "ARM_CLIENT_ID": "${azure.login.clientId}",
+            "ARM_TENANT_ID": "${azure.login.tenantId}",
+            "ARM_OIDC_TOKEN": "${azure.login.oidc.token}",
+            "ARM_SUBSCRIPTION_ID": "${azure.login.subscriptionId}",
+        }
+
+    def azure_pulumi_config(self) -> dict[str, str]:
+        return {
+            "azure-native:tenantId": "${azure.login.tenantId}",
+            "azure-native:subscriptionId": "${azure.login.subscriptionId}",
+            "azuread:tenantId": "${azure.login.tenantId}",
+        }
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -95,7 +161,7 @@ class GitHubOIDCCredentials(BaseModel):
 
 
 class WorkloadIdentityConfig(BaseModel):
-    workload: Union[AzureDevOpsOIDCCredentials, GitHubOIDCCredentials, PulumiOIDCCredentials] = (
+    workload: Union[AzureDevOpsOIDCCredentials, GitHubOIDCCredentials, PulumiEscOidcProvider] = (
         Field(default=..., discriminator="credential_type")
     )
     azure_permissions: Optional[list[IamAssignmentConfig]] = None

@@ -17,7 +17,6 @@ from orbitcloud_graviton.az_network.dns_zone import DnsZone, DnsZoneConfig
 from orbitcloud_graviton.entra import (
     EntraApp,
     EntraAppConfig,
-    PulumiOIDCCredentials,
 )
 from orbitcloud_graviton.entra.oidc_providers import WorkloadIdentityConfig
 from orbitcloud_graviton.pulumi_lib import (
@@ -26,7 +25,6 @@ from orbitcloud_graviton.pulumi_lib import (
     PulumiConfig,
     get_azure_stack,
     get_entra_stack,
-    print_pulumi_esc_oidc_yaml,
 )
 from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
@@ -131,58 +129,6 @@ def deploy_landing_zone() -> None:
             config=config.eventgrid_domain.model_copy(update={"log_workspace_id": logs.id}),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
-
-    ##########################################
-    #   Entra App for Pulumi deployments
-    ##########################################
-
-    pulumi_app = EntraApp(
-        stack=stack.model_copy(update={"exports_prefix": "pulumi"}),
-        entra=entra_config,
-        config=EntraAppConfig(
-            name="pulumi-deployments",
-            federated_credentials=PulumiOIDCCredentials(
-                organization=pulumi.get_organization()
-            ).credentials(),
-        ),
-    )
-
-    pulumi_app_permissions: list[IamAssignmentConfig] = [
-        IamAssignmentConfig(
-            name_prefix="lz",
-            role="Contributor",
-            scope=f"/subscriptions/{stack.subscription_id}",
-            description="Allows Pulumi to deploy resources in the subscription",
-        ),
-        IamAssignmentConfig(
-            name_prefix="lz",
-            role="Role Based Access Control Administrator",
-            scope=f"/subscriptions/{stack.subscription_id}",
-            description="Allows Pulumi to assign roles to resources in the subscription",
-        ),
-        IamAssignmentConfig(
-            name_prefix="lz",
-            role="Key Vault Secrets Officer",
-            scope=f"/subscriptions/{stack.subscription_id}",
-            description="Allows Pulumi to read and write secrets in Key Vault",
-        ),
-    ]
-    if config.pulumi_app_additional_permissions:
-        pulumi_app_permissions.extend(config.pulumi_app_additional_permissions)
-
-    for permission in pulumi_app_permissions:
-        iam_assignment(
-            stack=stack,
-            config=permission,
-            principal_id=pulumi_app.service_principal.id,
-            opts=pulumi.ResourceOptions(
-                parent=pulumi_app.service_principal, delete_before_replace=True
-            ),
-        )
-
-    pulumi.Output.all(
-        pulumi_app.app.client_id, entra_config.tenant_id, stack.subscription_id
-    ).apply(func=print_pulumi_esc_oidc_yaml)
 
     ##########################################
     # Entra Apps for VCS credentials

@@ -5,8 +5,8 @@ from pydantic import Field
 
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig
 from orbitcloud_graviton.entra.entra_app import EntraApp, EntraAppConfig
-from orbitcloud_graviton.entra.oidc_providers import PulumiOIDCCredentials
-from orbitcloud_graviton.pulumi.esc_env import PulumiEscEnv
+from orbitcloud_graviton.entra.oidc_providers import PulumiEscOidcProvider
+from orbitcloud_graviton.pulumi.esc_env import PulumiEnv, PulumiEnvConfig
 from orbitcloud_graviton.pulumi_lib.azure_base import (
     AzureStack,
     EntraStack,
@@ -22,6 +22,7 @@ class AzureEnvironmentConfig(PulumiConfig):
     pulumi_config: Optional[dict[str, Any]] = Field(default_factory=dict)
     environment_variables: Optional[dict[str, Any]] = Field(default_factory=dict)
     azure_permissions: Optional[list[IamAssignmentConfig]] = None
+    allowed_in_childs: bool = False
 
 
 def deploy() -> None:
@@ -32,6 +33,12 @@ def deploy() -> None:
 
     config: AzureEnvironmentConfig = AzureEnvironmentConfig.model_validate(obj={})
 
+    esc_provider = PulumiEscOidcProvider(
+        organization=pulumi.get_organization(),
+        environment_name=stack.env,
+        allowed_in_childs=config.allowed_in_childs,
+    )
+
     """
     Create an Entra App and configure Pulumi ESC OIDC credentials
     """
@@ -40,9 +47,8 @@ def deploy() -> None:
         entra=entra,
         config=EntraAppConfig(
             name="pulumi",
-            federated_credentials=PulumiOIDCCredentials(
-                organization=pulumi.get_organization()
-            ).credentials(),
+            federated_credentials=esc_provider.credentials(),
+            entra_roles=["Cloud Application Administrator"],
         ),
     )
 
@@ -73,50 +79,44 @@ def deploy() -> None:
 
     Additional configuratios can be added via pulumi_config in stack config
     """
-    pulumi_config: dict[str, Any] = (config.pulumi_config or {}) | {
-        "azure-native:tenantId": "${azure.login.tenantId}",
-        "azure-native:subscriptionId": "${azure.login.subscriptionId}",
-        "azuread:tenantId": "${azure.login.tenantId}",
-        "environment": {
-            "resource_group_name": stack.resource_group.name,
-            "pulumi_esc_app": {
-                "app_client_id": esc_app.app.client_id,
-                "service_principal_id": esc_app.service_principal.id,
+    pulumi_config: dict[str, Any] = (
+        # Azure OIDC Pulumi Config
+        esc_provider.azure_pulumi_config()
+        # Environment Config
+        | {
+            "azure-native:location": stack.location,
+            "env": stack.env,
+            "azure_environment": {
+                "resource_group_name": stack.resource_group.name,
+                "pulumi_esc_app": {
+                    "app_client_id": esc_app.app.client_id,
+                    "service_principal_id": esc_app.service_principal.id,
+                },
+                "tags": {
+                    "Environment": stack.env,
+                },
             },
-            "tags": {
-                "Environment": stack.env,
-            },
-        },
-    }
+        }
+        # Additional user defined pulumi config
+        | (config.pulumi_config or {})
+    )
 
     """
     Environment Variable exports
 
     Additional environment variables can be added via environment_variables in stack config
     """
-    env_vars: dict[str, str] = (config.environment_variables or {}) | {
-        "ARM_USE_OIDC": "true",
-        "ARM_CLIENT_ID": "${azure.login.clientId}",
-        "ARM_TENANT_ID": "${azure.login.tenantId}",
-        "ARM_OIDC_TOKEN": "${azure.login.oidc.token}",
-        "ARM_SUBSCRIPTION_ID": "${azure.login.subscriptionId}",
-    }
+    env_vars: dict[str, str] = (config.environment_variables or {}) | esc_provider.azure_env_vars()
 
-    PulumiEscEnv(
-        env_name=stack.env,
+    PulumiEnv(
+        config=PulumiEnvConfig(env_name=stack.env),
         input={
+            "env_name": stack.env,
             "imports": config.imports,
-            "azure": {
-                "login": {
-                    "fn::open::azure-login": {
-                        "clientId": esc_app.app.client_id,
-                        "tenantId": str(object=stack.tenant_id),
-                        "subscriptionId": str(object=stack.subscription_id),
-                        "oidc": True,
-                    }
-                }
+            "values": {
+                "azure": esc_provider.azure_login(stack=stack, client_id=esc_app.app.client_id),
+                "pulumi_config": pulumi_config,
+                "environment_variables": env_vars,
             },
-            "pulumi_config": pulumi_config,
-            "environment_variables": env_vars,
         },
     )

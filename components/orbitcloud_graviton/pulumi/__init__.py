@@ -1,9 +1,6 @@
-from .esc_env import (
-    PulumiEscEnv,
-    PulumiEscEnvInputSchema,
-)
+from .esc_env import PulumiEnv, PulumiEnvConfig
 
 __all__ = [
-    "PulumiEscEnv",
-    "PulumiEscEnvInputSchema",
+    "PulumiEnv",
+    "PulumiEnvConfig",
 ]

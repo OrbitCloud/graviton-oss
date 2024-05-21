@@ -34,6 +34,7 @@ packages = [
     {include = "orbitcloud_graviton/az_ai",from = "components"},
     {include = "orbitcloud_graviton/pulumi",from = "components"},
     {include = "orbitcloud_graviton/azure_environment",from = "bases"},
+    {include = "orbitcloud_graviton/azure_tenant",from = "bases"},
 ]
 
 
@@ -84,7 +85,7 @@ ipykernel = "^6.29.3"
 
 [tool.pyright]
 include = ["components", "bases", "development", "test"]
-ignore = ["development"]
+# ignore = ["development"]
 extraPaths = ["components", "bases"]
 venvPath = "."
 venv = ".venv"

@@ -7,8 +7,11 @@ from pulumiverse_time import Rotating
 from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
+from orbitcloud_graviton.az_lib.helpers import fmt_name
 from orbitcloud_graviton.pulumi_lib import AzureStack, EntraStack
 from orbitcloud_graviton.pulumi_lib.types import TimeFromNow
+
+from .roles import get_entra_role_id_by_name
 
 
 class ClientCredentialsConfig(BaseModel):
@@ -41,6 +44,9 @@ class EntraAppConfig(
     ] = "AzureADMyOrg"
     client_credentials: Optional[List[ClientCredentialsConfig]] = Field(default_factory=list)
     federated_credentials: Optional[List[FederatedCredentialsConfig]] = Field(default_factory=list)
+    owners: Optional[List[str]] = Field(default_factory=list)
+
+    entra_roles: Optional[List[str]] = Field(default_factory=list)
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -73,6 +79,7 @@ class EntraApp(ComponentResource):
         self.federated_credentials: list[azuread.ApplicationFederatedIdentityCredential] = (
             self._federated_credentials()
         )
+        self.entra_roles = self._entra_roles()
 
         self._outputs()
 
@@ -81,6 +88,7 @@ class EntraApp(ComponentResource):
             resource_name=f"ea-{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
             display_name=f"{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
             sign_in_audience=self.config.audience,
+            owners=self.config.owners,
             opts=self._opts,
         )
 
@@ -132,6 +140,19 @@ class EntraApp(ComponentResource):
             if self.config.federated_credentials
             else []
         )
+
+    def _entra_roles(self) -> None:
+        if not self.config.entra_roles:
+            return
+        for role in self.config.entra_roles:
+            azuread.DirectoryRoleAssignment(
+                resource_name=f"entrarole-{fmt_name(role)}-{fmt_name(self.config.name)}-{self.stack.env}",
+                args=azuread.DirectoryRoleAssignmentArgs(
+                    principal_object_id=self.service_principal.id,
+                    role_id=get_entra_role_id_by_name(role_name=role),
+                ),
+                opts=self._opts,
+            )
 
     def azure_permissions(self, assignments: List[IamAssignmentConfig]) -> Self:
         for perm in assignments:

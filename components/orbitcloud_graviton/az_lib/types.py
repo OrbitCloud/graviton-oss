@@ -1,6 +1,11 @@
 import re
 from functools import reduce
-from typing import Annotated, Any, Optional, Union
+from typing import (
+    Annotated,
+    Any,
+    Optional,
+    Union,
+)
 from uuid import UUID
 
 import pulumi

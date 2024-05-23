@@ -101,7 +101,7 @@ addopts = [
     "-s",
     "-vvv",
 ]
-norecursedirs = [".*", ".venv"]
+norecursedirs = [".*", ".venv", "venv"]
 filterwarnings = [
     "ignore::DeprecationWarning:pulumi_azure_native.*:",
     "ignore::DeprecationWarning:pulumi.*",
@@ -122,7 +122,7 @@ source = [
 include_namespace_packages = true
 ignore_errors = true
 skip_empty = true
-omit = ["**/__init__.py", ".venv/*", "development/*", "test/*"]
+omit = ["**/__init__.py", ".venv/*", "**/venv/*", "development/*", "test/*"]
 
 
 [tool.ruff]

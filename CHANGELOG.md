@@ -1,3 +1,9 @@
+## v0.47.5 (2024-05-23)
+
+### Fix
+
+- **ContainerApp**: Add optional explicit name for cases when multiple apps are being deployed (#275)
+
 ## v0.47.4 (2024-05-23)
 
 ### Fix

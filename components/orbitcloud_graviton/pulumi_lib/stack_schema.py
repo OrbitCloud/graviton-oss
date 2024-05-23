@@ -1,8 +1,9 @@
 import json
 from copy import deepcopy
 from typing import Any, Callable, Optional, TypeVar
+from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, TypeAdapter, create_model
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, create_model
 from pydantic.fields import FieldInfo
 
 from orbitcloud_graviton.pulumi_lib import AzureStack
@@ -50,7 +51,7 @@ def generate_stack_schema(model, output_file: str):
     # as other fields can be set by the Pulumi ESC environment
     @_make_optional(exclude=["workload_name"])
     class OptionalAzureBase(AzureStack):
-        pass
+        azuread_tenant_id: UUID = Field(..., validation_alias="azuread:tenantId")
 
     ConfigObject = create_model(
         "PulumiStackConfig", __base__=type("_config", (model, OptionalAzureBase), {})

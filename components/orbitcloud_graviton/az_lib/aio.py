@@ -21,6 +21,6 @@ def in_event_loop(_func: Callable[P, R]) -> Callable[P, Awaitable[R]]:
 def async_output(_func: Callable[P, Awaitable[R]]) -> Callable[P, pulumi.Output[R]]:
     @functools.wraps(wrapped=_func)
     def wrapped(*args: P.args, **kwargs: P.kwargs) -> pulumi.Output[R]:
-        return pulumi.Output.from_input(val=_func(*args, **kwargs))
+        return pulumi.Output.from_input(val=_func(*args, **kwargs))  # type: ignore
 
     return wrapped

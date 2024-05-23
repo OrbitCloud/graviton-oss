@@ -1,3 +1,9 @@
+## v0.47.4 (2024-05-23)
+
+### Fix
+
+- **stack_schema**: Fix azuread:tenantId not allowed warning in yaml schema (#271)
+
 ## v0.47.3 (2024-04-30)
 
 ### Fix

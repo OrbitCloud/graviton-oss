@@ -1,7 +1,9 @@
+from inspect import cleandoc
 from typing import List, Optional, Union
 
 import pulumi
 from pulumi_azure_native.resources import ResourceGroup
+from pydantic import model_validator
 
 from orbitcloud_graviton.az_ai.search_service import SearchService, SearchServiceConfig
 from orbitcloud_graviton.az_app.container_app import ContainerApp, ContainerAppConfig
@@ -21,6 +23,26 @@ class AppWorkloadConfig(PulumiConfig):
     app_config: Optional[AppConfigurationConfig] = None
     storage_accounts: Optional[List[StorageAccountConfig]] = None
     search_service: Optional[SearchServiceConfig] = None
+
+    @model_validator(mode="after")
+    def validate_apps(m: "AppWorkloadConfig") -> "AppWorkloadConfig":
+        # If more than one app, ensure unique names
+        # names are either derived from the workload_name or explicitly set
+
+        if len(m.apps) > 1:
+            app_names: List[str | None] = [app.name for app in m.apps]
+            if len(app_names) != len(set(app_names)):
+                raise ValueError(
+                    cleandoc(
+                        doc="""
+                        Multiple apps found in configuration, which will end up having colliding names.
+                        Ensure that no more than one app within the stack doesn't have the name parameter
+                        explicitly set (by default it will be derived from the workload name)."
+                        """
+                    )
+                )
+
+        return m
 
 
 def deploy() -> None:
@@ -86,16 +108,16 @@ def deploy() -> None:
     ##########################################
     # App Configuration Store
     ##########################################
-    for app_config in config.apps:
-        if app_config.secrets:
-            app_secrets.update(app_config.secrets)
+    for container_app in config.apps:
+        if container_app.secrets:
+            app_secrets.update(container_app.secrets)
 
-        perms: List[IamAssignmentConfig] = app_config.azure_permissions or []
+        perms: List[IamAssignmentConfig] = container_app.azure_permissions or []
         perms.extend(app_perms)
 
         ContainerApp(
             stack=stack,
-            config=app_config.model_copy(
+            config=container_app.model_copy(
                 update={"secrets": app_secrets, "azure_permissions": perms}
             ),
             opts=opts,

@@ -60,6 +60,7 @@ class ContainerConfig(BaseModel):
 
 
 class ContainerAppConfig(BaseModel):
+    name: Optional[str] = None
     environment_output_ref: DictRef
     workload_profile_name: str
     containers: list[ContainerConfig]
@@ -93,7 +94,7 @@ class ContainerApp(pulumi.ComponentResource):
 
         super().__init__(
             "Graviton:ContainerApp",
-            name=f"containerapp-{stack.workload_name}-{stack.env}",
+            name=f"containerapp-{self.config.name or stack.workload_name}-{stack.env}",
             props=None,
             opts=opts,
         )
@@ -102,7 +103,9 @@ class ContainerApp(pulumi.ComponentResource):
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
 
-        self.app_name: str = self.stack.name_for(resource_type=pam_app.ContainerApp)
+        self.app_name: str = self.stack.name_for(
+            resource_type=pam_app.ContainerApp, workload_name=self.config.name
+        )
 
         self.secrets: Dict[str, str] = self.config.secrets or {}
         self.registry: AdminUserEnabledRegistryOutput | None = self._get_registry()
@@ -131,7 +134,7 @@ class ContainerApp(pulumi.ComponentResource):
             args=pam_app.ContainerAppArgs(
                 resource_group_name=self.stack.resource_group.name,
                 location=self.stack.location,
-                container_app_name=self.stack.name_for(resource_type=pam_app.ContainerApp),
+                container_app_name=self.app_name,
                 identity=pam_app.ManagedServiceIdentityArgs(type="SystemAssigned"),
                 managed_environment_id=str(self.environment.id),
                 workload_profile_name=self.config.workload_profile_name,
@@ -264,7 +267,7 @@ class ContainerApp(pulumi.ComponentResource):
                 )
                 for key, val in container.env_vars.items()
             ]
-        )
+        ) if container.env_vars else None
         # Env Secrets
         env_args.extend(
             [
@@ -274,7 +277,7 @@ class ContainerApp(pulumi.ComponentResource):
                 )
                 for key, val in container.env_secrets.items()
             ]
-        )
+        ) if container.env_secrets else None
         return env_args
 
     def _azure_permissions(self) -> None:

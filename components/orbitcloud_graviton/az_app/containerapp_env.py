@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import pulumi
 from pulumi_azure_native import insights, network
-from pulumi_azure_native.app import v20231102preview as app
+from pulumi_azure_native.app import v20230501 as app
 from pydantic import (
     BaseModel,
     ConfigDict,

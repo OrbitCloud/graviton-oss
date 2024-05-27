@@ -1,7 +1,7 @@
 from typing import Optional
 
 import pulumi
-from pulumi_azure_native.app import v20231102preview as app
+from pulumi_azure_native.app import v20230501 as app
 from pydantic import BaseModel, Field, SecretStr
 
 from orbitcloud_graviton.pulumi_lib import AzureStack

@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional, Union
 
 import pulumi
-from pulumi_azure_native.app import v20231102preview as pam_app
+from pulumi_azure_native.app import v20230501 as pam_app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_acr.outputs import AdminUserEnabledRegistryOutput

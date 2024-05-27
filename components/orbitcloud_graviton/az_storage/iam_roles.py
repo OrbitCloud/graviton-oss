@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class TableRoles(BaseModel):
@@ -15,6 +15,8 @@ class TableRoles(BaseModel):
         if self.reader and not self.contributor:
             roles.append(f"{prefix} Reader")
         return roles
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class BlobRoles(BaseModel):
@@ -32,6 +34,8 @@ class BlobRoles(BaseModel):
         if self.reader and not self.contributor:
             roles.append(f"{prefix} Reader")
         return roles
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class QueueRoles(BaseModel):
@@ -53,6 +57,8 @@ class QueueRoles(BaseModel):
             roles.append(f"{prefix} Reader")
         return roles
 
+    model_config = ConfigDict(extra="forbid")
+
 
 class StorageAccountAppPermissions(BaseModel):
     tables: Optional[TableRoles] = None
@@ -68,3 +74,5 @@ class StorageAccountAppPermissions(BaseModel):
         if self.blobs:
             roles.extend(self.blobs.roles())
         return roles
+
+    model_config = ConfigDict(extra="forbid")

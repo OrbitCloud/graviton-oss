@@ -14,11 +14,13 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 class EventHubConfig(BaseModel):
     name: str
-    partition_count: Optional[int] = 1
+    partitions: Optional[int] = 1
     retention_hours: Optional[int] = 1
     cleanup_policy: Optional[pul_eventhub.CleanupPolicyRetentionDescription] = (
         pul_eventhub.CleanupPolicyRetentionDescription.DELETE
     )
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class NamespaceConfig(BaseModel):
@@ -94,7 +96,7 @@ class EventHub(ComponentResource):
                     ),
                     resource_group_name=self.stack.resource_group.name,
                     namespace_name=self.namespace.name,
-                    partition_count=hub.partition_count,
+                    partition_count=hub.partitions,
                     retention_description=pul_eventhub.RetentionDescriptionArgs(
                         cleanup_policy=hub.cleanup_policy,
                         retention_time_in_hours=hub.retention_hours,

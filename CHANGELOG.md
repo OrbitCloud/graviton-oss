@@ -1,3 +1,9 @@
+## v0.50.0 (2024-05-27)
+
+### Feat
+
+- **EventHub**: Improve namespace and hub output (#279)
+
 ## v0.49.0 (2024-05-27)
 
 ### Feat

@@ -1,3 +1,13 @@
+## v0.48.0 (2024-05-27)
+
+### BREAKING CHANGE
+
+- partition_count renamed to partitions, strict validation applied (no extra fields allowed)
+
+### Fix
+
+- **EventHub**: EventHubSchema clarifications (#277)
+
 ## v0.47.5 (2024-05-23)
 
 ### Fix

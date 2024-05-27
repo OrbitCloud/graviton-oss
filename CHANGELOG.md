@@ -1,3 +1,9 @@
+## v0.49.0 (2024-05-27)
+
+### Feat
+
+- **EventGridDomain**: Add topics and endpoint to outputs (#278)
+
 ## v0.48.0 (2024-05-27)
 
 ### BREAKING CHANGE

@@ -1,3 +1,9 @@
+## v0.52.2 (2024-05-27)
+
+### Fix
+
+- **ContainerApp**: Add explicit from_public_registry option for container images (#285)
+
 ## v0.52.1 (2024-05-27)
 
 ### Fix

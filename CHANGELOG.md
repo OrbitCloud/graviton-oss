@@ -1,3 +1,9 @@
+## v0.51.1 (2024-05-27)
+
+### Fix
+
+- **AzureResourceId**: Make Azure resource ID validation case insensitive (#281)
+
 ## v0.51.0 (2024-05-27)
 
 ### Feat

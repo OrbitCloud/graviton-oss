@@ -1,3 +1,9 @@
+## v0.51.0 (2024-05-27)
+
+### Feat
+
+- **StorageAccount**: Add blob containers (#280)
+
 ## v0.50.0 (2024-05-27)
 
 ### Feat

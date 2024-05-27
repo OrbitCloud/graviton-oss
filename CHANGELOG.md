@@ -1,3 +1,9 @@
+## v0.52.0 (2024-05-27)
+
+### Feat
+
+- **app_workload**: Add support for stack references in configurations (#282)
+
 ## v0.51.1 (2024-05-27)
 
 ### Fix

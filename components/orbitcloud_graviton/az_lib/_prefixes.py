@@ -67,6 +67,7 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.eventhub.namespace": {"prefix": "evhns"},
     "pulumi_azure_native.eventhub.event_hub": {"prefix": "evh"},
     "pulumi_azure_native.storage.table": {"prefix": "sttbl"},
+    "pulumi_azure_native.storage.blob_container": {"prefix": "stctr"},
     "pulumi_azure_native.storage.queue": {"prefix": "stq"},
     "pulumi_azure_native.providerhub.provider_registration": {"prefix": "proreg"},
     "pulumi_azure_native.providerhub.resource_type_registration": {"prefix": "prov"},

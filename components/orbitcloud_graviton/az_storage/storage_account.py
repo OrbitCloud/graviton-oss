@@ -47,6 +47,7 @@ class StorageAccountConfig(BaseModel):
     routing: StorageAccountRoutingConfig = StorageAccountRoutingConfig()
 
     private_endpoints: Optional[list[StorageAccountPrivateEndpointConfig]] = None
+    storage_containers: Optional[List[str]] = None
     storage_tables: Optional[List[str]] = None
     storage_queues: Optional[List[str]] = None
 
@@ -73,13 +74,15 @@ class StorageAccount(pulumi.ComponentResource):
             opts=opts,
         )
         self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
-            opts, pulumi.ResourceOptions(parent=self)
+            opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
 
-        self.name = self.stack.name_for(storage.StorageAccount, workload_name=self.config.name)
+        self.name: str = self.stack.name_for(
+            resource_type=storage.StorageAccount, workload_name=self.config.name
+        )
 
         self.storage_account: storage.StorageAccount = self._storage_account()
-
+        self.storage_container: List[storage.BlobContainer] = self._storage_containers()
         self.storage_tables: List[storage.Table] = self._storage_tables()
         self.storage_queues: List[storage.Queue] = self._storage_queues()
 
@@ -91,7 +94,7 @@ class StorageAccount(pulumi.ComponentResource):
         return storage.StorageAccount(
             resource_name=self.name,
             args=storage.StorageAccountArgs(
-                account_name=self.name,
+                account_name=self.config.name,
                 location=self.stack.location,
                 resource_group_name=self.stack.resource_group.name,
                 # Storage Account type
@@ -121,13 +124,13 @@ class StorageAccount(pulumi.ComponentResource):
 
         if self.config.public_network_access == storage.PublicNetworkAccess.DISABLED:
             pulumi.warn(
-                "Public / private network ACL cannot be configured when Public Network Access is disabled."
+                msg="Public / private network ACL cannot be configured when Public Network Access is disabled."
             )
             return None
 
         if self.config.allowed_public_ips:
             ip_rules: list[storage.IPRuleArgs] = [
-                storage.IPRuleArgs(i_p_address_or_range=str(public_ip))
+                storage.IPRuleArgs(i_p_address_or_range=str(object=public_ip))
                 for public_ip in self.config.allowed_public_ips
             ]
 
@@ -171,6 +174,30 @@ class StorageAccount(pulumi.ComponentResource):
                     )
         return endpoints
 
+    def _storage_containers(self) -> List[storage.BlobContainer]:
+        return (
+            (
+                [
+                    storage.BlobContainer(
+                        resource_name=self.stack.name_for(
+                            resource_type=storage.BlobContainer, workload_name=container
+                        ),
+                        args=storage.BlobContainerArgs(
+                            container_name=container,
+                            account_name=self.storage_account.name,
+                            resource_group_name=self.stack.resource_group.name,
+                        ),
+                        opts=self._opts._merge_instance(
+                            opts=pulumi.ResourceOptions(parent=self.storage_account)
+                        ),
+                    )
+                    for container in self.config.storage_containers
+                ]
+            )
+            if self.config.storage_containers
+            else []
+        )
+
     def _storage_tables(self) -> List[storage.Table]:
         return (
             (
@@ -184,7 +211,7 @@ class StorageAccount(pulumi.ComponentResource):
                         resource_group_name=self.stack.resource_group.name,
                         signed_identifiers=[],
                         opts=self._opts._merge_instance(
-                            pulumi.ResourceOptions(parent=self.storage_account)
+                            opts=pulumi.ResourceOptions(parent=self.storage_account)
                         ),
                     )
                     for table in self.config.storage_tables
@@ -206,7 +233,7 @@ class StorageAccount(pulumi.ComponentResource):
                         account_name=self.storage_account.name,
                         resource_group_name=self.stack.resource_group.name,
                         opts=self._opts._merge_instance(
-                            pulumi.ResourceOptions(parent=self.storage_account)
+                            opts=pulumi.ResourceOptions(parent=self.storage_account)
                         ),
                     )
                 )
@@ -249,7 +276,7 @@ class StorageAccount(pulumi.ComponentResource):
 
     def _outputs(self) -> None:
         self.register_outputs(
-            {
+            outputs={
                 "storage_account": self.storage_account,
                 "private_endpoints": self.private_endpoints,
             }

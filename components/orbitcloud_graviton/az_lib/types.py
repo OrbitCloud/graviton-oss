@@ -54,7 +54,7 @@ class AzureResourceId:
 
     @staticmethod
     def is_valid(value: str) -> bool:
-        pattern = r"^/subscriptions/([^/]+)(?:/resourceGroups/([^/]+))?(?:/providers/([^/]+)/([^/]+)/([^/]+)(?:/(.*))?)?$"
+        pattern = r"(?i)^/subscriptions/([^/]+)(?:/resourceGroups/([^/]+))?(?:/providers/([^/]+)/([^/]+)/([^/]+)(?:/(.*))?)?$"
         if re.match(pattern, value):
             return True
         return False
@@ -74,7 +74,7 @@ class AzureResourceId:
         )
 
     def _params(self) -> dict[str, str]:
-        pattern = r"^/subscriptions/([^/]+)(?:/resourceGroups/([^/]+))?(?:/providers/([^/]+)/([^/]+)/([^/]+)(?:/(.*))?)?$"
+        pattern = r"(?i)^/subscriptions/([^/]+)(?:/resourceGroups/([^/]+))?(?:/providers/([^/]+)/([^/]+)/([^/]+)(?:/(.*))?)?$"
         match: re.Match[str] | None = re.match(pattern, self.id)
 
         if not match:

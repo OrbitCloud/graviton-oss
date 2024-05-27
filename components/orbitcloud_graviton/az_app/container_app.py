@@ -51,7 +51,9 @@ class IngressConfig(BaseModel):
 class ContainerConfig(BaseModel):
     name: str
     image: str
-    probes: Optional[List[ContainerProbeConfig]] = None  # noqa: F821
+    from_public_registry: Optional[bool] = False
+
+    probes: Optional[List[ContainerProbeConfig]] = None
     resources: ContainerResourcesConfig = ContainerResourcesConfig()
 
     env_vars: Optional[dict[str, StrRef | str]] = None
@@ -149,7 +151,7 @@ class ContainerApp(pulumi.ComponentResource):
         for container in self.config.containers:
             image: pulumi.Output[str] | str = (
                 pulumi.Output.concat(self.registry.login_server, "/", container.image)
-                if self.registry
+                if self.registry and not container.from_public_registry
                 else container.image
             )
             _containers.append(

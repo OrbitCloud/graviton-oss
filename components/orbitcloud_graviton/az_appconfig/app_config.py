@@ -5,7 +5,7 @@ from pulumi_azure_native import appconfiguration as pam_appconfig
 from pulumi_azure_native import insights
 from pydantic import BaseModel, ConfigDict, Field
 
-from orbitcloud_graviton.az_lib.types import AzureIdRef
+from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
 from orbitcloud_graviton.pulumi_lib import AzureStack
 
@@ -15,7 +15,7 @@ class AppConfigurationConfig(BaseModel):
         pam_appconfig.PublicNetworkAccess.DISABLED
     )
 
-    keys: Optional[Dict[str, str]] = None
+    keys: Optional[Dict[str, StrRef | str]] = None
     label: Optional[str] = None
 
     export_endpoint_as_secret: Optional[str] = Field(default=None, pattern="^[a-z0-9_-]+$")

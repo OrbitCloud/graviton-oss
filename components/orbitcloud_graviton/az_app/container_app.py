@@ -54,7 +54,7 @@ class ContainerConfig(BaseModel):
     probes: Optional[List[ContainerProbeConfig]] = None  # noqa: F821
     resources: ContainerResourcesConfig = ContainerResourcesConfig()
 
-    env_vars: Optional[dict[str, str]] = None
+    env_vars: Optional[dict[str, StrRef | str]] = None
     env_secrets: Optional[dict[str, str]] = None
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -64,7 +64,7 @@ class ContainerAppConfig(BaseModel):
     environment_output_ref: DictRef
     workload_profile_name: str
     containers: list[ContainerConfig]
-    secrets: Optional[Dict[str, str]] = Field(default_factory=dict)
+    secrets: Optional[Dict[str, StrRef | str]] = Field(default_factory=dict)
     scaling: Optional[ContainerAppScaleConfig] = ContainerAppScaleConfig()
     ingress: IngressConfig
     log_workspace_id: Optional[AzureIdRef] = None
@@ -107,7 +107,7 @@ class ContainerApp(pulumi.ComponentResource):
             resource_type=pam_app.ContainerApp, workload_name=self.config.name
         )
 
-        self.secrets: Dict[str, str] = self.config.secrets or {}
+        self.secrets: Dict[str, StrRef | str] = self.config.secrets or {}
         self.registry: AdminUserEnabledRegistryOutput | None = self._get_registry()
         self.environment: ContainerAppEnvOutput = self._get_environment()
         self.app: pam_app.ContainerApp = self._container_app()
@@ -194,7 +194,7 @@ class ContainerApp(pulumi.ComponentResource):
                     pam_app.IpSecurityRestrictionRuleArgs(
                         name=f"allow-{ip}",
                         action=pam_app.Action.ALLOW,
-                        ip_address_range=str(ip),
+                        ip_address_range=str(object=ip),
                     )
                     for ip in self.config.ingress.ip_allow_list or []
                 ],

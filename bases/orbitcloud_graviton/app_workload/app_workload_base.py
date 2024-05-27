@@ -66,11 +66,17 @@ def deploy() -> None:
             config=config.app_config,
         )
         app_secrets["appconfig-endpoint"] = appcs.app_config.endpoint
-        app_perms.append(
-            IamAssignmentConfig(
-                role="App Configuration Data Reader",
-                scope=appcs.app_config.id,
-            )
+        app_perms.extend(
+            [
+                IamAssignmentConfig(
+                    role="App Configuration Data Reader",
+                    scope=appcs.app_config.id,
+                ),
+                IamAssignmentConfig(
+                    role="Reader",
+                    scope=appcs.app_config.id,
+                ),
+            ]
         )
 
     ##########################################

@@ -126,10 +126,12 @@ known_stacks: dict[str, pulumi.StackReference] = {}
 
 
 def get_stack_output(ref, info: ValidationInfo):
-    stack_ref, output_name, path = parse_stack_reference(ref)
+    if not ref.startswith("stack://"):
+        raise ValueError(f"{ref} is not a valid stack reference")
 
+    stack_ref, output_name, path = parse_stack_reference(ref)
     if stack_ref in known_stacks:
-        stack = known_stacks[stack_ref]
+        stack: pulumi.StackReference = known_stacks[stack_ref]
     else:
         stack = pulumi.StackReference(name=ref, stack_name=stack_ref)
         known_stacks[stack_ref] = stack

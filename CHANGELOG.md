@@ -1,3 +1,9 @@
+## v0.52.1 (2024-05-27)
+
+### Fix
+
+- **StorageAccount**: Turn on strict schema for app permissions model (no additional fields allowed) (#283)
+
 ## v0.52.0 (2024-05-27)
 
 ### Feat

@@ -55,7 +55,7 @@ class EventGridDomain(pulumi.ComponentResource):
         )
 
         self.eventgrid_domain: eventgrid.Domain = self._eventgrid_domain()
-        self.topics: List[eventgrid.DomainTopic] = self._eventgrid_topics()
+        self.topics: dict[str, eventgrid.DomainTopic] = self._eventgrid_topics()
         self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
 
         self._outputs()
@@ -85,9 +85,9 @@ class EventGridDomain(pulumi.ComponentResource):
             else []
         )
 
-    def _eventgrid_topics(self) -> List[eventgrid.DomainTopic]:
-        return [
-            eventgrid.DomainTopic(
+    def _eventgrid_topics(self) -> dict[str, eventgrid.DomainTopic]:
+        return {
+            topic: eventgrid.DomainTopic(
                 resource_name=self.stack.name_for(
                     resource_type=eventgrid.DomainTopic, workload_name=topic
                 ),
@@ -99,7 +99,7 @@ class EventGridDomain(pulumi.ComponentResource):
                 opts=self._opts,
             )
             for topic in self.config.topics or []
-        ]
+        }
 
     def _private_endpoint(self) -> list[PrivateEndpoint] | None:
         if self.config.private_endpoints:
@@ -137,6 +137,13 @@ class EventGridDomain(pulumi.ComponentResource):
                 "eventgrid_domain": {
                     "id": self.eventgrid_domain.id,
                     "name": self.eventgrid_domain.name,
+                    "endpoint": self.eventgrid_domain.endpoint,
+                    "topics": {
+                        name: {
+                            "name": topic.name,
+                        }
+                        for name, topic in self.topics.items()
+                    },
                 }
             }
         )

@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional
+from typing import List, Literal, Optional
 
 import pulumi
 from pulumi import ComponentResource
@@ -28,7 +28,7 @@ class NamespaceConfig(BaseModel):
     public_network_access: Optional[str] = pul_eventhub.PublicNetworkAccess.DISABLED
     sku: Literal["Basic", "Standard", "Premium"] = "Standard"
 
-    hubs: List[EventHubConfig]
+    hubs: Optional[List[EventHubConfig]] = None
     private_endpoints: Optional[List[PrivateEndpointConfig]] = None
 
     log_workspace_id: Optional[AzureIdRef] = None
@@ -53,11 +53,11 @@ class EventHub(ComponentResource):
             opts=opts,
         )
         self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
-            opts, pulumi.ResourceOptions(parent=self)
+            opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
 
         self.namespace: pul_eventhub.Namespace = self._namespace()
-        self.hubs: List[pul_eventhub.EventHub] = self._eventhubs()
+        self.hubs: dict[str, pul_eventhub.EventHub] = self._eventhubs()
         self.private_endpoints: List[PrivateEndpoint] | None = self._private_endpoints()
         self._diagnostic_settings()
 
@@ -65,7 +65,7 @@ class EventHub(ComponentResource):
 
     def _namespace(self) -> pul_eventhub.Namespace:
         return pul_eventhub.Namespace(
-            resource_name=self.stack.name_for(pul_eventhub.Namespace),
+            resource_name=self.stack.name_for(resource_type=pul_eventhub.Namespace),
             resource_group_name=self.stack.resource_group.name,
             location=self.stack.location,
             disable_local_auth=self.config.disable_local_auth,
@@ -84,32 +84,26 @@ class EventHub(ComponentResource):
             opts=self._opts,
         )
 
-    def _eventhubs(self) -> List[pul_eventhub.EventHub]:
-        return (
-            [
-                pul_eventhub.EventHub(
-                    resource_name=self.stack.name_for(
-                        pul_eventhub.EventHub, workload_name=hub.name
-                    ),
-                    event_hub_name=self.stack.name_for(
-                        pul_eventhub.EventHub, workload_name=hub.name
-                    ),
-                    resource_group_name=self.stack.resource_group.name,
-                    namespace_name=self.namespace.name,
-                    partition_count=hub.partitions,
-                    retention_description=pul_eventhub.RetentionDescriptionArgs(
-                        cleanup_policy=hub.cleanup_policy,
-                        retention_time_in_hours=hub.retention_hours,
-                    ),
-                    opts=pulumi.ResourceOptions.merge(
-                        self._opts, pulumi.ResourceOptions(parent=self.namespace)
-                    ),
-                )
-                for hub in self.config.hubs
-            ]
-            if self.config.hubs
-            else []
-        )
+    def _eventhubs(self) -> dict[str, pul_eventhub.EventHub]:
+        return {
+            hub.name: pul_eventhub.EventHub(
+                resource_name=self.stack.name_for(
+                    resource_type=pul_eventhub.EventHub, workload_name=hub.name
+                ),
+                event_hub_name=hub.name,
+                resource_group_name=self.stack.resource_group.name,
+                namespace_name=self.namespace.name,
+                partition_count=hub.partitions,
+                retention_description=pul_eventhub.RetentionDescriptionArgs(
+                    cleanup_policy=hub.cleanup_policy,
+                    retention_time_in_hours=hub.retention_hours,
+                ),
+                opts=pulumi.ResourceOptions.merge(
+                    opts1=self._opts, opts2=pulumi.ResourceOptions(parent=self.namespace)
+                ),
+            )
+            for hub in self.config.hubs or []
+        }
 
     def _private_endpoints(self) -> List[PrivateEndpoint] | None:
         if self.config.private_endpoints:
@@ -150,18 +144,23 @@ class EventHub(ComponentResource):
                 "hubs": self.hubs,
             }
         )
-        exports: dict[str, Any] = {}
-
-        exports["namespace"] = {
-            "id": self.namespace.id,
-            "name": self.namespace.name,
-        }
-
-        if self.hubs:
-            exports["hubs"] = [hub.name for hub in self.hubs]
 
         self.stack.export(
             exports={
-                "eventhub": exports,
+                "eventhub": {
+                    "namespace": {
+                        "id": self.namespace.id,
+                        "name": self.namespace.name,
+                        "endpoint": self.namespace.private_endpoint_connections,
+                    },
+                    "hubs": {
+                        name: {
+                            "name": hub.name,
+                            "partitions": hub.partition_count,
+                            "retention": hub.message_retention_in_days,
+                        }
+                        for name, hub in self.hubs.items()
+                    },
+                }
             }
         )

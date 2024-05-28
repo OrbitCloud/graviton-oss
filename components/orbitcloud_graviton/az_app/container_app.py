@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional, Union
 
 import pulumi
-from pulumi_azure_native.app import v20230501 as pam_app
+from pulumi_azure_native.app import v20240301 as pam_app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_acr.outputs import AdminUserEnabledRegistryOutput
@@ -66,6 +66,7 @@ class ContainerAppConfig(BaseModel):
     environment_output_ref: DictRef
     workload_profile_name: str
     containers: list[ContainerConfig]
+    revision_mode: Optional[pam_app.ActiveRevisionsMode] = pam_app.ActiveRevisionsMode.SINGLE
     secrets: Optional[Dict[str, StrRef | str]] = Field(default_factory=dict)
     scaling: Optional[ContainerAppScaleConfig] = ContainerAppScaleConfig()
     ingress: IngressConfig
@@ -187,6 +188,7 @@ class ContainerApp(pulumi.ComponentResource):
 
     def _app_configuration_args(self) -> pam_app.ConfigurationArgs:
         return pam_app.ConfigurationArgs(
+            active_revisions_mode=self.config.revision_mode,
             ingress=pam_app.IngressArgs(
                 allow_insecure=not self.config.ingress.https_only,
                 external=self.config.ingress.external,

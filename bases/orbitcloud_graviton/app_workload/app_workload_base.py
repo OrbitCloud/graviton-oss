@@ -55,29 +55,8 @@ def deploy() -> None:
 
     # Secrets from dependencies to register in Container App
     app_secrets: dict[str, Union[str, pulumi.Output[str] | None]] = {}
-    app_perms: List[IamAssignmentConfig] = []
-
-    ##########################################
-    # App Configuration Store
-    ##########################################
-    if config.app_config:
-        appcs: AppConfiguration = AppConfiguration(
-            stack=stack,
-            config=config.app_config,
-        )
-        app_secrets["appconfig-endpoint"] = appcs.app_config.endpoint
-        app_perms.extend(
-            [
-                IamAssignmentConfig(
-                    role="App Configuration Data Reader",
-                    scope=appcs.app_config.id,
-                ),
-                IamAssignmentConfig(
-                    role="Reader",
-                    scope=appcs.app_config.id,
-                ),
-            ]
-        )
+    app_perms: list[IamAssignmentConfig] = []
+    app_deps = []
 
     ##########################################
     # Storage Accounts
@@ -101,15 +80,43 @@ def deploy() -> None:
                 ]
             )
 
+        app_deps.append(_st)
+
     ##########################################
     # Search Service
     ##########################################
     if config.search_service:
-        SearchService(
+        search = SearchService(
             stack=stack,
             config=config.search_service,
             opts=opts,
         )
+
+        app_deps.append(search)
+
+    ##########################################
+    # App Configuration Store
+    ##########################################
+    if config.app_config:
+        appcs: AppConfiguration = AppConfiguration(
+            stack=stack,
+            config=config.app_config,
+            opts=pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(depends_on=app_deps)),
+        )
+        app_secrets["appconfig-endpoint"] = appcs.app_config.endpoint
+        app_perms.extend(
+            [
+                IamAssignmentConfig(
+                    role="App Configuration Data Reader",
+                    scope=appcs.app_config.id,
+                ),
+                IamAssignmentConfig(
+                    role="Reader",
+                    scope=appcs.app_config.id,
+                ),
+            ]
+        )
+        app_deps.append(appcs)
 
     ##########################################
     # App Configuration Store
@@ -126,5 +133,5 @@ def deploy() -> None:
             config=container_app.model_copy(
                 update={"secrets": app_secrets, "azure_permissions": perms}
             ),
-            opts=opts,
+            opts=pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(depends_on=app_deps)),
         )

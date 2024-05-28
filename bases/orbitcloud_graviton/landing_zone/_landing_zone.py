@@ -8,6 +8,7 @@ from orbitcloud_graviton.az_acr import (
     ContainerRegistryConfig,
     container_registry,
 )
+from orbitcloud_graviton.az_ai import SearchService, SearchServiceConfig
 from orbitcloud_graviton.az_eventgrid import EventGridDomain, EventGridDomainConfig
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
 from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
@@ -38,6 +39,8 @@ class LandingZoneConfig(PulumiConfig):
 
     has_keyvault: Optional[bool] = True
     has_container_registry: Optional[bool] = True
+
+    search_service: Optional[SearchServiceConfig] = None
 
     pulumi_app_additional_permissions: Optional[list[IamAssignmentConfig]] = None
 
@@ -127,6 +130,16 @@ def deploy_landing_zone() -> None:
         EventGridDomain(
             stack=stack,
             config=config.eventgrid_domain.model_copy(update={"log_workspace_id": logs.id}),
+            opts=pulumi.ResourceOptions(parent=stack.resource_group),
+        )
+
+    ##########################################
+    #   Search Service
+    ##########################################
+    if config.search_service:
+        SearchService(
+            stack=stack,
+            config=config.search_service,
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
 

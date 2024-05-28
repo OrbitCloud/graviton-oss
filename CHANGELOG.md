@@ -1,3 +1,9 @@
+## v0.55.1 (2024-05-28)
+
+### Fix
+
+- **app_workload**: Ensure dependencies are avilable before referencing (#289)
+
 ## v0.55.0 (2024-05-28)
 
 ### Refactor

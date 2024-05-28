@@ -1,3 +1,9 @@
+## v0.55.0 (2024-05-28)
+
+### Refactor
+
+- **StorageAccount**: Change default SKU to Premium LRS (#288)
+
 ## v0.54.0 (2024-05-28)
 
 ### Feat

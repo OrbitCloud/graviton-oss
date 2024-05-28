@@ -1,3 +1,9 @@
+## v0.53.0 (2024-05-28)
+
+### Feat
+
+- **ContainerApp**: Add revision mode option (#286)
+
 ## v0.52.2 (2024-05-27)
 
 ### Fix

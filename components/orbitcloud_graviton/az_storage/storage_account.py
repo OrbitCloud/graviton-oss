@@ -2,7 +2,7 @@ from ipaddress import IPv4Address
 from typing import Any, Dict, List, Literal, Optional
 
 import pulumi
-from pulumi_azure_native import storage
+from pulumi_azure_native.storage import v20230501 as storage
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
@@ -31,7 +31,7 @@ class StorageAccountPrivateEndpointConfig(BaseModel):
 class StorageAccountConfig(BaseModel):
     name: Optional[str] = None
     kind: storage.Kind = storage.Kind.STORAGE_V2
-    sku: storage.SkuName = storage.SkuName.STANDARD_LRS
+    sku: storage.SkuName = storage.SkuName.PREMIUM_LRS
     tier: storage.AccessTier = storage.AccessTier.HOT
 
     allow_blob_public_access: Optional[bool] = False
@@ -39,6 +39,7 @@ class StorageAccountConfig(BaseModel):
     public_network_access: Optional[storage.PublicNetworkAccess] = (
         storage.PublicNetworkAccess.DISABLED
     )
+    azure_portal_use_oauth: Optional[bool] = True
 
     nfs_v3: Optional[bool] = False
 
@@ -101,10 +102,12 @@ class StorageAccount(pulumi.ComponentResource):
                 kind=self.config.kind,
                 sku=storage.SkuArgs(name=str(self.config.sku.value)),
                 access_tier=self.config.tier,
+                # Access management
+                allow_shared_key_access=self.config.allow_shared_key_access,
+                default_to_o_auth_authentication=self.config.azure_portal_use_oauth,
                 # Network Access
                 public_network_access=self.config.public_network_access,
                 allow_blob_public_access=self.config.allow_blob_public_access,
-                allow_shared_key_access=self.config.allow_shared_key_access,
                 network_rule_set=self._network_rules(),
                 routing_preference=storage.RoutingPreferenceArgs(
                     routing_choice=self.config.routing.routing_preference,

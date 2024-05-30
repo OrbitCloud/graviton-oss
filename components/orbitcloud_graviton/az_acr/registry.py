@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Union
+from typing import Any, List, Literal, Optional, Union
 
 import pulumi
 from pulumi_azure_native.containerregistry import v20231101preview as containerregistry
@@ -17,6 +17,13 @@ class ContainerRegistryConfig(BaseModel):
         ..., default_factory=list
     )
     admin_user_enabled: Optional[bool] = False
+
+    sku: Optional[Literal["Standard", "Premium"]] = Field(
+        default="Premium",
+        title="SKU",
+        description="The SKU of the Container Registry. Default is Premium.",
+        examples=["Standard", "Premium"],
+    )
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -47,7 +54,7 @@ def container_registry(
         if config.ip_allow_list
         else None,
         sku=containerregistry.SkuArgs(
-            name="Premium",
+            name=config.sku if config.sku else "Premium",
         ),
         opts=opts,
     )

@@ -1,3 +1,9 @@
+## v0.56.0 (2024-05-30)
+
+### Feat
+
+- Add Azure Container Registry "Standard" SKU (#293)
+
 ## v0.55.1 (2024-05-28)
 
 ### Fix

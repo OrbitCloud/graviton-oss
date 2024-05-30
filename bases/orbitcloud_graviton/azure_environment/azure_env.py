@@ -18,6 +18,7 @@ from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
 
 class AzureEnvironmentConfig(PulumiConfig):
+    esc_env_name: Optional[str] = None
     imports: Optional[list[str]] = None
     pulumi_config: Optional[dict[str, Any]] = Field(default_factory=dict)
     environment_variables: Optional[dict[str, Any]] = Field(default_factory=dict)
@@ -35,7 +36,7 @@ def deploy() -> None:
 
     esc_provider = PulumiEscOidcProvider(
         organization=pulumi.get_organization(),
-        environment_name=stack.env,
+        environment_name=config.esc_env_name or stack.env,
         allowed_in_childs=config.allowed_in_childs,
     )
 
@@ -109,9 +110,9 @@ def deploy() -> None:
     env_vars: dict[str, str] = (config.environment_variables or {}) | esc_provider.azure_env_vars()
 
     PulumiEnv(
-        config=PulumiEnvConfig(env_name=stack.env),
+        config=PulumiEnvConfig(env_name=config.esc_env_name or stack.env),
         input={
-            "env_name": stack.env,
+            "env_name": config.esc_env_name or stack.env,
             "imports": config.imports,
             "values": {
                 "azure": esc_provider.azure_login(stack=stack, client_id=esc_app.app.client_id),

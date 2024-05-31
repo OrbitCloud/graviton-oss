@@ -1711,12 +1711,12 @@ semver = ">=2.8.1"
 
 [[package]]
 name = "pulumiverse-acme"
-version = "0.0.1"
+version = "0.1.0"
 description = "A Pulumi package for creating and managing ACME cloud resources."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "pulumiverse_acme-0.0.1.tar.gz", hash = "sha256:3ab96cb9715cad3c4e27316748eaa9fa553aa2c1933658f89ce6f24b50526a2c"},
+    {file = "pulumiverse_acme-0.1.0.tar.gz", hash = "sha256:35c724f233e9da44b4d8d8d78394eecb7c3e3f3f1e23d8356ce874e9eeb8b67d"},
 ]
 
 [package.dependencies]
@@ -2551,4 +2551,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "edc5284fabf4819bb74e5f880bdf0857884f257e79f71d40976ad08fc04650b5"
+content-hash = "d69a3c3384015ad87deddce692348c5b4d286d6279989ac721dcaa4168251e04"

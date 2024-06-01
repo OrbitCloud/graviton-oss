@@ -1,16 +1,27 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 
 import pulumi
 from pulumi_azure_native.app import v20240301 as pam_app
+from pulumi_azure_native.app.v20231102preview import (
+    AppResiliency,
+    AppResiliencyArgs,
+    CircuitBreakerPolicyArgs,
+    HttpConnectionPoolArgs,
+    HttpRetryPolicyArgs,
+    TcpConnectionPoolArgs,
+    TcpRetryPolicyArgs,
+    TimeoutPolicyArgs,
+)
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_acr.outputs import AdminUserEnabledRegistryOutput
-from orbitcloud_graviton.az_app._app_schema import ContainerProbeConfig, ContainerResourcesConfig
 from orbitcloud_graviton.az_app.outputs import ContainerAppEnvOutput
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.az_network.types import PrivateIPv4Network, PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureStack
+
+from ._app_schema import AppResiliencyConfig, ContainerProbeConfig, ContainerResourcesConfig
 
 
 class ContainerAppScaleConfig(BaseModel):
@@ -33,7 +44,8 @@ class CustomDomainConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
-class IngressConfig(BaseModel):
+class HttpIngressConfig(BaseModel):
+    protocol: Literal["http"]
     client_certificate_mode: pam_app.IngressClientCertificateMode = (
         pam_app.IngressClientCertificateMode.IGNORE
     )
@@ -44,6 +56,28 @@ class IngressConfig(BaseModel):
         ..., default_factory=list
     )
     target_port: int
+    sticky_sessions: Optional[pam_app.Affinity] = pam_app.Affinity.NONE
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class TcpIngressConfig(BaseModel):
+    protocol: Literal["tcp"]
+    target_port: int
+    exposed_port: Optional[int] = None
+    external: Optional[bool] = False
+    custom_domains: Optional[List[CustomDomainConfig]] = None
+    ip_allow_list: Optional[List[Union[PrivateIPv4Network, PublicIPv4Network, StrRef]]] = Field(
+        default_factory=list
+    )
+
+    @model_validator(mode="after")
+    def validate_exposed_port(m: "TcpIngressConfig") -> "TcpIngressConfig":
+        if (m.external and m.exposed_port) and not m.ip_allow_list:
+            pulumi.warn(
+                msg="External TCP ingress is configured without IP allow list. Are you sure?"
+            )
+        return m
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -69,7 +103,8 @@ class ContainerAppConfig(BaseModel):
     revision_mode: Optional[pam_app.ActiveRevisionsMode] = pam_app.ActiveRevisionsMode.SINGLE
     secrets: Optional[Dict[str, StrRef | str]] = Field(default_factory=dict)
     scaling: Optional[ContainerAppScaleConfig] = ContainerAppScaleConfig()
-    ingress: IngressConfig
+    resiliency: Optional[AppResiliencyConfig] = None
+    ingress: HttpIngressConfig | TcpIngressConfig = Field(..., discriminator="protocol")
     log_workspace_id: Optional[AzureIdRef] = None
     registry_output_ref: Optional[DictRef] = None
 
@@ -114,6 +149,7 @@ class ContainerApp(pulumi.ComponentResource):
         self.registry: AdminUserEnabledRegistryOutput | None = self._get_registry()
         self.environment: ContainerAppEnvOutput = self._get_environment()
         self.app: pam_app.ContainerApp = self._container_app()
+        self.resiliency: AppResiliency | None = self._app_resiliency()
         self._azure_permissions()
 
         self._outputs()
@@ -176,24 +212,32 @@ class ContainerApp(pulumi.ComponentResource):
             else None,
         )
 
-    def _dapr_args(self) -> pam_app.DaprArgs:
-        return pam_app.DaprArgs(
-            app_id=self.app_name,
-            enabled=True,
-            enable_api_logging=True,
-            app_port=self.config.ingress.target_port,
-            app_protocol="http",
-            log_level=pam_app.LogLevel.DEBUG,
-        )
-
     def _app_configuration_args(self) -> pam_app.ConfigurationArgs:
         return pam_app.ConfigurationArgs(
             active_revisions_mode=self.config.revision_mode,
             ingress=pam_app.IngressArgs(
-                allow_insecure=not self.config.ingress.https_only,
-                external=self.config.ingress.external,
+                allow_insecure=self.config.ingress.https_only
+                if isinstance(self.config.ingress, HttpIngressConfig)
+                else False,
+                external=self.config.ingress.external
+                if hasattr(self.config.ingress, "external")
+                else False,
                 target_port=self.config.ingress.target_port,
                 custom_domains=self._custom_domain_args(),
+                client_certificate_mode=self.config.ingress.client_certificate_mode
+                if isinstance(self.config.ingress, HttpIngressConfig)
+                else None,
+                exposed_port=self.config.ingress.exposed_port
+                if isinstance(self.config.ingress, TcpIngressConfig)
+                else None,
+                sticky_sessions=pam_app.IngressStickySessionsArgs(
+                    affinity=self.config.ingress.sticky_sessions,
+                )
+                if isinstance(self.config.ingress, HttpIngressConfig)
+                else None,
+                transport=pam_app.IngressTransportMethod.TCP
+                if self.config.ingress.protocol == "tcp"
+                else pam_app.IngressTransportMethod.AUTO,
                 ip_security_restrictions=[
                     pam_app.IpSecurityRestrictionRuleArgs(
                         name=f"allow-{ip}",
@@ -299,6 +343,57 @@ class ContainerApp(pulumi.ComponentResource):
                     opts=pulumi.ResourceOptions(parent=self.app, delete_before_replace=True),
                 )
 
+    def _app_resiliency(self) -> AppResiliency | None:
+        if not self.config.resiliency:
+            return None
+
+        return AppResiliency(
+            resource_name=self.stack.name_for(resource_type=AppResiliency),
+            args=AppResiliencyArgs(
+                app_name=self.app.name,
+                resource_group_name=self.stack.resource_group.name,
+                circuit_breaker_policy=CircuitBreakerPolicyArgs(
+                    consecutive_errors=self.config.resiliency.circuit_breaker.consecutive_errors,
+                    interval_in_seconds=self.config.resiliency.circuit_breaker.interval_in_seconds,
+                    max_ejection_percent=self.config.resiliency.circuit_breaker.max_ejection_percent,
+                )
+                if self.config.resiliency.circuit_breaker
+                else None,
+                http_connection_pool=HttpConnectionPoolArgs(
+                    http1_max_pending_requests=self.config.resiliency.http_connection_pool.http1_max_pending_requests,
+                    http2_max_requests=self.config.resiliency.http_connection_pool.http2_max_requests,
+                )
+                if self.config.resiliency.http_connection_pool
+                else None,
+                http_retry_policy=HttpRetryPolicyArgs(
+                    max_retries=self.config.resiliency.http_retry.max_retries,
+                    max_interval_in_milliseconds=self.config.resiliency.http_retry.max_interval_ms,
+                    initial_delay_in_milliseconds=self.config.resiliency.http_retry.initial_delay_ms,
+                    errors=self.config.resiliency.http_retry.error_types,
+                    http_status_codes=self.config.resiliency.http_retry.http_status_codes,
+                )
+                if self.config.resiliency.http_retry
+                else None,
+                tcp_connection_pool=TcpConnectionPoolArgs(
+                    max_connections=self.config.resiliency.tcp_connection_pool.max_connections,
+                )
+                if self.config.resiliency.tcp_connection_pool
+                else None,
+                tcp_retry_policy=TcpRetryPolicyArgs(
+                    max_connect_attempts=self.config.resiliency.tcp_retries.max_retries,
+                )
+                if self.config.resiliency.tcp_retries
+                else None,
+                timeout_policy=TimeoutPolicyArgs(
+                    connection_timeout_in_seconds=self.config.resiliency.timeout.connection_timeout_seconds,
+                    response_timeout_in_seconds=self.config.resiliency.timeout.response_timeout_seconds,
+                )
+                if self.config.resiliency.timeout
+                else None,
+            ),
+            opts=self._opts,
+        )
+
     def _outputs(self) -> None:
         self.register_outputs(
             {"some_resource": self.app},
@@ -310,9 +405,17 @@ class ContainerApp(pulumi.ComponentResource):
                     "id": self.app.id,
                     "name": self.app.name,
                     "endpoints": {
-                        "default_url": self.app.configuration.ingress.fqdn.apply(
+                        "default": self.app.configuration.ingress.fqdn.apply(
                             lambda x: f"https://{x}",
-                        ),
+                        )
+                        if self.config.ingress.protocol == "http"
+                        else self.app.configuration.ingress.fqdn,
+                        "port": self.config.ingress.exposed_port
+                        if (
+                            isinstance(self.config.ingress, TcpIngressConfig)
+                            and self.config.ingress.exposed_port
+                        )
+                        else self.config.ingress.target_port,
                         "custom_domains": (
                             self.app.configuration.ingress.custom_domains
                             if self.app.configuration.ingress.custom_domains

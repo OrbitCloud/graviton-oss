@@ -78,3 +78,61 @@ class ContainerResourcesConfig(BaseModel):
             raise ValueError(
                 f"Invalid combination of CPU and memory when using the consumption profile: {self.cpu} CPU and {self.memory_gb} memory. Valid combinations are: {self.CONSUMPTION_COMBINATIONS}"
             )
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class ResiliencyCircuitBreaker(BaseModel):
+    consecutive_errors: int
+    interval_in_seconds: int
+    max_ejection_percent: int = Field(default=..., ge=0, le=100)
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class ResiliencyHttpConnectionPool(BaseModel):
+    http1_max_pending_requests: int
+    http2_max_requests: int
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class ResiliencyHttpRetry(BaseModel):
+    error_types: Literal[
+        "5xx", "connect-failure", "reset", "retriable-headers", "retriable-status-codes"
+    ]
+    max_retries: int
+    initial_delay_ms: int
+    max_interval_ms: int
+    http_status_codes: Optional[list[int]] = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class ResiliencyTcpConnectionPool(BaseModel):
+    max_connections: int
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class ResiliencyTcpRetries(BaseModel):
+    max_retries: int
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class ResiliencyTimeout(BaseModel):
+    connection_timeout_seconds: int
+    response_timeout_seconds: int
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class AppResiliencyConfig(BaseModel):
+    timeout: Optional[ResiliencyTimeout] = None
+    http_connection_pool: Optional[ResiliencyHttpConnectionPool] = None
+    http_retry: Optional[ResiliencyHttpRetry] = None
+    circuit_breaker: Optional[ResiliencyCircuitBreaker] = None
+    tcp_connection_pool: Optional[ResiliencyTcpConnectionPool] = None
+    tcp_retries: Optional[ResiliencyTcpRetries] = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")

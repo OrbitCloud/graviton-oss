@@ -1,3 +1,9 @@
+## v0.57.0 (2024-06-01)
+
+### Feat
+
+- ContainerApp resilience and TCP ingress (#299)
+
 ## v0.56.0 (2024-05-30)
 
 ### Feat

@@ -116,3 +116,5 @@ msbuild.wrn
 *.key
 .lego/
 bjarni-m1.code-workspace
+components/orbitcloud_graviton/ora_queue/_bjarni_tmp/**
+projects/**

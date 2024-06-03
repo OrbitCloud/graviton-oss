@@ -1,3 +1,9 @@
+## v0.57.1 (2024-06-03)
+
+### Fix
+
+- **ContainerApp**: Fix https only configurations (#304)
+
 ## v0.57.0 (2024-06-01)
 
 ### Feat

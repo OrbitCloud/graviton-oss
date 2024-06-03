@@ -58,7 +58,7 @@ enabled = false
 python = "^3.12"
 pydantic = {extras = ["email"], version = "^2.7.0"}
 pydantic-settings = "^2.2.1"
-pulumi = "^3.117"
+pulumi = "^3.118"
 pulumi-azure-native = "^2.43"
 pulumi-azuread = "^5.48"
 pulumi-command = "^0.11"

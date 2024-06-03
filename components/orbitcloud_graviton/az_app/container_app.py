@@ -216,7 +216,7 @@ class ContainerApp(pulumi.ComponentResource):
         return pam_app.ConfigurationArgs(
             active_revisions_mode=self.config.revision_mode,
             ingress=pam_app.IngressArgs(
-                allow_insecure=self.config.ingress.https_only
+                allow_insecure=not self.config.ingress.https_only
                 if isinstance(self.config.ingress, HttpIngressConfig)
                 else False,
                 external=self.config.ingress.external

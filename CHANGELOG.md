@@ -1,3 +1,9 @@
+## v0.58.0 (2024-06-06)
+
+### Refactor
+
+- **KeyVault**: Enable purge protection by default (#312)
+
 ## v0.57.1 (2024-06-03)
 
 ### Fix

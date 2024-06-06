@@ -45,6 +45,8 @@ class KeyVaultConfig(BaseModel):
         description="Allow traffic from trusted Azure services",
     )
 
+    enable_purge_protection: Optional[bool] = True
+
     log_workspace_id: Optional[AzureIdRef] = None
 
     @model_validator(mode="after")
@@ -88,6 +90,7 @@ class KeyVault(ComponentResource):
             properties=keyvault.VaultPropertiesArgs(
                 public_network_access=self.config.public_network_access,
                 enable_rbac_authorization=True,
+                enable_purge_protection=self.config.enable_purge_protection,
                 tenant_id=str(self.stack.tenant_id),
                 sku=keyvault.SkuArgs(
                     family=keyvault.SkuFamily.A,

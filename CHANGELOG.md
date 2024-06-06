@@ -1,3 +1,9 @@
+## v0.58.1 (2024-06-06)
+
+### Fix
+
+- **LandingZone**: Remove pulumi app permissions config parameter no longer used (#314)
+
 ## v0.58.0 (2024-06-06)
 
 ### Refactor

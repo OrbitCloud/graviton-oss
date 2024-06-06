@@ -11,7 +11,7 @@ from orbitcloud_graviton.az_acr import (
 from orbitcloud_graviton.az_ai import SearchService, SearchServiceConfig
 from orbitcloud_graviton.az_eventgrid import EventGridDomain, EventGridDomainConfig
 from orbitcloud_graviton.az_eventhub import EventHub, NamespaceConfig
-from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
+from orbitcloud_graviton.az_iam import iam_assignment
 from orbitcloud_graviton.az_keyvault import KeyVault, KeyVaultConfig
 from orbitcloud_graviton.az_monitor import LogWorkspaceConfig, log_workspace
 from orbitcloud_graviton.az_network.dns_zone import DnsZone, DnsZoneConfig
@@ -41,8 +41,6 @@ class LandingZoneConfig(PulumiConfig):
     has_container_registry: Optional[bool] = True
 
     search_service: Optional[SearchServiceConfig] = None
-
-    pulumi_app_additional_permissions: Optional[list[IamAssignmentConfig]] = None
 
     workload_identities: Optional[List[WorkloadIdentityConfig]] = None
     resource_providers: Optional[list[str]] = None

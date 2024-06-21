@@ -1,3 +1,9 @@
+## v0.59.0 (2024-06-21)
+
+### Feat
+
+- add support for vnet peering (#323)
+
 ## v0.58.1 (2024-06-06)
 
 ### Fix

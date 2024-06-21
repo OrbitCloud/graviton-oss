@@ -5,7 +5,8 @@ from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from orbitcloud_graviton.pulumi_lib import AzureStack
+from orbitcloud_graviton.az_lib.types import AzureIdRef, AzureResourceId
+from orbitcloud_graviton.pulumi_lib import AzureStack, get_provider
 
 from ._enums import SubnetServiceEndpoints
 from .types import PrivateIPv4Network
@@ -25,9 +26,20 @@ class SubnetConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
+class VnetPeeringConfig(BaseModel):
+    allow_forwarded_traffic: Optional[bool] = True
+    allow_gateway_transit: Optional[bool] = False
+    allow_virtual_network_access: Optional[bool] = True
+    use_remote_gateways: Optional[bool] = False
+    remote_virtual_network: AzureIdRef
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
 class VnetConfig(BaseModel):
     address_space: List[PrivateIPv4Network]
     subnets: list[SubnetConfig]
+    peered_vnets: Optional[List[VnetPeeringConfig]] = None
 
     # Validate that subnets are unique, don't overlap and are within the vnet address space
     @model_validator(mode="after")
@@ -88,6 +100,7 @@ class Vnet(ComponentResource):
 
         self.vnet: network.VirtualNetwork = self._vnet()
         self.subnets: Dict[str, network.Subnet] = self._subnets()
+        self.vnet_peering = self._vnet_peerings()
 
         self._outputs()
 
@@ -160,6 +173,41 @@ class Vnet(ComponentResource):
             if subnet.delegation
             else None
         )
+
+    def _vnet_peerings(self) -> None:
+        if self.config.peered_vnets:
+            print("Peering VNETs")
+            for peering in self.config.peered_vnets:
+                target_vnet = AzureResourceId(str(peering.remote_virtual_network))
+                provider = get_provider(str(target_vnet.subscription_id))
+                vnet_name = self.stack.name_for(network.VirtualNetwork)
+                # Peer source VNET to target VNET
+                network.VirtualNetworkPeering(
+                    resource_name=f"{vnet_name}-to-{target_vnet.resource_name}_peering",
+                    resource_group_name=self.stack.resource_group.name,
+                    virtual_network_name=self.vnet.name,
+                    remote_virtual_network=network.SubResourceArgs(id=target_vnet.id),
+                    allow_forwarded_traffic=peering.allow_forwarded_traffic,
+                    allow_gateway_transit=peering.allow_gateway_transit,
+                    allow_virtual_network_access=peering.allow_virtual_network_access,
+                    use_remote_gateways=peering.use_remote_gateways,
+                    opts=pulumi.ResourceOptions(
+                        parent=self.vnet,
+                    ),
+                )
+
+                # Peer target VNET to source VNET
+                network.VirtualNetworkPeering(
+                    resource_name=f"{target_vnet.resource_name}-to-{vnet_name}_peering",
+                    resource_group_name=target_vnet.resource_group_name,
+                    virtual_network_name=target_vnet.resource_name,
+                    remote_virtual_network=network.SubResourceArgs(id=self.vnet.id),
+                    allow_forwarded_traffic=peering.allow_forwarded_traffic,
+                    allow_gateway_transit=peering.allow_gateway_transit,
+                    allow_virtual_network_access=peering.allow_virtual_network_access,
+                    use_remote_gateways=peering.use_remote_gateways,
+                    opts=pulumi.ResourceOptions(parent=self.vnet, provider=provider),
+                )
 
     def _outputs(self) -> None:
         self.register_outputs(

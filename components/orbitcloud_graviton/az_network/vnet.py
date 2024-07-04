@@ -8,7 +8,8 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from orbitcloud_graviton.az_lib.types import AzureIdRef, AzureResourceId
 from orbitcloud_graviton.pulumi_lib import AzureStack, get_provider
 
-from ._enums import SubnetServiceEndpoints
+from ._enums import NON_NSG_SUBNETS, SPECIAL_SUBNETS, SubnetServiceEndpoints
+from .nsg import DEFAULT_DENY_RULE, NsgRuleConfig
 from .types import PrivateIPv4Network
 
 
@@ -22,6 +23,13 @@ class SubnetConfig(BaseModel):
 
     virtual_network_name: Optional[Union[str, pulumi.Output[str]]] = None
     service_endpoints: Optional[List[SubnetServiceEndpoints]] = None
+    network_rules: Optional[List[NsgRuleConfig]] = None
+
+    @model_validator(mode="after")
+    def validate_network_rules(m: "SubnetConfig") -> "SubnetConfig":
+        if m.network_rules and m.name in NON_NSG_SUBNETS:
+            raise ValueError(f"Subnet {m.name} cannot have network rules")
+        return m
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -40,6 +48,7 @@ class VnetConfig(BaseModel):
     address_space: List[PrivateIPv4Network]
     subnets: list[SubnetConfig]
     peered_vnets: Optional[List[VnetPeeringConfig]] = None
+    create_default_nsgs: Optional[bool] = False
 
     # Validate that subnets are unique, don't overlap and are within the vnet address space
     @model_validator(mode="after")
@@ -99,6 +108,7 @@ class Vnet(ComponentResource):
         )
 
         self.vnet: network.VirtualNetwork = self._vnet()
+        self.nsgs: Dict[str, network.NetworkSecurityGroup] = self._nsgs()
         self.subnets: Dict[str, network.Subnet] = self._subnets()
         self.vnet_peering = self._vnet_peerings()
 
@@ -119,17 +129,71 @@ class Vnet(ComponentResource):
             ),
         )
 
+    def _nsgs(self) -> Dict[str, network.NetworkSecurityGroup]:
+        nsgs = {}
+        # Declare default deny rule added by default to all NSGs
+
+        for subnet in self.config.subnets:
+            if subnet.network_rules or (
+                self.config.create_default_nsgs and subnet.name not in NON_NSG_SUBNETS
+            ):
+                nsg = network.NetworkSecurityGroup(
+                    resource_name=f"nsg-{self.stack.name_for(resource_type=network.Subnet, workload_name=subnet.name)}",
+                    network_security_group_name=f"nsg-{self.stack.name_for(resource_type=network.Subnet, workload_name=subnet.name)}",
+                    resource_group_name=self.stack.resource_group.name,
+                    location=self.stack.location,
+                    opts=pulumi.ResourceOptions.merge(self._opts, pulumi.ResourceOptions(None)),
+                )
+                rules = [DEFAULT_DENY_RULE] + (subnet.network_rules or [])
+                for i, rule in enumerate(rules):
+                    # Handle addresses - single or list -> prefix or prefixes
+                    # Handle source addresses
+                    if isinstance(rule.source_addresses, list):
+                        source_address_prefixes = [str(addr) for addr in rule.source_addresses]
+                        source_address_prefix = None
+                    else:
+                        source_address_prefixes = None
+                        source_address_prefix = str(rule.source_addresses)
+
+                    # Handle destination addresses
+                    if isinstance(rule.destination_addresses, list):
+                        destination_address_prefixes = [
+                            str(addr) for addr in rule.destination_addresses
+                        ]
+                        destination_address_prefix = None
+                    else:
+                        destination_address_prefixes = None
+                        destination_address_prefix = str(rule.destination_addresses)
+
+                    # Set priority automatically if not set
+                    if rule.priority is None:
+                        rule.priority = 100 + i
+                    network.SecurityRule(
+                        resource_name=f"nsg-{self.stack.name_for(resource_type=network.Subnet, workload_name=subnet.name)}-{rule.name}-{i}",
+                        direction=rule.direction,
+                        protocol=rule.protocol,
+                        access=rule.action,
+                        security_rule_name=rule.name,
+                        description=rule.description,
+                        destination_port_range=rule.destination_port_range,
+                        source_port_range=rule.source_port_range,
+                        destination_address_prefix=destination_address_prefix,
+                        destination_address_prefixes=destination_address_prefixes,
+                        source_address_prefix=source_address_prefix,
+                        source_address_prefixes=source_address_prefixes,
+                        priority=rule.priority,
+                        resource_group_name=self.stack.resource_group.name,
+                        network_security_group_name=nsg.name,
+                        opts=pulumi.ResourceOptions(parent=nsg),
+                    )
+                nsgs[subnet.name] = nsg
+        return nsgs
+
     def _subnets(self) -> Dict[str, network.Subnet]:
-        special_subnets = {
-            "GatewaySubnet",
-            "AzureFirewallManagementSubnet",
-            "AzureFirewallSubnet",
-            "AzureBastionSubnet",
-        }
         return {
             subnet.name: network.Subnet(
                 resource_name=subnet.name
-                if subnet.name in special_subnets
+                if subnet.name in SPECIAL_SUBNETS
                 else self.stack.name_for(resource_type=network.Subnet, workload_name=subnet.name),
                 args=network.SubnetInitArgs(
                     resource_group_name=self.stack.resource_group.name,
@@ -138,6 +202,11 @@ class Vnet(ComponentResource):
                     delegations=self._subnet_delegation(subnet),
                     private_endpoint_network_policies=subnet.private_endpoint_network_policies,
                     service_endpoints=self._subnet_service_endpoints_args(subnet),
+                    network_security_group=network.NetworkSecurityGroupArgs(
+                        id=self.nsgs[subnet.name].id
+                    )
+                    if self.nsgs.get(subnet.name)
+                    else None,
                 ),
                 opts=pulumi.ResourceOptions(
                     parent=self.vnet,

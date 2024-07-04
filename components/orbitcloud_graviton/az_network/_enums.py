@@ -13,3 +13,12 @@ SubnetServiceEndpoints = Literal[
     "Microsoft.Storage.Global",
     "Microsoft.Web",
 ]
+
+SPECIAL_SUBNETS = {
+    "GatewaySubnet",
+    "AzureFirewallManagementSubnet",
+    "AzureFirewallSubnet",
+    "AzureBastionSubnet",
+}
+
+NON_NSG_SUBNETS = {"GatewaySubnet", "AzureFirewallSubnet", "AzureFirewallManagementSubnet"}

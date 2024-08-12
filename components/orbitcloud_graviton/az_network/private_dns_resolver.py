@@ -203,8 +203,9 @@ class PrivateDnsResolver(ComponentResource):
                     resource_group_name=self.stack.resource_group.name,
                 )
                 for rule in self.config.outbound_endpoint.rules:
-                    formatted_target_dns_servers = [
-                        {"ip_address": str(ip)} for ip in rule.target_dns_servers
+                    targets: List[network.TargetDnsServerArgsDict] = [
+                        network.TargetDnsServerArgsDict({"ip_address": str(ip)})
+                        for ip in rule.target_dns_servers
                     ]
                     network.ForwardingRule(
                         resource_name=fmt_name(rule.domain_name),
@@ -213,7 +214,7 @@ class PrivateDnsResolver(ComponentResource):
                         forwarding_rule_state=rule.rule_state,
                         dns_forwarding_ruleset_name=ruleset.name,
                         domain_name=rule.domain_name + ".",
-                        target_dns_servers=formatted_target_dns_servers,
+                        target_dns_servers=targets,
                     )
                 if self.config.outbound_endpoint.linked_vnets:
                     for vnet in self.config.outbound_endpoint.linked_vnets:

@@ -21,9 +21,9 @@ def _make_optional(
 
     def decorator(model: type[T]) -> type[T]:
         def make_optional(field: FieldInfo, default: Any = None) -> tuple[Any, FieldInfo]:
-            new = deepcopy(field)
+            new: FieldInfo = deepcopy(field)
             new.default = default
-            new.annotation = Optional[field.annotation or Any]
+            new.annotation = field.annotation
             return new.annotation, new
 
         fields = model.model_fields

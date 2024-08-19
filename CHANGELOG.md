@@ -1,3 +1,9 @@
+## v0.60.0 (2024-08-19)
+
+### Feat
+
+- **PostgresFlexibleServer**: Support Azure Postgres Flexible Server  (#298)
+
 ## v0.59.0 (2024-06-21)
 
 ### Feat

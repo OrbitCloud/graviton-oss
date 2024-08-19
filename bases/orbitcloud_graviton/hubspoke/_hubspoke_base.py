@@ -22,6 +22,7 @@ from orbitcloud_graviton.az_network import (
     VwanS2SVpnGw,
 )
 from orbitcloud_graviton.pulumi_lib import AzureStack, PulumiConfig, get_azure_stack
+from orbitcloud_graviton.pulumi_lib.helpers import fmt_name
 from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 from orbitcloud_graviton.pulumi_lib.types import DomainName
 
@@ -143,9 +144,20 @@ def deploy_hub_spoke():
     # Private DNS Zones
     ##########################################
     if config.private_dns_zones:
+        private_zones: dict[str, PrivateDnsZone] = {}
         for zone in config.private_dns_zones:
-            PrivateDnsZone(
-                stack=stack.model_copy(update={"exports_prefix": zone.name}),
+            private_zones[zone.name] = PrivateDnsZone(
+                stack=stack.model_copy(update={"skip_exports": True}),
                 config=zone,
                 opts=pulumi.ResourceOptions(parent=rg),
             )
+        stack.export(
+            exports={
+                "private_dns_zones": {
+                    fmt_name(v=zone_name): {
+                        "id": zone.zone.id,
+                    }
+                    for zone_name, zone in private_zones.items()
+                }
+            }
+        )

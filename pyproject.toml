@@ -36,6 +36,7 @@ packages = [
     {include = "orbitcloud_graviton/pulumi",from = "components"},
     {include = "orbitcloud_graviton/azure_environment",from = "bases"},
     {include = "orbitcloud_graviton/azure_tenant",from = "bases"},
+    {include = "orbitcloud_graviton/oracledb",from = "bases"},
 ]
 
 

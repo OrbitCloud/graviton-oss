@@ -1,6 +1,7 @@
 from ._enums import SubnetServiceEndpoints
 from .az_private_dns_zone_group import az_privatednszonegroup
 from .dns_zone import DnsZone, DnsZoneConfig
+from .nic import NetworkInterface, NetworkInterfaceConfig
 from .private_dns_resolver import PrivateDnsResolver, PrivateDnsResolverConfig
 from .private_dns_zone import PrivateDnsZone, PrivateDNSZoneConfig
 from .private_endpoint import PrivateEndpoint, PrivateEndpointConfig
@@ -14,6 +15,8 @@ from .vwan_s2s_vpn import VwanS2sVpnGatewayConfig, VwanS2SVpnGw
 
 __all__ = [
     "az_privatednszonegroup",
+    "NetworkInterface",
+    "NetworkInterfaceConfig",
     "PrivateIPv4Network",
     "SubnetConfig",
     "VnetConfig",

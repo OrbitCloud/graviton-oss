@@ -5,7 +5,7 @@ LOCATION_ABBR: Dict[str, str] = {
     "northeurope": "neu",
     "norwayeast": "noe",
     "norwaywest": "now",
-    "swedencentral": "sec",
+    "swedencentral": "swe",
 }
 
 RESOURCE_PREFIXES: Dict[str, Any] = {
@@ -97,6 +97,9 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.search.service": {"prefix": "srch"},
     "pulumi_azure_native.dbforpostgresql.server": {"prefix": "psql"},
     "pulumi_random.random_password": {"prefix": "rand"},
+    "pulumi_azure_native.compute.virtual_machine": {"prefix": "vm"},
+    "pulumi_azure_native.compute.disk": {"prefix": "disk"},
+    "pulumi_azure_native.network.network_interface": {"prefix": "nic"},
     # See Cloud Adoption Framework Abbreviations:
     # https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 }

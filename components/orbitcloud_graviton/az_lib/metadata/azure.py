@@ -418,7 +418,7 @@ _azure_regions: dict[str, dict[str, str]] = {
     },
     "swedencentral": {
         "name": "Sweden Central",
-        "abbr": "sec",
+        "abbr": "swe",
     },
     "norwayeast": {
         "name": "Norway East",

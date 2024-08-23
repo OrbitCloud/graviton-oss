@@ -28,6 +28,12 @@ class StorageAccountPrivateEndpointConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
+class StorageAccountFileShareConfig(BaseModel):
+    name: str
+    share_quota: Optional[int] = 102400
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
 class StorageAccountConfig(BaseModel):
     name: Optional[str] = None
     kind: storage.Kind = storage.Kind.STORAGE_V2
@@ -41,8 +47,12 @@ class StorageAccountConfig(BaseModel):
     )
     azure_portal_use_oauth: Optional[bool] = True
 
+    # File share options
+    smb_secure_defaults: Optional[bool] = True
     nfs_v3: Optional[bool] = False
+    large_file_shares: Optional[storage.LargeFileSharesState] = storage.LargeFileSharesState.ENABLED
 
+    # Networking
     allowed_private_subnets: Optional[List[AzureIdRef]] = None
     allowed_public_ips: Optional[List[IPv4Address]] = None
     routing: StorageAccountRoutingConfig = StorageAccountRoutingConfig()
@@ -51,6 +61,7 @@ class StorageAccountConfig(BaseModel):
     storage_containers: Optional[List[str]] = None
     storage_tables: Optional[List[str]] = None
     storage_queues: Optional[List[str]] = None
+    file_shares: Optional[List[StorageAccountFileShareConfig]] = None
 
     app_permissions: Optional[StorageAccountAppPermissions] = None
 
@@ -86,6 +97,7 @@ class StorageAccount(pulumi.ComponentResource):
         self.storage_container: List[storage.BlobContainer] = self._storage_containers()
         self.storage_tables: List[storage.Table] = self._storage_tables()
         self.storage_queues: List[storage.Queue] = self._storage_queues()
+        self.storage_shares: dict[str, storage.FileShare] = self._storage_file_shares()
 
         self.private_endpoints: List[PrivateEndpoint] = self._private_endpoints()
 
@@ -117,6 +129,7 @@ class StorageAccount(pulumi.ComponentResource):
                 # Protocols
                 minimum_tls_version=storage.MinimumTlsVersion.TLS1_2,
                 enable_nfs_v3=self.config.nfs_v3,
+                large_file_shares_state=self.config.large_file_shares,
             ),
             opts=self._opts,
         )
@@ -125,7 +138,9 @@ class StorageAccount(pulumi.ComponentResource):
         ip_rules = []
         vnet_rules = []
 
-        if self.config.public_network_access == storage.PublicNetworkAccess.DISABLED:
+        if (self.config.public_network_access == storage.PublicNetworkAccess.DISABLED) and (
+            self.config.allowed_public_ips or self.config.allowed_private_subnets
+        ):
             pulumi.warn(
                 msg="Public / private network ACL cannot be configured when Public Network Access is disabled."
             )
@@ -244,6 +259,56 @@ class StorageAccount(pulumi.ComponentResource):
             ]
             if self.config.storage_queues
             else []
+        )
+
+    def _storage_file_shares(self) -> dict[str, storage.FileShare]:
+        if self.config.file_shares and self.config.smb_secure_defaults:
+            self._storage_file_share_security()
+
+        _shares: dict[str, storage.FileShare] = {}
+
+        for share in self.config.file_shares or []:
+            _shares[share.name] = storage.FileShare(
+                resource_name=self.stack.name_for(
+                    resource_type=storage.FileShare, workload_name=share.name
+                ),
+                args=storage.FileShareArgs(
+                    share_name=share.name,
+                    account_name=self.storage_account.name,
+                    resource_group_name=self.stack.resource_group.name,
+                    share_quota=share.share_quota,
+                ),
+                opts=self._opts._merge_instance(
+                    opts=pulumi.ResourceOptions(parent=self.storage_account)
+                ),
+            )
+        return _shares
+
+    def _storage_file_share_security(self) -> storage.FileServiceProperties | None:
+        return storage.FileServiceProperties(
+            resource_name=self.stack.name_for(resource_type=storage.FileServiceProperties),
+            args=storage.FileServicePropertiesArgs(
+                resource_group_name=self.stack.resource_group.name,
+                account_name=self.storage_account.name,
+                file_services_name="default",
+                protocol_settings=storage.ProtocolSettingsArgs(
+                    smb=storage.SmbSettingArgs(
+                        # Note: Currently Azure doesn't support Kerberos AD authentication for SMB mounts
+                        authentication_methods="NTLMv2;Kerberos;",
+                        # cifs-utils version installed by most Linux distros don't support AES-256-GCM yet
+                        # so also enable AES-128-GCM
+                        channel_encryption="AES-256-GCM;AES-128-GCM;",
+                        kerberos_ticket_encryption="AES-256;",
+                        # Enforce the use of SMB3.1.1
+                        # Encryption is enabled by default in SMB3.1.1
+                        versions="SMB3.1.1;",
+                    ),
+                ),
+                share_delete_retention_policy=storage.DeleteRetentionPolicyArgs(
+                    days=30, enabled=True
+                ),
+            ),
+            opts=self._opts,
         )
 
     def get_endpoints(

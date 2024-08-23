@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p ${UPDATED_RELEASE_DIR}
+cp -r ${ORACLE_RELEASE_DIR}/* ${UPDATED_RELEASE_DIR}
+mv ${UPDATED_RELEASE_DIR}/OPatch ${UPDATED_RELEASE_DIR}/OPatch.old
+cp -r ${SOFTWARE_DIR}/19.0.0/OPatch ${UPDATED_RELEASE_DIR}/OPatch

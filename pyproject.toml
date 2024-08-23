@@ -22,6 +22,7 @@ packages = [
     { include = "orbitcloud_graviton/entra",from = "components" },
     { include = "orbitcloud_graviton/az_eventhub",from = "components" },
     {include = "orbitcloud_graviton/az_providerhub",from = "components"},
+    {include = "orbitcloud_graviton/pulumi_jinja",from = "components"},
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
     { include = "orbitcloud_graviton/landing_zone",from = "bases" },
     { include = "orbitcloud_graviton/hubspoke",from = "bases" },
@@ -34,6 +35,8 @@ packages = [
     {include = "orbitcloud_graviton/az_eventgrid",from = "components"},
     {include = "orbitcloud_graviton/az_ai",from = "components"},
     {include = "orbitcloud_graviton/pulumi",from = "components"},
+    {include = "orbitcloud_graviton/cloud_init",from = "components"},
+    {include = "orbitcloud_graviton/pulumi_jinja",from = "components"},
     {include = "orbitcloud_graviton/azure_environment",from = "bases"},
     {include = "orbitcloud_graviton/azure_tenant",from = "bases"},
     {include = "orbitcloud_graviton/oracledb",from = "bases"},
@@ -72,6 +75,8 @@ azure-mgmt-authorization = "^4.0.0"
 azure-mgmt-network = "^26.0.0"
 cryptography = "^43.0.0"
 aiohttp = "^3.10.3"
+jinja2 = "^3.1.4"
+pulumi-cloudinit = "^1.4.4"
 
 
 [tool.poetry.group.dev.dependencies]

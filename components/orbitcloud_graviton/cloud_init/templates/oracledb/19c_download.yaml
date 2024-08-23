@@ -1,0 +1,44 @@
+#cloud-config
+# yaml-language-server: $schema=https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json
+
+write_files:
+  - path: /home/oracle/scripts/download_oracle.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+
+      set -e
+
+      SOFTWARE_DIR=/opt/oracle/software
+      DB_HOME="${SOFTWARE_DIR}/19.0.0/dbhome"
+      ONE_OFFS_DIR="${SOFTWARE_DIR}/19.0.0/oneoffs"
+      RELEASE_UPDATE_DIR="${SOFTWARE_DIR}/19.0.0/release_update"
+      OPATCH_DIR="${SOFTWARE_DIR}/19.0.0/opatch"
+
+      mkdir -p "${SOFTWARE_DIR}"
+      mkdir -p "${DB_HOME}"
+      mkdir -p "${ONE_OFFS_DIR}"
+      mkdir -p "${RELEASE_UPDATE_DIR}"
+
+      BASE_URL="***REMOVED***"
+
+      BASE_RELEASE_ZIP="LINUX.X64_193000_db_home.zip"
+      OPATCH_ZIP="p6880880_190000_Linux-x86-64.zip"
+      RU_PATCH_ZIP="p36582781_190000_Linux-x86-64.zip"
+
+      URLS=(
+          "${BASE_URL}/${BASE_RELEASE_ZIP}"
+          "${BASE_URL}/${OPATCH_ZIP}"
+          "${BASE_URL}/${RU_PATCH_ZIP}"
+      )
+
+      xargs -P 3 -n 1 curl -s -O --output-dir ${SOFTWARE_DIR} < <(printf "%s\n" "${URLS[@]}")
+
+      # # Oracle base release
+      unzip -qo ${SOFTWARE_DIR}/${BASE_RELEASE_ZIP} -d ${DB_HOME} &
+      unzip -qo ${SOFTWARE_DIR}/${OPATCH_ZIP} -d ${OPATCH_DIR} &
+      unzip -qo ${SOFTWARE_DIR}/${RU_PATCH_ZIP} -d ${RELEASE_UPDATE_DIR} &
+      wait
+
+runcmd:
+  - [ /home/oracle/scripts/download_oracle.sh ]

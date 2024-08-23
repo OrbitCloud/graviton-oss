@@ -1698,6 +1698,22 @@ pulumi = ">=3.0.0,<4.0.0"
 semver = ">=2.8.1"
 
 [[package]]
+name = "pulumi-cloudinit"
+version = "1.4.4"
+description = "A Pulumi package for creating and managing cloudinit cloud resources."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pulumi_cloudinit-1.4.4-py3-none-any.whl", hash = "sha256:331e1e1a8695abc63b748dd32cce3bef4f1902ea3939cfdc1eea0b129998965f"},
+    {file = "pulumi_cloudinit-1.4.4.tar.gz", hash = "sha256:bef1b086ba52a0f5721919e7ab761cfa434ea5779ea4db68487d4f00dbf70d40"},
+]
+
+[package.dependencies]
+parver = ">=0.2.1"
+pulumi = ">=3.0.0,<4.0.0"
+semver = ">=2.8.1"
+
+[[package]]
 name = "pulumi-command"
 version = "1.0.1"
 description = "The Pulumi Command Provider enables you to execute commands and scripts either locally or remotely as part of the Pulumi resource model."
@@ -2595,4 +2611,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "566a627b99dcf569b4086458377e4c17b5d88f09c8861dff6914cf79bafec9f4"
+content-hash = "9c6396c7929afe9efddec1ec9e8688013197be60ef7911b05e4146f8d0cfb5e2"

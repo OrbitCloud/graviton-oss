@@ -52,6 +52,7 @@ class VirtualMachineDiskConfig(BaseModel):
 class VirtualMachineDataDiskConfig(VirtualMachineDiskConfig):
     lun: int
     name: str
+    mount_point: Optional[str] = None
 
 
 class VirtualMachineDisk:

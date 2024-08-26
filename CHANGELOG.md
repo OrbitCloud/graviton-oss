@@ -1,3 +1,10 @@
+## v0.61.0 (2024-08-20)
+
+### Feat
+
+- **az_compute**: Add Virtual Machine component
+- **az_network**: Add NetworkInterface component
+
 ## v0.60.0 (2024-08-19)
 
 ### Feat

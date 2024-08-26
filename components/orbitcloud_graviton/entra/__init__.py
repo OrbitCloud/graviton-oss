@@ -1,4 +1,5 @@
 from .entra_app import ClientCredentialsConfig, EntraApp, EntraAppConfig, FederatedCredentialsConfig
+from .external_id_tenant import ExternalIdTenant, ExternalIdTenantConfig
 from .oidc_providers import (
     AzureDevOpsOIDCCredentials,
     GitHubOIDCCredentials,
@@ -15,4 +16,6 @@ __all__ = [
     "ClientCredentialsConfig",
     "AzureDevOpsOIDCCredentials",
     "WorkloadIdentityConfig",
+    "ExternalIdTenant",
+    "ExternalIdTenantConfig",
 ]

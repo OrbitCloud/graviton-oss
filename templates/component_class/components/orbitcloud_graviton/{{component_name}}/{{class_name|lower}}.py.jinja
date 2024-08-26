@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
-from orbitcloud_graviton.pulumi_lib import AzureStack, EntraBase
+from orbitcloud_graviton.pulumi_lib import AzureStack, EntraStack
 
 
 class {{class_name}}Config(BaseModel):
@@ -26,13 +26,13 @@ class {{class_name}}(pulumi.ComponentResource):
     def __init__(
         self,
         stack: AzureStack,
-        entra_config: EntraBase,
+        entra_config: EntraStack,
         config: {{class_name}}Config,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: {{class_name}}Config = config
-        self.entra_config: EntraBase = entra_config
+        self.entra_config: EntraStack = entra_config
 
         super().__init__(
             "Graviton:{{class_name}}",
@@ -45,37 +45,37 @@ class {{class_name}}(pulumi.ComponentResource):
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
 
-        self.some_resource = self._some_resource()
+        self.{{class_name|lower}} = self._{{class_name|lower}}()
 
         self._outputs()
 
-    def _some_resource(self):
+    def _{{class_name|lower}}(self):
         pass
 
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
-                resource=self.some_resource,
+                resource=self.{{class_name|lower}},
                 log_workspace_id=self.config.log_workspace_id,
                 metric_categories=["AllMetrics"],
                 log_categories=[
                     "SomeCategory",
                 ],
-                opts=pulumi.ResourceOptions(parent=self.some_resource),
+                opts=pulumi.ResourceOptions(parent=self.{{class_name|lower}}),
             )
 
     def _outputs(self) -> None:
         self.register_outputs(
             {
-                "some_resource": self.some_resource
+                "{{class_name|lower}}": self.{{class_name|lower}}
             },
         )
 
         self.stack.export(
             exports={
-                "some_resource": {
-                    "id": self.some_resource.id,
-                    "name": self.some_resource.name,
+                "{{class_name|lower}}": {
+                    "id": self.{{class_name|lower}}.id,
+                    "name": self.{{class_name|lower}}.name,
                 }
             }
         )

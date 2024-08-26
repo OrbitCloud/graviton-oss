@@ -24,7 +24,7 @@ class CloudInitTemplate:
         loader = jinja2.PackageLoader(
             package_name="orbitcloud_graviton.cloud_init", package_path="templates"
         )
-        self.env = jinja2.Environment(loader=loader)
+        self.env = jinja2.Environment(loader=loader, autoescape=jinja2.select_autoescape())
         self.parts: list[ConfigPartArgs] = []
 
     def add(

@@ -11,7 +11,7 @@ class JinjaTemplate:
         search_path: str,
     ) -> None:
         loader = jinja2.FileSystemLoader(searchpath=search_path)
-        env = jinja2.Environment(loader=loader)
+        env = jinja2.Environment(loader=loader, autoescape=jinja2.select_autoescape())
         self.template: jinja2.Template = env.get_template(template_relative_path)
 
     def base64(self, value: str) -> str:

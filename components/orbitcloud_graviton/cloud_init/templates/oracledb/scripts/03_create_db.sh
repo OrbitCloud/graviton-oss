@@ -70,6 +70,7 @@ dbca -silent -createDatabase                                                   \
      -databaseType MULTIPURPOSE                                                \
      -memoryMgmtType auto_sga                                                  \
      -memoryPercentage 70                                                      \
+     -useOMF true                                                              \
      -storageType FS                                                           \
      -datafileDestination "${DATA_DIR}"                                        \
      -recoveryAreaDestination "${FRA_DIR}"                                     \

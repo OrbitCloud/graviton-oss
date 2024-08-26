@@ -58,6 +58,10 @@ pyright: ##@ Run Pyright type checker
 component: ##@ Create a new component
 	copier copy templates/component_class .
 
+.PHONY: base
+base: ##@ Create a new component
+	copier copy templates/base .
+
 ##@
 ##@ Dependency choirs
 ##@

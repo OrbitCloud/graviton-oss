@@ -1,9 +1,12 @@
 from typing import Annotated
 
-from pulumi_azuread import get_directory_role_templates
+from pulumi_azuread import AwaitableGetDirectoryRoleTemplatesResult, get_directory_role_templates
 from pydantic import BeforeValidator
 
-entra_roles = get_directory_role_templates()
+try:
+    entra_roles: AwaitableGetDirectoryRoleTemplatesResult = get_directory_role_templates()
+except Exception as e:
+    raise ValueError(f"Error fetching Entra roles (components/entra/roles.py): {e}") from e
 
 
 def get_entra_role_id_by_name(role_name: str) -> str:

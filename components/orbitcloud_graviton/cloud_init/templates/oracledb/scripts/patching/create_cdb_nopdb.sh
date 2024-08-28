@@ -26,7 +26,6 @@ fi
 # make sure that backupdir fra exists
 mkdir -p ${BACKUP_DIR}/fra
 
-
 # Make sure sys and system password environment variablesa are set
 if [ -z "${SYS_PASSWORD}" ]; then
     echo "SYS_PASSWORD not set"
@@ -62,7 +61,7 @@ dbca -silent -createDatabase \
  -redoLogFileSize 150 \
  -emConfiguration NONE \
  -initParams \
-    db_create_online_log_dest_1='${DATA_DIR}-redo1/', \
-    db_create_online_log_dest_2='${DATA_DIR}-redo2/', \
+    db_create_online_log_dest_1="${DATA_DIR}-redo1/", \
+    db_create_online_log_dest_2="${DATA_DIR}-redo2/", \
     archive_lag_target=600 \
  -ignorePreReqs

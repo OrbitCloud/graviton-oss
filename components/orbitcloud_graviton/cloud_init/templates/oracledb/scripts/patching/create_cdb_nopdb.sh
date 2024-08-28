@@ -56,11 +56,11 @@ begin
       dbms_session.sleep(1);
     end loop;
   end if;
-  for g 1 .. 3 loop
+  for g in 1 .. 3 loop
     begin
       execute immediate 'drop logfile group :group'
         using g;
-      execute immediate 'alter database add logfile group :group size 150m blocksize 4096'
+      execute immediate 'alter database add logfile group :group size 150m'
         using g;
       sys.dbms_output.put_line('Dropped logfile group ' || g || ' and recreated with correct parameters');
     exception

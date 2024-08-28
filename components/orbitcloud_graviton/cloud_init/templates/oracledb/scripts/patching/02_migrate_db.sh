@@ -55,7 +55,6 @@ EOF
 
 # Change ORACLE_HOME in the following files 
 # /etc/oratab
-# TODO - $ORACLE_BASE/oraInventory/ContentsXML/inventory.xml
 
 # Since using Oracle read only homes
 # TODO - $ORACLE_HOME/install/orabasetab

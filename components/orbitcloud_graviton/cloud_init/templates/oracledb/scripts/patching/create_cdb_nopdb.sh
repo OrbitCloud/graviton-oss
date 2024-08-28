@@ -27,6 +27,17 @@ fi
 mkdir -p ${BACKUP_DIR}/fra
 
 
+# Make sure sys and system password environment variablesa are set
+if [ -z "${SYS_PASSWORD}" ]; then
+    echo "SYS_PASSWORD not set"
+    exit 1
+fi
+if [ -z "${SYSTEM_PASSWORD}" ]; then
+    echo "SYSTEM_PASSWORD not set"
+    exit 1
+fi
+
+ # Create the CDB
 dbca -silent -createDatabase \
  -templateName ${ORACLE_HOME}/assistants/dbca/templates/General_Purpose.dbc \
  -gdbname $ORACLE_UNQNAME \
@@ -34,8 +45,8 @@ dbca -silent -createDatabase \
  -databaseConfigType SINGLE \
  -responseFile NO_VALUE \
  -characterSet AL32UTF8 \
- -sysPassword "Temporary,SYS.password123" \
- -systemPassword "Temporary,SYSTEM.password123" \
+ -sysPassword "${SYS_PASSWORD}" \
+ -systemPassword "${SYSTEM_PASSWORD}" \
  -createAsContainerDatabase true \
  -numberOfPDBs 0 \
  -databaseType MULTIPURPOSE \

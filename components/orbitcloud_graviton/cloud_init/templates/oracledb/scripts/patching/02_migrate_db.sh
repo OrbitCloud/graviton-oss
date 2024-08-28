@@ -64,5 +64,16 @@ EOF
 # TODO - $ORACLE_HOME/network/admin/tnsnames.ora
 
 # TODO - $ORACLE_HOME/network/admin/listener.ora
+
 lsnrctl restart
+
+# Start the database
+sqlplus / as sysdba << EOF
+    startup;
+    exit;
+EOF
+
+# Apply the datapach
+cd ${NEW_ORACLE_HOME}/OPatch
+./datapatch -verbose
 

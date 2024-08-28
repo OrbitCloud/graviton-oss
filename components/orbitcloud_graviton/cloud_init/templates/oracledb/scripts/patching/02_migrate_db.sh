@@ -3,7 +3,7 @@
 # TODO - Move to external file or parameters
 # Database to patch and patch version
 export PATCH_VERSION="19.24.0"
-export ORACLE_SID="testdb2"
+
 
 #
 # Ensure required environment variables are set
@@ -23,6 +23,17 @@ if [ -z "${ORACLE_HOSTNAME}" ]; then
     exit 1
 fi
 
+# Make sure that the PATCH_SID is set
+if [ -z "${PATCH_SID}" ]; then
+    echo "PATCH_SID not set"
+    exit 1
+fi
+# Old Oracle home
+export OLD_ORACLE_HOME=$(grep "${PATCH_SID}:" /etc/oratab | cut -d: -f2)
+
+# NewTarget home
+export NEW_ORACLE_HOME=/opt/oracle/product/19c/${PATCH_VERSION}
+
 # Configure PATH
 export PATH=/usr/sbin:/usr/local/bin:$PATH
 export PATH=${ORACLE_HOME}/bin:$PATH
@@ -41,17 +52,17 @@ sqlplus / as sysdba << EOF
     exit;
 EOF
 
+
 # Change ORACLE_HOME in the following files 
 # /etc/oratab
-# $ORACLE_BASE/oraInventory/ContentsXML/inventory.xml
-# $ORACLE_HOME/network/admin/listener.ora
-# $ORACLE_HOME/network/admin/tnsnames.ora
+# TODO - $ORACLE_BASE/oraInventory/ContentsXML/inventory.xml
+
 # Since using Oracle read only homes
-# $ORACLE_HOME/install/orabasetab
+# TODO - $ORACLE_HOME/install/orabasetab
 
+# Make sure the tnsnames.ora and listener.ora files are updated
+# TODO - $ORACLE_HOME/network/admin/tnsnames.ora
 
+# TODO - $ORACLE_HOME/network/admin/listener.ora
+lsnrctl restart
 
-
-
-# NewTarget home
-export ORACLE_HOME=/opt/oracle/product/19c/${PATCH_VERSION}

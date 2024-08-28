@@ -38,7 +38,6 @@ fi
 
 # Create the postcdb.sql script
 cat > /tmp/postcdb.sql <<EOF
-alter system set log_archive_start=true scope=spfile;
 alter system set db_create_online_log_dest_1="${DATA_DIR}-redo1/" scope=both;
 alter system set db_create_online_log_dest_2="${DATA_DIR}-redo2/" scope=both;
 
@@ -98,6 +97,6 @@ dbca -silent -createDatabase \
  -enableArchive true \
  -redoLogFileSize 150 \
  -emConfiguration NONE \
- -initParams archive_lag_target=600 \
+ -initParams archive_lag_target=600,log_archive_start=true \
  -customScripts /tmp/postcdb.sql \
  -ignorePreReqs

@@ -7,6 +7,7 @@ export BASE_RELEASE_ZIP="${SOFTWARE_DIR}/LINUX.X64_193000_db_home.zip"
 export OPATCH_ZIP="${SOFTWARE_DIR}/p6880880_190000_Linux-x86-64.zip"
 export PATCH_ZIP="${SOFTWARE_DIR}/p36582781_190000_Linux-x86-64.zip"
 export PATCH_VERSION="19.24.0"
+export PATCH_NUMBER="36582781"
 
 #
 # Ensure required environment variables are set
@@ -31,7 +32,7 @@ export ORACLE_HOME=/opt/oracle/product/19c/${PATCH_VERSION}
 
 # Configure PATH
 export PATH=/usr/sbin:/usr/local/bin:$PATH
-export PATH=${ORACLE_HOME}/bin:$PATH
+export PATH=${ORACLE_HOME}/bin:${ORACLE_HOME}/OPatch:$PATH
 
 # Prerequisites for OL9
 export LD_LIBRARY_PATH=${ORACLE_HOME}/lib:/lib:/usr/lib
@@ -102,6 +103,13 @@ echo "  ORACLE_BASE: ${ORACLE_BASE}"
 echo "  ORACLE_HOME: ${ORACLE_HOME}"
 echo "  ORA_INVENTORY: ${ORA_INVENTORY}"
 echo "  ORACLE_HOSTNAME: ${ORACLE_HOSTNAME}"
+
+CURRRENT_PATCH_NUMBER=$(opatch lspatches | grep "Database Release Update" | cut -d\; -f1 | sort -nr | head -1)
+
+if [ "${CURRRENT_PATCH_NUMBER}" -ge "${PATCH_NUMBER}" ]; then
+    echo "Patch ${PATCH_NUMBER} or higher is already installed"
+    exit 0
+fi
 
 # Time to install
 cd ${ORACLE_HOME}

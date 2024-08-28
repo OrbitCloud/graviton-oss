@@ -60,8 +60,5 @@ dbca -silent -createDatabase \
  -enableArchive true \
  -redoLogFileSize 150 \
  -emConfiguration NONE \
- -initParams \
-    db_create_online_log_dest_1="${DATA_DIR}-redo1/", \
-    db_create_online_log_dest_2="${DATA_DIR}-redo2/", \
-    archive_lag_target=600 \
+  -initParams db_create_online_log_dest_1="${DATA_DIR}-redo1/", db_create_online_log_dest_2="${DATA_DIR}-redo2/", archive_lag_target=600 \
  -ignorePreReqs

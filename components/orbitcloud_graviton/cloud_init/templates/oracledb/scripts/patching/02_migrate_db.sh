@@ -34,6 +34,12 @@ export OLD_ORACLE_HOME=$(grep "${PATCH_SID}:" /etc/oratab | cut -d: -f2)
 # NewTarget home
 export NEW_ORACLE_HOME=/opt/oracle/product/19c/${PATCH_VERSION}
 
+# Check if new is same as old
+if [ "${OLD_ORACLE_HOME}" == "${NEW_ORACLE_HOME}" ]; then
+    echo "Old and new ORACLE_HOME are the same"
+    exit 1
+fi
+
 # Configure PATH
 export PATH=/usr/sbin:/usr/local/bin:$PATH
 export PATH=${ORACLE_HOME}/bin:$PATH
@@ -55,13 +61,14 @@ EOF
 
 # Change ORACLE_HOME in the following files 
 # /etc/oratab
+sed "/^$SID:/d" /etc/oratab > ~/oratab 
+echo "$SID:$NEW:Y" >> ~/oratab
+cat ~/oratab > /etc/oratab
 
 # Since using Oracle read only homes
-# TODO - $ORACLE_HOME/install/orabasetab
-
 # Make sure the tnsnames.ora and listener.ora files are updated
+# Verify that files exists and that an entry for the database exists
 # TODO - $ORACLE_HOME/network/admin/tnsnames.ora
-
 # TODO - $ORACLE_HOME/network/admin/listener.ora
 
 lsnrctl restart
@@ -75,4 +82,3 @@ EOF
 # Apply the datapach
 cd ${NEW_ORACLE_HOME}/OPatch
 ./datapatch -verbose
-

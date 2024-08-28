@@ -49,7 +49,7 @@ set serveroutput on
 declare
   l_curr pls_integer;
 begin
-  select group# into l_curr from v\$log where status = 'CURRENT';
+  select group# into l_curr from v$log where status = 'CURRENT';
   if l_curr in (1, 2, 3) then
     for x in l_curr .. 3 loop
       execute immediate 'alter system ARCHIVE LOG CURRENT';
@@ -58,10 +58,8 @@ begin
   end if;
   for g in 1 .. 3 loop
     begin
-      execute immediate 'alter database drop logfile group :group'
-        using g;
-      execute immediate 'alter database add logfile group :group size 150m'
-        using g;
+      execute immediate 'alter database drop logfile group ' || g;
+      execute immediate 'alter database add logfile group ' || g || ' size 150m';
       sys.dbms_output.put_line('Dropped logfile group ' || g || ' and recreated with correct parameters');
     exception
       when others then
@@ -69,6 +67,7 @@ begin
     end;
   end loop;
 end;
+
 /
 EOF
 

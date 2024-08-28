@@ -1,4 +1,4 @@
-
+#!/bin/bash
 
 # Configure PATH
 export PATH=/usr/sbin:/usr/local/bin:$PATH

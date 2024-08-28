@@ -58,7 +58,7 @@ begin
   end if;
   for g in 1 .. 3 loop
     begin
-      execute immediate 'drop logfile group :group'
+      execute immediate 'alter database drop logfile group :group'
         using g;
       execute immediate 'alter database add logfile group :group size 150m'
         using g;

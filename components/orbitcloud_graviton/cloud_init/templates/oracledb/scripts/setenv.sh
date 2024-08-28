@@ -18,7 +18,7 @@ export ORA_INVENTORY=/opt/oracle/oraInventory
 
 export ORACLE_UNQNAME=cdb${DB}prod
 export ORACLE_HOME=$ORACLE_BASE/product/19c/19.24.0
-export ORACLE_BASE_HOME=$ORACLE_BASE/homes/${DB}prod
+export ORACLE_BASE_HOME=$ORACLE_BASE/homes/$(cat $ORACLE_HOME/install/orabasetab | grep $ORACLE_HOME | cut -d: -f3)
 export ORACLE_SID=cdb${DB}prod
 export PDB_NAME=${DB}prod
 export DATA_DIR=/oradata/${DB}prod

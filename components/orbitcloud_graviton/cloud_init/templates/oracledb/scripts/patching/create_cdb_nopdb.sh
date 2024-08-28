@@ -36,6 +36,44 @@ if [ -z "${SYSTEM_PASSWORD}" ]; then
     exit 1
 fi
 
+# Create the postcdb.sql script
+cat > /tmp/postcdb.sql <<EOF
+alter system set db_create_online_log_dest_1="${DATA_DIR}-redo1/" scope=both;
+alter system set db_create_online_log_dest_2="${DATA_DIR}-redo2/" scope=both;
+
+alter database add logfile group 4 size 150m blocksize 4096;
+alter database add logfile group 5 size 150m blocksize 4096;
+alter database add logfile group 6 size 150m blocksize 4096;
+
+set serveroutput on 
+declare
+  l_curr pls_integer;
+begin
+  select group# into l_curr from v\$log where status = 'CURRENT';
+  if l_curr in (1, 2, 3) then
+    for x in l_curr .. 3 loop
+      execute immediate 'alter system ARCHIVE LOG CURRENT';
+      dbms_session.sleep(1);
+    end loop;
+  end if;
+  for g 1 .. 3 loop
+    begin
+      execute immediate 'drop logfile group :group'
+        using g;
+      execute immediate 'alter database add logfile group :group size 150m blocksize 4096'
+        using g;
+      sys.dbms_output.put_line('Dropped logfile group ' || g || ' and recreated with correct parameters');
+    exception
+      when others then
+        sys.dbms_output.put_line('Error: Unable to drop logfile group ' || g || '. Error: ' || sqlerrm);
+    end;
+  end loop;
+end;
+/
+EOF
+
+
+
  # Create the CDB
 dbca -silent -createDatabase \
  -templateName ${ORACLE_HOME}/assistants/dbca/templates/General_Purpose.dbc \
@@ -60,5 +98,6 @@ dbca -silent -createDatabase \
  -enableArchive true \
  -redoLogFileSize 150 \
  -emConfiguration NONE \
-  -initParams db_create_online_log_dest_1="${DATA_DIR}-redo1/", db_create_online_log_dest_2="${DATA_DIR}-redo2/", archive_lag_target=600 \
+ -initParams archive_lag_target=600 \
+ -customScripts /tmp/postcdb.sql \
  -ignorePreReqs

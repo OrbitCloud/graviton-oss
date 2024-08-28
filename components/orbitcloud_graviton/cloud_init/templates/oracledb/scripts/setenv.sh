@@ -1,4 +1,13 @@
 # Oracle Settings
+if [ -z "${1}" ]; then
+  DB="se"
+else
+  DB="${1}"
+fi
+echo "DB set to ${DB}prod"
+
+
+# Oracle Settings
 export TMP=/tmp
 export TMPDIR=$TMP
 
@@ -7,32 +16,23 @@ export ORACLE_HOSTNAME=oradb-se
 export ORAENV_ASK=NO
 export ORA_INVENTORY=/opt/oracle/oraInventory
 
-function seprod() (
-  export ORACLE_UNQNAME=cdbseprod
-  export ORACLE_HOME=$ORACLE_BASE/product/19c/dbhome_se
-  export ORACLE_SID=cdbseprod
-  export PDB_NAME=seprod
-  export DATA_DIR=${ORACLE_BASE}/oradata/seprod
-)
+export ORACLE_UNQNAME=cdb${DB}prod
+export ORACLE_HOME=$ORACLE_BASE/product/19c/19.24.0
+export ORACLE_BASE_HOME=$ORACLE_BASE/homes/${DB}prod
+export ORACLE_SID=cdb${DB}prod
+export PDB_NAME=${DB}prod
+export DATA_DIR=/oradata/${DB}prod
 
-function dkprod() (
-  export ORACLE_UNQNAME=cdbdkprod
-  export ORACLE_HOME=$ORACLE_BASE/product/19c/dbhome_dk
-  export ORACLE_SID=cdbdkprod
-  export PDB_NAME=prod
-  export DATA_DIR=${ORACLE_BASE}/oradata/seprod
-)
+export BACKUP_DIR=/mnt/stmunuorabackupsswe/${DB}backups
 
-export PATH=/usr/sbin:/usr/local/bin:$PATH
-export PATH=$ORACLE_HOME/bin:$PATH
+
+export PATH=/usr/sbin:/usr/local/bin:$HOME/scripts:$PATH
+export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$ORACLE_HOME/sqlcl/bin:$PATH
 
 export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
 export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
 
-
-seprod
-
 ORAENV=$(which oraenv &> /dev/null)
 if [ -f "${ORAENV}" ]; then
-    . ${ORAENV}
+      . ${ORAENV}
 fi

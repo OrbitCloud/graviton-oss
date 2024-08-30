@@ -120,7 +120,7 @@ def deploy() -> None:
     )
 
     # Download Oracle DB 19c
-    init.add(tpl="oracledb/19c_download.yaml")
+    # init.add(tpl="oracledb/19c_download.yaml")
 
     cloud_init_config = Config(
         resource_name="cloud-init-config",

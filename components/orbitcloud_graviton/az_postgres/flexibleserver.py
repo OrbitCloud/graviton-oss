@@ -125,7 +125,7 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
         self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
-        self._admin_password: str | pulumi.Output[str] = (
+        self.admin_password: str | pulumi.Output[str] = (
             self.config.authentication.admin_password or self._random_admin_password().result
         )
 
@@ -159,8 +159,7 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
             ),
             # Authentication
             administrator_login=self.config.authentication.admin_username,
-            administrator_login_password=self._admin_password,
-            # or self._random_admin_password().result,
+            administrator_login_password=self.admin_password,
             auth_config=postgres.AuthConfigArgs(
                 active_directory_auth=self.config.authentication.entra_auth,
                 password_auth=self.config.authentication.postgres_auth,
@@ -245,7 +244,7 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
                     "endpoint": self.server.fully_qualified_domain_name,
                     "admin": {
                         "username": self.config.authentication.admin_username,
-                        "password": self._admin_password,
+                        "password": self.admin_password,
                     },
                 }
             }

@@ -1,6 +1,3 @@
-import os
-from base64 import b64decode
-
 import pulumi
 from pulumi_azure_native.storage import v20230501 as storage
 from pulumi_cloudinit import Config
@@ -130,14 +127,19 @@ def deploy() -> None:
     )
 
     config.vm.os.custom_data = cloud_init_config.rendered
-    cloud_init_config.rendered.apply(lambda content: print(b64decode(content).decode("utf-8")))
 
-    if not os.getenv("DEL") == "TRUE":
-        VirtualMachine(
-            stack=stack,
-            entra_config=entra_config,
-            config=config.vm,
-            opts=pulumi.ResourceOptions.merge(
-                opts1=opts, opts2=pulumi.ResourceOptions(depends_on=[sa_backups, cloud_init_config])
-            ),
-        )
+    VirtualMachine(
+        stack=stack,
+        entra_config=entra_config,
+        config=config.vm,
+        opts=pulumi.ResourceOptions.merge(
+            opts1=opts, opts2=pulumi.ResourceOptions(depends_on=[sa_backups, cloud_init_config])
+        ),
+    )
+
+    # backupvault = BackupVault(  # noqa: F821
+    #     stack=stack,
+    #     entra_config=entra_config,
+    #     config=BackupVaultConfig(),
+    #     opts=pulumi.ResourceOptions(parent=stack.resource_group),
+    # )

@@ -130,6 +130,7 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
         )
 
         self.server: postgres.Server = self._server()
+        self._diagnostic_settings()
 
         self._outputs()
 
@@ -224,9 +225,16 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
             return diagnostic_setting(
                 resource=self.server,
                 log_workspace_id=self.config.log_workspace_id,
-                metric_categories=["AllMetrics"],
+                metric_categories=[
+                    "AllMetrics",
+                ],
                 log_categories=[
-                    "SomeCategory",
+                    "PostgreSQLLogs",
+                    "PostgreSQLFlexSessions",
+                    "PostgreSQLFlexQueryStoreRuntime",
+                    "PostgreSQLFlexQueryStoreWaitStats",
+                    "PostgreSQLFlexDatabaseXacts",
+                    "PostgreSQLFlexTableStats",
                 ],
                 opts=pulumi.ResourceOptions(parent=self.server),
             )

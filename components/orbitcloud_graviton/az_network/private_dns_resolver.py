@@ -145,6 +145,7 @@ class PrivateDnsResolver(ComponentResource):
             location=self.stack.location,
             resource_group_name=self.stack.resource_group.name,
             virtual_network=network.SubResourceArgs(id=vnet.id),
+            opts=self._opts,
         )
 
         if self.config.inbound_endpoint:
@@ -171,6 +172,7 @@ class PrivateDnsResolver(ComponentResource):
                     )
                 ],
                 resource_group_name=self.stack.resource_group.name,
+                opts=self._opts,
             )
 
         if self.config.outbound_endpoint:
@@ -187,6 +189,7 @@ class PrivateDnsResolver(ComponentResource):
                 subnet=network.SubResourceArgs(
                     id=AzureResourceId(str(self.config.outbound_endpoint.subnet_id)).id
                 ),
+                opts=self._opts,
             )
             if self.config.outbound_endpoint.rules:
                 ruleset = network.DnsForwardingRuleset(
@@ -201,6 +204,7 @@ class PrivateDnsResolver(ComponentResource):
                     ],
                     location=self.stack.location,
                     resource_group_name=self.stack.resource_group.name,
+                    opts=self._opts,
                 )
                 for rule in self.config.outbound_endpoint.rules:
                     targets: List[network.TargetDnsServerArgsDict] = [
@@ -215,6 +219,7 @@ class PrivateDnsResolver(ComponentResource):
                         dns_forwarding_ruleset_name=ruleset.name,
                         domain_name=rule.domain_name + ".",
                         target_dns_servers=targets,
+                        opts=self._opts,
                     )
                 if self.config.outbound_endpoint.linked_vnets:
                     for vnet in self.config.outbound_endpoint.linked_vnets:
@@ -225,6 +230,7 @@ class PrivateDnsResolver(ComponentResource):
                             dns_forwarding_ruleset_name=ruleset.name,
                             resource_group_name=self.stack.resource_group.name,
                             virtual_network=network.SubResourceArgs(id=v.id),
+                            opts=self._opts,
                         )
 
         return resolver
@@ -240,6 +246,9 @@ class PrivateDnsResolver(ComponentResource):
                 "private_dns_resolver": {
                     "id": self.resolver.id,
                     "name": self.resolver.name,
-                }
+                    "inbound_ip": str(self.config.inbound_endpoint.private_ip_address)
+                    if self.config.inbound_endpoint
+                    else None,
+                },
             }
         )

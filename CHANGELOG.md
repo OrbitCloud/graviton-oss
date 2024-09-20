@@ -1,3 +1,36 @@
+## v0.64.0 (2024-09-20)
+
+### BREAKING CHANGE
+
+- Could trigger recreation of the resource.
+
+### Feat
+
+- **oracledb**: Add ol9 developer repo, microdnf and rlwrap to cloud-init dependencies
+- **PostgresFlexibleServer**: Add current deployment principal as server admin
+- **PostgresFlexibleServer**: Add Diagnostic Settings for collecting server logs, query store and metrics
+- **PostgresFlexibleServer**: Add admin password to stack exports
+- **container_registry**: Allow optional explicit naming of registry
+- **AzureStack**: Add azure_environment config from upstream ESC env
+
+### Fix
+
+- **VirtualNetworkGateway**: Pass ResourceOption on to PublicIp
+- **PrivateDnsResolver**: Add missing ResourceOption in various places
+- **landing_zone**: Only pass in Key Vault to AcmeSsl if present
+- **ContainerApp**: Prefix custom_domain exports with https://
+- **log_workspace**: Add missing stack export
+- **PublicIp**: Remove use of ComponentResource and add missing ResourceOptions
+- **az_lib**: Add missing name prefixes
+- **ContainerAppEnv**: Fix certificate field typing to allow Pulumi secrets in addition to stack reference
+- **entra**: Fix Entra External ID SKU args after pulumi_azure_native update
+- Re-add poetry.lock
+- **AcmeSsl**: Disable EntraApp authentication in favor of current user auth context
+
+### Refactor
+
+- **oracledb**: Remove unused imports
+
 ## v0.63.0 (2024-09-20)
 
 ### Feat

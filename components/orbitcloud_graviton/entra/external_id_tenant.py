@@ -51,9 +51,10 @@ class ExternalIdTenant(pulumi.ComponentResource):
             resource_name_=self.config.initial_domain_prefix,
             resource_group_name=self.stack.resource_group.name,
             location=self.config.location,
-            sku={
-                "name": "Base",
-            },
+            sku=entra.CIAMResourceSKUArgs(
+                name=entra.CIAMResourceSKUName.STANDARD,
+                tier=entra.CIAMResourceSKUTier.A0,
+            ),
             create_tenant_properties=entra.CreateCIAMTenantPropertiesArgs(
                 display_name=self.config.display_name,
                 country_code=self.config.country_code,

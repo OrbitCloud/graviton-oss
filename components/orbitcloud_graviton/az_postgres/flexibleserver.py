@@ -130,6 +130,7 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
         )
 
         self.server: postgres.Server = self._server()
+        self.admins = self._server_admin()
         self._diagnostic_settings()
 
         self._outputs()
@@ -219,6 +220,26 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
             ),
             opts=self._opts,
         )
+
+    def _server_admin(self) -> postgres.Administrator | None:
+        if self.stack.azure_environment:
+            return postgres.Administrator(
+                resource_name=self.stack.name_for(
+                    resource_type=postgres.Administrator,
+                    workload_name=self.stack.azure_environment.pulumi_esc_app.name,
+                ),
+                args=postgres.AdministratorArgs(
+                    resource_group_name=self.stack.resource_group.name,
+                    server_name=self.server.name,
+                    tenant_id=str(self.stack.tenant_id),
+                    principal_type=postgres.PrincipalType.SERVICE_PRINCIPAL,
+                    object_id=str(
+                        self.stack.azure_environment.pulumi_esc_app.service_principal_object_id
+                    ),
+                    principal_name=self.stack.azure_environment.pulumi_esc_app.name,
+                ),
+                opts=pulumi.ResourceOptions(parent=self.server),
+            )
 
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:

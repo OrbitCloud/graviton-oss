@@ -4,13 +4,27 @@ from uuid import UUID
 
 import pulumi
 from pulumi_azure_native import Provider, resources
-from pydantic import Field
+from pydantic import BaseModel, Field
 from pydantic_settings import SettingsConfigDict
 
 from orbitcloud_graviton.az_lib import resource_namer
 from orbitcloud_graviton.az_resources import resource_group
 
 from .config import PulumiConfig
+
+
+class EntraEscApp(BaseModel):
+    name: str
+    app_client_id: UUID
+    app_object_id: UUID
+    service_principal_id: UUID
+    service_principal_object_id: UUID
+
+
+class AzureEnvironmentPulumiConfig(BaseModel):
+    pulumi_esc_app: EntraEscApp
+    resource_group_name: str
+    tags: dict[str, str] | None = None
 
 
 class AzureStack(PulumiConfig):
@@ -25,6 +39,8 @@ class AzureStack(PulumiConfig):
         description="The name of the workload, used for naming resources",
     )
     tags: Optional[Dict[str, str]] = None
+
+    azure_environment: AzureEnvironmentPulumiConfig | None = None
 
     skip_exports: Optional[bool] = False
     exports_prefix: Optional[str] = None

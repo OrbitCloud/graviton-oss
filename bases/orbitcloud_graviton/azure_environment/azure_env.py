@@ -90,8 +90,11 @@ def deploy() -> None:
             "azure_environment": {
                 "resource_group_name": stack.resource_group.name,
                 "pulumi_esc_app": {
+                    "name": esc_app.app.display_name,
                     "app_client_id": esc_app.app.client_id,
+                    "app_object_id": esc_app.app.object_id,
                     "service_principal_id": esc_app.service_principal.id,
+                    "service_principal_object_id": esc_app.service_principal.object_id,
                 },
                 "tags": {
                     "Environment": stack.env,

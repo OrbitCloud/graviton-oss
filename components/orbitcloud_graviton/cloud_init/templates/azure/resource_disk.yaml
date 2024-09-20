@@ -1,0 +1,22 @@
+#cloud-config
+# yaml-language-server: $schema=https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json
+
+disk_setup:
+  ephemeral0:
+    table_type: gpt
+    layout: [80, [20,83]]
+    overwrite: true
+fs_setup:
+  - device: ephemeral0.1
+    filesystem: xfs
+    overwrite: true
+  - device: ephemeral0.2
+    filesystem: swap
+
+mounts:
+  - ["ephemeral0.1", "/mnt/resource"]
+  - ["ephemeral0.2", "none", "swap", "nofail,x-systemd.requires=cloud-init.service", "0", "0"]
+
+runcmd:
+  - [ sed, -i, 's/^ResourceDisk.MountPoint=.*/ResourceDisk.MountPoint=\/mnt\/resource/', /etc/waagent.conf]
+  - [ sed, -i, 's/^ResourceDisk.Format=.*/ResourceDisk.Format=y/', /etc/waagent.conf]

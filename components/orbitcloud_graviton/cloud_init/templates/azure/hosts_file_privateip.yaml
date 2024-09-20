@@ -1,0 +1,9 @@
+## template: jinja
+#cloud-config
+# yaml-language-server: $schema=https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json
+
+write_files:
+  - path: /etc/hosts
+    content: |
+      {% raw %}{{ ds.meta_data.imds.network.interface[0].ipv4.ipAddress[0].privateIpAddress }} {{ v1.local_hostname }}{% endraw %}
+    append: true

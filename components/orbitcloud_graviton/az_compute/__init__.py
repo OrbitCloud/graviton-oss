@@ -1,7 +1,10 @@
-from .vm import VirtualMachine, VirtualMachineConfig, VirtualMachineDataDiskConfig
+from .disk import VirtualMachineDataDiskConfig, VirtualMachineDisk
+from .vm import VirtualMachine, VirtualMachineConfig
 
-__all__ = [
+__all__: list[str] = [
     "VirtualMachine",
     "VirtualMachineConfig",
+    "VirtualMachineDataDiskConfig",
+    "VirtualMachineDisk",
     "VirtualMachineDataDiskConfig",
 ]

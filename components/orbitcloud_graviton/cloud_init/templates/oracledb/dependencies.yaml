@@ -1,0 +1,11 @@
+#cloud-config
+# yaml-language-server: $schema=https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - oracle-database-preinstall-19c
+  - cifs-utils
+  - autofs
+  - dnf-automatic

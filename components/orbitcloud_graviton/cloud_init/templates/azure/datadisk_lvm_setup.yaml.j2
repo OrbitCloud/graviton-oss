@@ -1,0 +1,15 @@
+#cloud-config
+# yaml-language-server: $schema=https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json
+
+runcmd:
+  {% for volume in volumes %}
+  - [ pvcreate, /dev/disk/azure/scsi1/lun{{ volume.lun }} ]
+  - [ vgcreate, vg_{{ volume.name }}, /dev/disk/azure/scsi1/lun{{ volume.lun }} ]
+  - [ lvcreate, -l, 100%FREE, -n, lv_{{ volume.name }}, vg_{{ volume.name }} ]
+  - [ mkfs.xfs, /dev/vg_{{ volume.name }}/lv_{{ volume.name }} ]
+  {% endfor %}
+
+mounts:
+  {% for volume in volumes %}
+  - ["/dev/vg_{{ volume.name }}/lv_{{ volume.name }}", "{{ volume.mount_point }}", "xfs", "defaults,nofail", "1", "2"]
+  {% endfor %}

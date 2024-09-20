@@ -1,3 +1,3 @@
-from .storage_account import StorageAccount, StorageAccountConfig
+from .storage_account import StorageAccount, StorageAccountConfig, StorageAccountFileShareConfig
 
-__all__ = ["StorageAccount", "StorageAccountConfig"]
+__all__ = ["StorageAccount", "StorageAccountConfig", "StorageAccountFileShareConfig"]

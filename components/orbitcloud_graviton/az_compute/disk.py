@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 
 import pulumi
 from pulumi_azure_native.compute import v20240302 as compute
@@ -17,6 +17,10 @@ class VirtualMachineDiskConfig(BaseModel):
     source_disk_id: Optional[AzureIdRef] = None
     source_image_id: Optional[AzureIdRef] = None
     zone: Optional[str] = None
+    bursting_enabled: Optional[bool] = False
+    iops: Optional[int] = 3000
+    throughput_mbps: Optional[int] = 125
+    logical_sector_size: Literal[512, 4096] = 4096
 
     # Optional configurations (– v1 generation and windows is not supported yet)
     hyper_v_generation: Optional[compute.HyperVGeneration] = compute.HyperVGeneration.V2
@@ -52,6 +56,7 @@ class VirtualMachineDiskConfig(BaseModel):
 class VirtualMachineDataDiskConfig(VirtualMachineDiskConfig):
     lun: int
     name: str
+    mount_point: Optional[str] = None
 
 
 class VirtualMachineDisk:
@@ -90,7 +95,11 @@ class VirtualMachineDisk:
                 disk_size_gb=self.config.size_gb,
                 creation_data=compute.CreationDataArgs(
                     create_option=self.config.create_mode,
+                    logical_sector_size=self.config.logical_sector_size,
                 ),
+                bursting_enabled=self.config.bursting_enabled,
+                disk_m_bps_read_write=self.config.throughput_mbps,
+                disk_iops_read_write=self.config.iops,
                 sku=compute.DiskSkuArgs(
                     name=self.config.sku,
                 ),

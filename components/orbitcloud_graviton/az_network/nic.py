@@ -56,6 +56,7 @@ class NetworkInterface:
             exports={
                 "nic": {
                     "id": self.nic.id,
+                    "private_ip": self.nic.ip_configurations[0].private_ip_address,
                 }
             }
         )

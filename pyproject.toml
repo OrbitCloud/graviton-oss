@@ -8,34 +8,39 @@ readme = "README.md"
 packages = [
     { include = "orbitcloud_graviton/pulumi_mocks", from = "components" },
     { include = "orbitcloud_graviton/az_lib", from = "components" },
-    { include = "orbitcloud_graviton/pulumi_lib",from = "components" },
+    { include = "orbitcloud_graviton/pulumi_lib", from = "components" },
     { include = "orbitcloud_graviton/az_acr", from = "components" },
     { include = "orbitcloud_graviton/az_app", from = "components" },
     { include = "orbitcloud_graviton/az_appservice", from = "components" },
+    { include = "orbitcloud_graviton/az_compute", from = "components" },
     { include = "orbitcloud_graviton/az_keyvault", from = "components" },
     { include = "orbitcloud_graviton/az_monitor", from = "components" },
     { include = "orbitcloud_graviton/az_resources", from = "components" },
-    { include = "orbitcloud_graviton/az_storage",from = "components" },
-    { include = "orbitcloud_graviton/az_iam",from = "components" },
-    { include = "orbitcloud_graviton/az_network",from = "components" },
-    { include = "orbitcloud_graviton/entra",from = "components" },
-    { include = "orbitcloud_graviton/az_eventhub",from = "components" },
-    {include = "orbitcloud_graviton/az_providerhub",from = "components"},
+    { include = "orbitcloud_graviton/az_storage", from = "components" },
+    { include = "orbitcloud_graviton/az_iam", from = "components" },
+    { include = "orbitcloud_graviton/az_network", from = "components" },
+    { include = "orbitcloud_graviton/entra", from = "components" },
+    { include = "orbitcloud_graviton/az_eventhub", from = "components" },
+    { include = "orbitcloud_graviton/az_providerhub", from = "components" },
+    { include = "orbitcloud_graviton/pulumi_jinja", from = "components" },
     { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
-    { include = "orbitcloud_graviton/landing_zone",from = "bases" },
-    { include = "orbitcloud_graviton/hubspoke",from = "bases" },
-    {include = "orbitcloud_graviton/ora_queue",from = "components"},
-    {include = "orbitcloud_graviton/app_zone",from = "bases"},
-    {include = "orbitcloud_graviton/acme_ssl",from = "bases"},
-    {include = "orbitcloud_graviton/workload_identities",from = "bases"},
-    {include = "orbitcloud_graviton/app_workload",from = "bases"},
-    {include = "orbitcloud_graviton/az_appconfig",from = "components"},
-    {include = "orbitcloud_graviton/az_eventgrid",from = "components"},
-    {include = "orbitcloud_graviton/az_ai",from = "components"},
-    {include = "orbitcloud_graviton/pulumi",from = "components"},
-    {include = "orbitcloud_graviton/azure_environment",from = "bases"},
-    {include = "orbitcloud_graviton/azure_tenant",from = "bases"},
-    {include = "orbitcloud_graviton/entra_external_id",from = "bases"},
+    { include = "orbitcloud_graviton/landing_zone", from = "bases" },
+    { include = "orbitcloud_graviton/hubspoke", from = "bases" },
+    { include = "orbitcloud_graviton/ora_queue", from = "components" },
+    { include = "orbitcloud_graviton/app_zone", from = "bases" },
+    { include = "orbitcloud_graviton/acme_ssl", from = "bases" },
+    { include = "orbitcloud_graviton/workload_identities", from = "bases" },
+    { include = "orbitcloud_graviton/app_workload", from = "bases" },
+    { include = "orbitcloud_graviton/az_appconfig", from = "components" },
+    { include = "orbitcloud_graviton/az_eventgrid", from = "components" },
+    { include = "orbitcloud_graviton/az_ai", from = "components" },
+    { include = "orbitcloud_graviton/pulumi", from = "components" },
+    { include = "orbitcloud_graviton/cloud_init", from = "components" },
+    { include = "orbitcloud_graviton/pulumi_jinja", from = "components" },
+    { include = "orbitcloud_graviton/azure_environment", from = "bases" },
+    { include = "orbitcloud_graviton/azure_tenant", from = "bases" },
+    { include = "orbitcloud_graviton/oracledb", from = "bases" },
+    { include = "orbitcloud_graviton/entra_external_id", from = "bases" },
 
 ]
 
@@ -44,7 +49,7 @@ packages = [
 namespace = "orbitcloud_graviton"
 
 [tool.polylith.tag.patterns]
-stable = "stable-*"
+stable  = "stable-*"
 release = "v[0-9]*"
 
 [tool.polylith.structure]
@@ -57,53 +62,52 @@ brick_docs_enabled = false
 enabled = false
 
 [tool.poetry.dependencies]
-python = "^3.12"
-pydantic = {extras = ["email"], version = "^2.7.0"}
-pydantic-settings = "^2.4"
-pulumi = "^3.133"
-pulumi-azure-native = "^2.56"
-pulumi-azuread = "^5.48"
-pulumi-command = "^1.0.1"
-pulumi-random = "^4.16"
-pulumi-tls = "^5.0.1"
-pulumiverse-time = "^0.0.17"
-pulumiverse-acme = "^0.3.0"
+python                   = "^3.12"
+pydantic                 = { extras = ["email"], version = "^2.7.0" }
+pydantic-settings        = "^2.4"
+pulumi                   = "^3.133"
+pulumi-azure-native      = "^2.56"
+pulumi-azuread           = "^5.48"
+pulumi-command           = "^1.0.1"
+pulumi-random            = "^4.16"
+pulumi-tls               = "^5.0.1"
+pulumiverse-time         = "^0.0.17"
+pulumiverse-acme         = "^0.3.0"
 azure-mgmt-authorization = "^4.0.0"
-azure-mgmt-network = "^26.0.0"
-cryptography = "^43.0.0"
-aiohttp = "^3.10.3"
+azure-mgmt-network       = "^26.0.0"
+cryptography             = "^43.0.0"
+aiohttp                  = "^3.10.3"
+jinja2                   = "^3.1.4"
+pulumi-cloudinit         = "^1.4.4"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0.2"
-pytest-cov = "^5.0.0"
-commitizen = "^3.27"
-pyright = "^1.1"
-pre-commit = "^3.6.2"
-debugpy = "^1.8.1"
-ruff = "^0.6"
+pytest       = "^8.0.2"
+pytest-cov   = "^5.0.0"
+commitizen   = "^3.27"
+pyright      = "^1.1"
+pre-commit   = "^3.6.2"
+debugpy      = "^1.8.1"
+ruff         = "^0.6"
 pytest-sugar = "^1.0.0"
-copier = "^9.1.1"
-ipykernel = "^6.29.3"
+copier       = "^9.1.1"
+ipykernel    = "^6.29.3"
 
 [tool.pyright]
 include = ["components", "bases", "development", "test"]
 # ignore = ["development"]
-extraPaths = ["components", "bases"]
-venvPath = "."
-venv = ".venv"
-ruff = "^0.2.1"
-typeCheckingMode = "basic"
+extraPaths             = ["components", "bases"]
+venvPath               = "."
+venv                   = ".venv"
+ruff                   = "^0.2.1"
+typeCheckingMode       = "basic"
 reportMissingTypeStubs = true
 useLibraryCodeForTypes = true
 
 [tool.pytest.ini_options]
-testpaths = ["test/components/orbitcloud_graviton", "test/bases/orbitcloud_graviton",]
+testpaths = ["test/components/orbitcloud_graviton", "test/bases/orbitcloud_graviton"]
 python_files = ["test_*.py", "tests.py", "test.py"]
-addopts = [
-    "-s",
-    "-vvv",
-]
+addopts = ["-s", "-vvv"]
 norecursedirs = [".*", ".venv", "venv"]
 filterwarnings = [
     "ignore::DeprecationWarning:pulumi_azure_native.*:",
@@ -114,18 +118,15 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-branch = true
+branch   = true
 parallel = true
-source = [
-    "bases/orbitcloud_graviton",
-    "components/orbitcloud_graviton",
-]
+source   = ["bases/orbitcloud_graviton", "components/orbitcloud_graviton"]
 
 [tool.coverage.report]
 include_namespace_packages = true
-ignore_errors = true
-skip_empty = true
-omit = ["**/__init__.py", ".venv/*", "**/venv/*", "development/*", "test/*"]
+ignore_errors              = true
+skip_empty                 = true
+omit                       = ["**/__init__.py", ".venv/*", "**/venv/*", "development/*", "test/*"]
 
 
 [tool.ruff]
@@ -155,18 +156,15 @@ known-third-party = ["pulumi_azure_native", "pulumi_azuread", "pulumi", "pydanti
 known-first-party = ["orbitcloud_graviton"]
 
 [tool.commitizen]
-name = "cz_conventional_commits"
-version = "0.62.0"
-tag_format = "v$version"
-version_files = [
-    "VERSION",
-    "pyproject.toml:^version",
-    ]
+name                     = "cz_conventional_commits"
+version                  = "0.62.0"
+tag_format               = "v$version"
+version_files            = ["VERSION", "pyproject.toml:^version"]
 update_changelog_on_bump = true
-changelog_incremental = true
-bump_message = "bump: $current_version → $new_version"
-major_version_zero = true # Remove when we hit 1.0.0
+changelog_incremental    = true
+bump_message             = "bump: $current_version → $new_version"
+major_version_zero       = true                                    # Remove when we hit 1.0.0
 
 [build-system]
-requires = ["poetry-core"]
+requires      = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

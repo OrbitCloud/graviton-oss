@@ -1,8 +1,9 @@
+import base64
 from typing import Optional
 
 import pulumi
 from pulumi_azure_native.compute import v20230701 as compute
-from pydantic import BaseModel, ConfigDict
+from pydantic import Base64Str, BaseModel, ConfigDict, model_validator
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_network import NetworkInterface, NetworkInterfaceConfig
@@ -12,15 +13,28 @@ from .disk import VirtualMachineDataDiskConfig, VirtualMachineDisk, VirtualMachi
 
 
 class VirtualMachineOsImage(BaseModel):
-    offer: str
-    publisher: str
-    sku: str
+    offer: Optional[str] = None
+    publisher: Optional[str] = None
+    sku: Optional[str] = None
     version: Optional[str] = "latest"
+    gallery_urn: Optional[str] = None
+    is_marketplace_image: Optional[bool] = False
+
+    @model_validator(mode="after")
+    def validate_urn(m: "VirtualMachineOsImage") -> "VirtualMachineOsImage":
+        # Either offer, publisher, sku, and version or gallery_urn must be provided
+        if not all([m.offer, m.publisher, m.sku]) and not m.gallery_urn:
+            raise ValueError("Either offer, publisher and sku or gallery_urn must be provided")
+        return m
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class VirtualMachineOsAdminUser(BaseModel):
     username: Optional[str] = "azureuser"
     authorized_ssh_keys: Optional[list[str]] = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class VirtualMachineOsConfig(BaseModel):
@@ -28,10 +42,15 @@ class VirtualMachineOsConfig(BaseModel):
     hostname: Optional[str] = None
     disk: VirtualMachineDiskConfig
     admin: VirtualMachineOsAdminUser = VirtualMachineOsAdminUser()
+    custom_data: Optional[Base64Str | pulumi.Output[str]] = None
+    custom_data_file: Optional[str] = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class VirtualMachineNetworking(BaseModel):
     subnet_id: AzureIdRef
+
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -53,6 +72,7 @@ class VirtualMachine(pulumi.ComponentResource):
         stack: AzureStack,
         entra_config: EntraStack,
         config: VirtualMachineConfig,
+        nic: NetworkInterface | None = None,
         opts: Optional[pulumi.ResourceOptions] = None,
     ) -> None:
         self.stack: AzureStack = stack
@@ -71,12 +91,17 @@ class VirtualMachine(pulumi.ComponentResource):
         )
 
         self.datadisks: list[compute.DataDiskArgs] | None = self._datadisk_args()
-        self.nic = NetworkInterface(
-            stack=stack,
-            config=NetworkInterfaceConfig(
-                subnet_id=config.networking.subnet_id,
-            ),
-            opts=self._opts,
+
+        self.nic: NetworkInterface = (
+            nic
+            if nic
+            else NetworkInterface(
+                stack=stack,
+                config=NetworkInterfaceConfig(
+                    subnet_id=config.networking.subnet_id,
+                ),
+                opts=self._opts,
+            )
         )
 
         self.vm: compute.VirtualMachine = self._vm()
@@ -116,6 +141,7 @@ class VirtualMachine(pulumi.ComponentResource):
                         if self.config.os.admin.authorized_ssh_keys
                         else None,
                     ),
+                    custom_data=self._custom_data(),
                 ),
                 identity=compute.VirtualMachineIdentityArgs(
                     type=compute.ResourceIdentityType.SYSTEM_ASSIGNED,
@@ -128,16 +154,26 @@ class VirtualMachine(pulumi.ComponentResource):
                         ),
                     ]
                 ),
+                plan=compute.PlanArgs(
+                    publisher=self.config.os.image.publisher,
+                    product=self.config.os.image.offer,
+                    name=self.config.os.image.sku,
+                )
+                if self.config.os.image.is_marketplace_image
+                else None,
                 storage_profile=compute.StorageProfileArgs(
                     image_reference=compute.ImageReferenceArgs(
                         publisher=self.config.os.image.publisher,
                         offer=self.config.os.image.offer,
                         sku=self.config.os.image.sku,
                         version=self.config.os.image.version,
-                    ),
+                        shared_gallery_image_id=self.config.os.image.gallery_urn,
+                    )
+                    if not self.config.os.image.is_marketplace_image
+                    else None,
                     os_disk=compute.OSDiskArgs(
                         create_option=compute.DiskCreateOptionTypes.FROM_IMAGE,
-                        delete_option=compute.DeleteOptions.DETACH,
+                        delete_option=compute.DeleteOptions.DELETE,
                         disk_size_gb=self.config.os.disk.size_gb,
                         caching=compute.CachingTypes.READ_WRITE,
                         managed_disk=compute.ManagedDiskParametersArgs(
@@ -149,8 +185,19 @@ class VirtualMachine(pulumi.ComponentResource):
                 ),
                 zones=[self.config.zone] if self.config.zone else None,
             ),
-            opts=self._opts,
+            opts=pulumi.ResourceOptions.merge(
+                self._opts, pulumi.ResourceOptions(ignore_changes=["osProfile.customData"])
+            ),
         )
+
+    def _custom_data(self) -> Base64Str | pulumi.Output[Base64Str] | None:
+        if self.config.os.custom_data:
+            return self.config.os.custom_data
+
+        if self.config.os.custom_data_file:
+            with open(self.config.os.custom_data_file) as file:
+                contents = file.read()
+            return base64.b64encode(contents.encode("utf-8")).decode("utf-8")
 
     def _datadisk_args(self) -> list[compute.DataDiskArgs] | None:
         datadisks: list[compute.DataDiskArgs] = []
@@ -182,6 +229,8 @@ class VirtualMachine(pulumi.ComponentResource):
                 "vm": {
                     "id": self.vm.id,
                     "name": self.vm.name,
+                    "username": self.config.os.admin.username,
+                    "private_ip": self.nic.nic.ip_configurations[0].private_ip_address,
                 }
             }
         )

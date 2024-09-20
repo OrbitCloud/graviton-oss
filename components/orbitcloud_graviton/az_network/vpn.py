@@ -246,7 +246,9 @@ class VirtualNetworkGateway(ComponentResource):
             tier="Regional",
         )
         public_ip = PublicIp(
-            stack=self.stack, config=public_ip_config, opts=pulumi.ResourceOptions(parent=self)
+            stack=self.stack,
+            config=public_ip_config,
+            opts=self._opts,
         )
         return public_ip.public_ip
 

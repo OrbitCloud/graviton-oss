@@ -4,8 +4,17 @@
 package_update: true
 package_upgrade: true
 
+yum_repos:
+  ol9_developer_epel:
+    baseurl: https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/$basearch/
+    enabled: true
+    gpgcheck: true
+    gpgkey: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
+
 packages:
   - oracle-database-preinstall-19c
   - cifs-utils
   - autofs
   - dnf-automatic
+  - microdnf
+  - rlwrap

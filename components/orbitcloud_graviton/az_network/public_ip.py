@@ -1,7 +1,6 @@
 from typing import Literal, Optional
 
 import pulumi
-from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -35,7 +34,7 @@ class PublicIpConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
-class PublicIp(ComponentResource):
+class PublicIp:
     def __init__(
         self,
         stack: AzureStack,
@@ -44,9 +43,7 @@ class PublicIp(ComponentResource):
     ) -> None:
         self.stack: AzureStack = stack
         self.config: PublicIpConfig = config
-        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
-            opts, pulumi.ResourceOptions(parent=self)
-        )
+        self._opts: pulumi.ResourceOptions = opts or pulumi.ResourceOptions()
 
         self.public_ip: network.PublicIPAddress = self._public_ip()
 
@@ -90,4 +87,5 @@ class PublicIp(ComponentResource):
             location=self.stack.location,
             resource_group_name=self.stack.resource_group.name,
             public_ip_allocation_method=network.IPAllocationMethod.STATIC,
+            opts=self._opts,
         )

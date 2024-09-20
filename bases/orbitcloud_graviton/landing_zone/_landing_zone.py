@@ -94,7 +94,7 @@ def deploy_landing_zone() -> None:
                 config=AcmeSslConfig(
                     dns_zone_id=dns.zone.id,
                     dns_zone_name=config.dns_zone.name,
-                    keyvault_id=kv.vault.id,
+                    keyvault_id=kv.vault.id if kv else None,
                     acme_account_email="admin@orbit.is",
                 ),
             )

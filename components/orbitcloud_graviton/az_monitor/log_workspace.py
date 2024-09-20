@@ -33,7 +33,7 @@ def log_workspace(
     opts: Optional[pulumi.ResourceOptions] = None,
 ) -> operationalinsights.Workspace:
     pulumi.debug(config.sku)
-    return operationalinsights.Workspace(
+    log = operationalinsights.Workspace(
         resource_name=stack.name_for(operationalinsights.Workspace),
         resource_group_name=stack.resource_group.name,
         location=stack.location,
@@ -53,3 +53,14 @@ def log_workspace(
         ),
         opts=opts,
     )
+
+    stack.export(
+        exports={
+            "log_workspace": {
+                "id": log.id,
+                "name": log.name,
+            }
+        }
+    )
+
+    return log

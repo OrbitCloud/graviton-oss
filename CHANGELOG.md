@@ -1,3 +1,28 @@
+## v0.63.0 (2024-09-20)
+
+### Feat
+
+- Add Oracle Database VM base (#377)
+- **az_backup**: Add Azure Backup component
+- **VirtualMachineDisk**: Add bursting, iops and logical sector configuration options
+- Entra External Tenants (#386)
+- **oracledb**: Enable Oracle Managed Files on new DB creation
+- **oracledb**: Add installation scripts
+- **OracleDatabase**: Add Oracle Database Azure VM base
+- **CloudInitTemplate**: Add cloud-init template component
+- **VirtualMachine**: Add support for custom data
+- **StorageAccount**: Add support for file shares and SMB security configurations
+- **oracledb**: Add base for deploying Oracle Database VM
+
+### Fix
+
+- **jinja**: Enable autoescape to suppress GitHub security warning
+- **pyproject**: Include az_compute in package
+
+### Refactor
+
+- **oracledb**: Disable auto download oracle binaries
+
 ## v0.62.0 (2024-08-26)
 
 ### Feat

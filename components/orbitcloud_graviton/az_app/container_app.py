@@ -417,9 +417,9 @@ class ContainerApp(pulumi.ComponentResource):
                         )
                         else self.config.ingress.target_port,
                         "custom_domains": (
-                            self.app.configuration.ingress.custom_domains
-                            if self.app.configuration.ingress.custom_domains
-                            else None
+                            self.app.configuration.ingress.custom_domains.apply(
+                                lambda x: [f"https://{d.name}" for d in x] if x else []
+                            )
                         ),
                         "revision": {
                             "latest_revision_fqdn": self.app.latest_revision_fqdn,

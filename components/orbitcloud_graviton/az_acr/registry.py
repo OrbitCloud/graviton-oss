@@ -10,6 +10,7 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class ContainerRegistryConfig(BaseModel):
+    name: Optional[str] = None
     public_network_access: containerregistry.PublicNetworkAccess = (
         containerregistry.PublicNetworkAccess.DISABLED
     )
@@ -36,7 +37,8 @@ def container_registry(
     """Create container registry"""
 
     cr = containerregistry.Registry(
-        resource_name=stack.name_for(containerregistry.Registry),
+        resource_name=config.name if config.name else stack.name_for(containerregistry.Registry),
+        registry_name=config.name if config.name else stack.name_for(containerregistry.Registry),
         admin_user_enabled=config.admin_user_enabled,
         location=stack.location,
         resource_group_name=stack.resource_group.name,

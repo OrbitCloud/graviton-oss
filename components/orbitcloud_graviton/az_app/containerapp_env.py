@@ -27,14 +27,14 @@ class CustomDomainConfig(BaseModel):
     dns_zone_id: Optional[AzureIdRef] = None
     dns_zone_stack: Optional[DictRef] = None
 
-    cert_value: StrRef
-    cert_pass: StrRef
+    cert_value: StrRef | str
+    cert_pass: StrRef | str
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class ContainerAppEnvConfig(BaseModel):
-    workload_profiles: list[Union[ConsumptionProfile, DedicatedProfile]] = Field(
+    workload_profiles: list[ConsumptionProfile | DedicatedProfile] = Field(
         discriminator="workload_type",
         default_factory=lambda: [ConsumptionProfile()],
         title="Workload Profiles",
@@ -131,12 +131,13 @@ class ContainerAppEnv(pulumi.ComponentResource):
 
     def _dns_records(self) -> List[network.RecordSet] | None:
         if self.config.custom_domain and self.config.custom_domain.dns_zone_id:
+            stack: AzureStack | None = None
             if self.config.custom_domain.dns_zone_stack and isinstance(
                 self.config.custom_domain.dns_zone_stack, dict
             ):
                 stack_args: dict[str, Any] = self.config.custom_domain.dns_zone_stack
                 stack_args["skip_exports"] = True
-                stack: AzureStack = AzureStack.model_validate(obj=stack_args)
+                stack = AzureStack.model_validate(obj=stack_args)
 
             zone = DnsZone(
                 dns_zone_id=self.config.custom_domain.dns_zone_id,

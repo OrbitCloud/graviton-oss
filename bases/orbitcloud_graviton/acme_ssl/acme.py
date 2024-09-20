@@ -1,10 +1,10 @@
-from typing import List, Optional
+from typing import Optional
 
 import pulumi
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from pulumi import ComponentResource, Output, ResourceOptions
-from pulumi_azure_native import authorization, keyvault
+from pulumi_azure_native import keyvault
 from pulumi_random import RandomPassword, RandomPasswordArgs
 from pulumi_tls import PrivateKey, PrivateKeyArgs
 from pulumiverse_acme import (
@@ -19,7 +19,6 @@ from pulumiverse_acme import (
 )
 from pydantic import BaseModel, ConfigDict, EmailStr
 
-from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_keyvault.secret import KeyvaultSecretConfig, keyvault_secret
 from orbitcloud_graviton.az_lib import AzureIdRef
 from orbitcloud_graviton.entra import ClientCredentialsConfig, EntraApp, EntraAppConfig
@@ -76,8 +75,8 @@ class AcmeSsl(ComponentResource):
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
 
-        self.entra_app: EntraApp = entra_app or self._entra_app()
-        self.azure_permissions: List[authorization.RoleAssignment] = self._azure_permissions()
+        # self.entra_app: EntraApp = entra_app or self._entra_app()
+        # self.azure_permissions: List[authorization.RoleAssignment] = self._azure_permissions()
 
         self.acme_account_email: EmailStr | Output[EmailStr] = email_random_plus(
             email=self.config.acme_account_email
@@ -86,7 +85,6 @@ class AcmeSsl(ComponentResource):
         self.pfx_pass: pulumi.Output[str] = self._pfx_pass()
         self.registration: Registration = self._registration()
         self.certificate: Certificate = self._certificate()
-
         self.keyvault_secret: keyvault.Secret | None = self._keyvault_secret()
 
         self._outputs()
@@ -107,44 +105,41 @@ class AcmeSsl(ComponentResource):
             opts=self._opts,
         )
 
-    def _azure_permissions(self) -> List[authorization.RoleAssignment]:
-        if isinstance(self.config.dns_zone_id, Output):
-            scope = self.config.dns_zone_id.apply(lambda id: f"{id}/txt/_acme-challenge")
-        else:
-            scope = f"{self.config.dns_zone_id}/txt/_acme-challenge"
+    # def _azure_permissions(self) -> List[authorization.RoleAssignment]:
+    #     if isinstance(self.config.dns_zone_id, Output):
+    #         scope = self.config.dns_zone_id.apply(lambda id: f"{id}/txt/_acme-challenge")
+    #     else:
+    #         scope = f"{self.config.dns_zone_id}/txt/_acme-challenge"
 
-        perms = [
-            {
-                "name_prefix": fmt_name(["acme", self.config.dns_zone_name]),
-                "role": "DNS Zone Contributor",
-                "description": "Allows management of _acme-challenge TXT record.",
-                "scope": scope,
-            },
-            {
-                "name_prefix": fmt_name(["acme", self.config.dns_zone_name]),
-                "role": "Reader",
-                "description": "Allows reading of the DNS Zone.",
-                "scope": self.config.dns_zone_id,
-            },
-        ]
+    #     perms = [
+    #         {
+    #             "name_prefix": fmt_name(["acme", self.config.dns_zone_name]),
+    #             "role": "DNS Zone Contributor",
+    #             "description": "Allows management of _acme-challenge TXT record.",
+    #             "scope": scope,
+    #         },
+    #         {
+    #             "name_prefix": fmt_name(["acme", self.config.dns_zone_name]),
+    #             "role": "Reader",
+    #             "description": "Allows reading of the DNS Zone.",
+    #             "scope": self.config.dns_zone_id,
+    #         },
+    #     ]
 
-        return [
-            iam_assignment(
-                stack=self.stack,
-                principal_id=self.entra_app.service_principal.id,
-                config=IamAssignmentConfig(**perm),
-                opts=pulumi.ResourceOptions.merge(
-                    self._opts, pulumi.ResourceOptions(self.entra_app)
-                ),
-            )
-            for perm in perms
-        ]
+    #     return [
+    #         iam_assignment(
+    #             stack=self.stack,
+    #             principal_id=self.entra_app.service_principal.id,
+    #             config=IamAssignmentConfig(**perm),
+    #             opts=pulumi.ResourceOptions.merge(
+    #                 self._opts, pulumi.ResourceOptions(self.entra_app)
+    #             ),
+    #         )
+    #         for perm in perms
+    #     ]
 
     def _dns_challenge_args(self) -> dict:
         return {
-            "AZURE_AUTH_METHOD": "env",
-            "AZURE_CLIENT_ID": self.entra_app.app.client_id,
-            "AZURE_CLIENT_SECRET": self.entra_app.client_credentials[0].value,
             "AZURE_TENANT_ID": str(self.stack.tenant_id),
             "AZURE_SUBSCRIPTION_ID": str(self.stack.subscription_id),
             "AZURE_ZONE_NAME": self.config.dns_zone_name,
@@ -241,9 +236,9 @@ class AcmeSsl(ComponentResource):
     def _outputs(self) -> None:
         self.register_outputs(
             {
-                "app": self.entra_app.app,
-                "service_principal": self.entra_app.service_principal,
-                "azure_permissions": self.azure_permissions,
+                # "app": self.entra_app.app,
+                # "service_principal": self.entra_app.service_principal,
+                # "azure_permissions": self.azure_permissions,
                 "certificate": self.certificate,
             },
         )

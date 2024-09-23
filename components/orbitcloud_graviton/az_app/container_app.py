@@ -334,7 +334,9 @@ class ContainerApp(pulumi.ComponentResource):
                 iam_assignment(
                     stack=self.stack,
                     config=IamAssignmentConfig(
-                        name_prefix=self.app_name,
+                        name_prefix=f"{perm.name_prefix}-{self.app_name}"
+                        if perm.name_prefix
+                        else self.app_name,
                         role=perm.role,
                         scope=perm.scope,
                         description=perm.description,

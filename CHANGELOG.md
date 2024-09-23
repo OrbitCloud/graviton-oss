@@ -1,3 +1,9 @@
+## v0.66.0 (2024-09-23)
+
+### Feat
+
+- Entra Apps for authentication (#412)
+
 ## v0.65.0 (2024-09-23)
 
 ### Feat

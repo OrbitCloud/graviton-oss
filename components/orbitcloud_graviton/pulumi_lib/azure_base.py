@@ -109,6 +109,7 @@ def get_azure_stack() -> AzureStack:
                 "stack": {
                     "workload_name": stack.workload_name,
                     "subscription_id": str(stack.subscription_id),
+                    "fq_subscription_id": f"/subscriptions/{stack.subscription_id}",
                     "tenant_id": str(stack.tenant_id),
                     "location": stack.location,
                     "env": stack.env,

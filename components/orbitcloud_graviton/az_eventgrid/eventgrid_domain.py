@@ -67,6 +67,10 @@ class EventGridDomain(pulumi.ComponentResource):
                 workload_name=self.config.name or self.stack.workload_name,
             ),
             args=eventgrid.DomainArgs(
+                domain_name=self.stack.name_for(
+                    resource_type=eventgrid.Domain,
+                    workload_name=self.config.name or self.stack.workload_name,
+                ),
                 resource_group_name=self.stack.resource_group.name,
                 location=self.stack.resource_group.location,
                 identity=eventgrid.IdentityInfoArgs(type=eventgrid.IdentityType.SYSTEM_ASSIGNED),

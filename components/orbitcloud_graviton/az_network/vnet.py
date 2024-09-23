@@ -9,6 +9,7 @@ from orbitcloud_graviton.az_lib.types import AzureIdRef, AzureResourceId
 from orbitcloud_graviton.pulumi_lib import AzureStack, get_provider
 
 from ._enums import NON_NSG_SUBNETS, SPECIAL_SUBNETS, SubnetServiceEndpoints
+from .ip_group import IpGroupConfig, ip_group
 from .nsg import DEFAULT_DENY_RULE, NsgRuleConfig
 from .types import PrivateIPv4Network
 
@@ -49,6 +50,7 @@ class VnetConfig(BaseModel):
     subnets: list[SubnetConfig]
     peered_vnets: Optional[List[VnetPeeringConfig]] = None
     create_default_nsgs: Optional[bool] = False
+    create_ip_groups: Optional[bool] = False
 
     # Validate that subnets are unique, don't overlap and are within the vnet address space
     @model_validator(mode="after")
@@ -110,6 +112,7 @@ class Vnet(ComponentResource):
         self.vnet: network.VirtualNetwork = self._vnet()
         self.nsgs: Dict[str, network.NetworkSecurityGroup] = self._nsgs()
         self.subnets: Dict[str, network.Subnet] = self._subnets()
+        self.ip_groups: Dict[str, network.IpGroup] | None = self._ip_groups()
         self.vnet_peering = self._vnet_peerings()
 
         self._outputs()
@@ -215,6 +218,26 @@ class Vnet(ComponentResource):
             for subnet in self.config.subnets
         }
 
+    def _ip_groups(self) -> Dict[str, network.IpGroup] | None:
+        if self.config.create_ip_groups:
+            ip_groups = {}
+            for subnet in self.config.subnets:  # We could maybe use self.subnets instead.
+                ip_group_resource = ip_group(
+                    stack=self.stack,
+                    config=IpGroupConfig(
+                        workload=subnet.name
+                        if subnet.name in SPECIAL_SUBNETS
+                        else self.stack.name_for(
+                            resource_type=network.Subnet, workload_name=subnet.name
+                        ),
+                        ip_addresses=subnet.address_prefix,
+                    ),
+                    opts=pulumi.ResourceOptions(parent=self.subnets[subnet.name]),
+                )
+                ip_groups[subnet.name] = ip_group_resource
+            return ip_groups
+        return None
+
     def _subnet_service_endpoints_args(
         self, subnet: SubnetConfig
     ) -> list[network.ServiceEndpointPropertiesFormatArgs] | None:
@@ -245,7 +268,6 @@ class Vnet(ComponentResource):
 
     def _vnet_peerings(self) -> None:
         if self.config.peered_vnets:
-            print("Peering VNETs")
             for peering in self.config.peered_vnets:
                 target_vnet = AzureResourceId(str(peering.remote_virtual_network))
                 provider = get_provider(str(target_vnet.subscription_id))
@@ -280,10 +302,7 @@ class Vnet(ComponentResource):
 
     def _outputs(self) -> None:
         self.register_outputs(
-            outputs={
-                "vnet": self.vnet,
-                "subnets": self.subnets,
-            }
+            outputs={"vnet": self.vnet, "subnets": self.subnets, "ip_groups": self.ip_groups}
         )
 
         def _subnet_export() -> dict:
@@ -296,6 +315,18 @@ class Vnet(ComponentResource):
                 }
             return subnet_export
 
+        # TODO: Should we rather export this under _subnet_export? > ip_group_id, ip_group_name
+        def _ipgroup_export() -> dict | None:
+            if self.ip_groups:
+                ip_group_export: dict[str, Any] = {}
+                for name, ip_group in self.ip_groups.items():
+                    ip_group_export[name] = {
+                        "name": ip_group.name.apply(lambda x: x),
+                        "id": ip_group.id.apply(lambda x: x),
+                        "ip_addresses": ip_group.ip_addresses.apply(lambda x: x),
+                    }
+                return ip_group_export
+
         self.stack.export(
             exports={
                 "vnet": {
@@ -303,5 +334,6 @@ class Vnet(ComponentResource):
                     "name": self.vnet.name,
                 },
                 "subnets": _subnet_export(),
+                "ip_groups": _ipgroup_export(),
             }
         )

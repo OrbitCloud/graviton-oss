@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import List, Literal, Optional
 
 import pulumi
 from pulumi_azure_native.network import v20230901 as network
@@ -20,7 +20,7 @@ class PublicIpConfig(BaseModel):
     address_version: Optional[Literal["IPv4", "IPv6"]] = "IPv4"
     tier: Optional[Literal["Regional", "Global"]] = "Regional"
     idle_timeout_in_minutes: Optional[int] = 4
-    zone: Optional[Literal["1", "2", "3"]] = None
+    zone: Optional[List[Literal["1", "2", "3"]]] = None
     dns_config: Optional[PublicIpDnsConfig] = None
 
     @model_validator(mode="after")
@@ -77,11 +77,13 @@ class PublicIp:
 
     def _public_ip(self) -> network.PublicIPAddress:
         public_ip_name: str = "pip-" + self.config.workload
+        zones = self.config.zone if self.config.zone and self.config.tier != "Global" else None
+
         return network.PublicIPAddress(
             resource_name=public_ip_name,
             public_ip_address_version=self.config.address_version,
             idle_timeout_in_minutes=self.config.idle_timeout_in_minutes,
-            zones=[self.config.zone] if self.config.zone and self.config.tier != "Global" else None,
+            zones=zones,
             dns_settings=self._dns_config(),
             sku=self._sku(),
             location=self.stack.location,

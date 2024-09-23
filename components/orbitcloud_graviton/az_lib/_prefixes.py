@@ -103,6 +103,8 @@ RESOURCE_PREFIXES: Dict[str, Any] = {
     "pulumi_azure_native.compute.virtual_machine": {"prefix": "vm"},
     "pulumi_azure_native.compute.disk": {"prefix": "disk"},
     "pulumi_azure_native.network.network_interface": {"prefix": "nic"},
+    "pulumi_azure_native.network.azure_firewall": {"prefix": "azfw"},
+    "pulumi_azure_native.network.firewall_policy": {"prefix": "azfwp"},
     "pulumi_azure_native.recoveryservices.vault": {"prefix": "rsv"},
     "pulumi_azure_native.recoveryservices.protection_policy": {"prefix": "rsvpp"},
     # See Cloud Adoption Framework Abbreviations:

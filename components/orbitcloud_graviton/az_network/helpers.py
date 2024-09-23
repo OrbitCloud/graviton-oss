@@ -34,3 +34,60 @@ def is_service_tag(value: str) -> str:
     if value not in valid_service_tags:
         raise ValueError(f"'{value}' is not a valid service tag")
     return value
+
+
+@lru_cache
+def fetch_fqdn_tags():
+    config = authorization.get_client_config()
+    client_token = authorization.get_client_token()
+    client = NetworkManagementClient(
+        credential=TokenCred(client_token.token), subscription_id=config.subscription_id
+    )
+    fqdn_tags = client.azure_firewall_fqdn_tags.list_all()
+
+    return [item.fqdn_tag_name for item in fqdn_tags if hasattr(item, "fqdn_tag_name")]
+
+
+def is_fqdn_tag(value: str) -> str:
+    valid_fqdn_tags = fetch_fqdn_tags()
+    if value not in valid_fqdn_tags:
+        raise ValueError(f"'{value}' is not a valid FQDN tag")
+    return value
+
+
+def is_port(port):
+    """
+    Validates a port or a range of ports.
+
+    Args:
+        port (str or int): The port or range to validate. It can be an integer,
+                           a string representing a single port, a wildcard "*",
+                           or a string representing a port range like "1024-2048".
+
+    Raises:
+        ValueError: If the port or port range is invalid.
+    """
+    if isinstance(port, int):
+        if port < 1 or port > 65535:
+            raise ValueError(f"Port number {port} is out of the valid range (0-65535).")
+    elif isinstance(port, str):
+        if port == "*":
+            return
+        if "-" in port:
+            start, end = port.split("-")
+            if not (start.isdigit() and end.isdigit()):
+                raise ValueError(
+                    f"Port range {port} is invalid. Both start and end must be numbers."
+                )
+            start, end = int(start), int(end)
+            if start < 1 or end > 65535 or start > end:
+                raise ValueError(
+                    f"Port range {port} is out of the valid range (0-65535) or invalid."
+                )
+        else:
+            if not port.isdigit():
+                raise ValueError(f"Port {port} is invalid. It must be a number or a valid range.")
+            if int(port) < 1 or int(port) > 65535:
+                raise ValueError(f"Port number {port} is out of the valid range (0-65535).")
+    else:
+        raise ValueError(f"Invalid port format: {port}")

@@ -10,12 +10,14 @@ from orbitcloud_graviton.az_app.container_app import ContainerApp, ContainerAppC
 from orbitcloud_graviton.az_appconfig import AppConfiguration, AppConfigurationConfig
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig
 from orbitcloud_graviton.az_storage import StorageAccount, StorageAccountConfig
+from orbitcloud_graviton.entra.entra_app import EntraApp, EntraAppConfig
 from orbitcloud_graviton.pulumi_lib import (
     AzureStack,
     PulumiConfig,
     generate_stack_schema,
     get_azure_stack,
 )
+from orbitcloud_graviton.pulumi_lib.azure_base import EntraStack, get_entra_stack
 
 
 class AppWorkloadConfig(PulumiConfig):
@@ -23,6 +25,7 @@ class AppWorkloadConfig(PulumiConfig):
     app_config: Optional[AppConfigurationConfig] = None
     storage_accounts: Optional[List[StorageAccountConfig]] = None
     search_service: Optional[SearchServiceConfig] = None
+    oauth_app: EntraAppConfig | None = None
 
     @model_validator(mode="after")
     def validate_apps(m: "AppWorkloadConfig") -> "AppWorkloadConfig":
@@ -49,6 +52,7 @@ def deploy() -> None:
     generate_stack_schema(model=AppWorkloadConfig, output_file=".stack_schema.json")
     config: AppWorkloadConfig = AppWorkloadConfig.model_validate({})
     stack: AzureStack = get_azure_stack()
+    entra_config: EntraStack = get_entra_stack()
 
     rg: ResourceGroup = stack.resource_group
     opts = pulumi.ResourceOptions(parent=rg)
@@ -134,4 +138,11 @@ def deploy() -> None:
                 update={"secrets": app_secrets, "azure_permissions": perms}
             ),
             opts=pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(depends_on=app_deps)),
+        )
+
+    if config.oauth_app:
+        EntraApp(
+            stack=stack.model_copy(update={"exports_prefix": "oauth"}),
+            entra=entra_config,
+            config=config.oauth_app,
         )

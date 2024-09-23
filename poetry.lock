@@ -1783,6 +1783,21 @@ pulumi = ">=3.0.0,<4.0.0"
 semver = ">=2.8.1"
 
 [[package]]
+name = "pulumi-std"
+version = "1.7.3"
+description = "Standard library functions"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pulumi_std-1.7.3.tar.gz", hash = "sha256:0561a03ab1a630f765a77e6c9ac5a5b592d3e77bca245f6497dbfbf42fc9bc3c"},
+]
+
+[package.dependencies]
+parver = ">=0.2.1"
+pulumi = ">=3.0.0,<4.0.0"
+semver = ">=2.8.1"
+
+[[package]]
 name = "pulumi-tls"
 version = "5.0.6"
 description = "A Pulumi package to create TLS resources in Pulumi programs."
@@ -2650,4 +2665,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "8cb71ddf07a9f8297040ac752d8e081f25750a242bf26fb48b0c64aecaa24cf2"
+content-hash = "4b9e13423f657199fe027ed4d654e04f4d69d4f0612ab827e6cc5576a22036ed"

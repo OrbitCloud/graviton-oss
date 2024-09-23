@@ -1,10 +1,13 @@
+from pathlib import PosixPath
 from typing import List, Literal, Optional, Self
 
 import pulumi
 import pulumi_azuread as azuread
 from pulumi import ComponentResource
+from pulumi_random import RandomUuid, RandomUuidArgs
+from pulumi_std import filebase64
 from pulumiverse_time import Rotating
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, FilePath, field_validator
 
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_lib.helpers import fmt_name
@@ -29,11 +32,83 @@ class FederatedCredentialsConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
-class EntraAppConfig(
-    BaseModel,
-):
-    name: str
-    display_name: Optional[str] = None
+class EntraAppAppRole(BaseModel):
+    allowed_member_types: list[Literal["User", "Application"]]
+    description: str
+    display_name: str
+    value: str
+
+    def id(self, opts: pulumi.ResourceOptions | None = None) -> pulumi.Output[str]:
+        return RandomUuid(
+            resource_name=f"app-role-{fmt_name(self.display_name)}",
+            args=RandomUuidArgs(
+                keepers={"display_name": self.display_name},
+            ),
+            opts=opts,
+        ).result
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class EntraAppBranding(BaseModel):
+    privacy_statement_url: str | None = None
+    support_url: str | None = None
+    terms_of_service_url: str | None = None
+    homepage_url: str | None = None
+    logo_file: FilePath | None = None
+
+    @field_validator("logo_file")
+    def validate_logo_file(cls, value: PosixPath) -> PosixPath | None:
+        if value:
+            _value = str(value)
+            if not _value.endswith((".gif", ".jpg", ".jpeg", ".png")):
+                raise ValueError("Logo file must be a gif, jpg, jpeg, or png file")
+            # Enforce location within assets folder
+            if (
+                (not _value.startswith("assets/") and not _value.startswith("./assets/"))
+                or ".." in _value
+                or "~" in _value
+                or "//" in _value
+            ):
+                raise ValueError("Logo file must reside in the ./assets folder")
+        return value
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class EntraAppGraphApiPermissions(BaseModel):
+    scopes: list[str]
+    resource_app_id: str = "00000003-0000-0000-c000-000000000000"
+
+    def resource_args(self) -> List[azuread.ApplicationRequiredResourceAccessResourceAccessArgs]:
+        graph_permissions: dict[str, dict[str, str]] = {
+            "GroupMember.Read.All": {
+                "id": "bc024368-1153-4739-b217-4326f2e966d0",
+                "type": "Scope",
+            },
+            "User.Read": {
+                "id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+                "type": "Scope",
+            },
+        }
+
+        try:
+            resources: List[azuread.ApplicationRequiredResourceAccessResourceAccessArgs] = [
+                azuread.ApplicationRequiredResourceAccessResourceAccessArgs(
+                    id=graph_permissions[perm]["id"],
+                    type=graph_permissions[perm]["type"],
+                )
+                for perm in self.scopes
+            ]
+        except KeyError as e:
+            raise KeyError(f"Permission {e} hasn't been defined in graph_permissions") from e
+
+        return resources
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class EntraAppAuthentication(BaseModel):
     audience: Optional[
         Literal[
             "AzureADMyOrg",
@@ -42,9 +117,29 @@ class EntraAppConfig(
             "PersonalMicrosoftAccount",
         ]
     ] = "AzureADMyOrg"
+    identifier_uris: list[str] | None = None
+    logout_url: str | None = None
+    redirect_uris: list[str] | None = None
+    branding: EntraAppBranding = EntraAppBranding()
+    graph_permissions: EntraAppGraphApiPermissions | None = None
+    group_membership_claims: (
+        list[Literal["SecurityGroup", "DirectoryRole", "ApplicationGroup", "All"]] | None
+    ) = None
+    app_roles: list[EntraAppAppRole] | None = None
+    assignment_required: bool = False
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class EntraAppConfig(
+    BaseModel,
+):
+    name: str
+    display_name: Optional[str] = None
     client_credentials: Optional[List[ClientCredentialsConfig]] = Field(default_factory=list)
     federated_credentials: Optional[List[FederatedCredentialsConfig]] = Field(default_factory=list)
     owners: Optional[List[str]] = Field(default_factory=list)
+    authentication: EntraAppAuthentication = EntraAppAuthentication()
 
     entra_roles: Optional[List[str]] = Field(default_factory=list)
 
@@ -75,7 +170,9 @@ class EntraApp(ComponentResource):
 
         self.app: azuread.Application = self._app()
         self.service_principal: azuread.ServicePrincipal = self._service_principal()
-        self.client_credentials: List[azuread.ApplicationPassword] = self._client_credentials()
+        self.client_credentials: None | dict[str, azuread.ApplicationPassword] = (
+            self._client_credentials()
+        )
         self.federated_credentials: list[azuread.ApplicationFederatedIdentityCredential] = (
             self._federated_credentials()
         )
@@ -86,39 +183,78 @@ class EntraApp(ComponentResource):
     def _app(self) -> azuread.Application:
         return azuread.Application(
             resource_name=f"ea-{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
-            display_name=f"{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
-            sign_in_audience=self.config.audience,
-            owners=self.config.owners,
+            args=azuread.ApplicationArgs(
+                display_name=self.config.display_name
+                or f"{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
+                sign_in_audience=self.config.authentication.audience,
+                owners=self.config.owners,
+                identifier_uris=self.config.authentication.identifier_uris,
+                logo_image=filebase64(
+                    str(object=self.config.authentication.branding.logo_file)
+                ).result
+                if self.config.authentication.branding.logo_file
+                else None,
+                web=azuread.ApplicationWebArgs(
+                    redirect_uris=self.config.authentication.redirect_uris,
+                    homepage_url=self.config.authentication.branding.homepage_url,
+                    logout_url=self.config.authentication.logout_url,
+                ),
+                terms_of_service_url=self.config.authentication.branding.terms_of_service_url,
+                privacy_statement_url=self.config.authentication.branding.privacy_statement_url,
+                required_resource_accesses=[
+                    azuread.ApplicationRequiredResourceAccessArgs(
+                        resource_app_id=self.config.authentication.graph_permissions.resource_app_id,
+                        resource_accesses=self.config.authentication.graph_permissions.resource_args(),
+                    )
+                ]
+                if self.config.authentication.graph_permissions
+                else None,
+                app_roles=[
+                    azuread.ApplicationAppRoleArgs(
+                        allowed_member_types=role.allowed_member_types,
+                        description=role.description,
+                        display_name=role.display_name,
+                        id=role.id(opts=self._opts),
+                        value=role.value,
+                    )
+                    for role in self.config.authentication.app_roles or []
+                ],
+                group_membership_claims=self.config.authentication.group_membership_claims,
+            ),
             opts=self._opts,
         )
 
     def _service_principal(self) -> azuread.ServicePrincipal:
         return azuread.ServicePrincipal(
             resource_name=f"sp-{self.config.name}-{self.stack.env}",
-            client_id=self.app.client_id,
+            args=azuread.ServicePrincipalArgs(
+                client_id=self.app.client_id,
+                app_role_assignment_required=self.config.authentication.assignment_required,
+            ),
             opts=self._opts,
         )
 
-    def _client_credentials(self) -> List[azuread.ApplicationPassword]:
-        creds = []
+    def _client_credentials(self) -> None | dict[str, azuread.ApplicationPassword]:
+        creds: dict[str, azuread.ApplicationPassword] = {}
         if not self.config.client_credentials:
-            return []
+            return None
         for cred in self.config.client_credentials:
             rotation: Rotating = cred.expires_after.Rotating(
                 resource_name=f"rotate-{self.config.name}-{cred.display_name}-{self.stack.workload_name}-{self.stack.env}",
                 opts=self._opts,
             )
 
-            creds.append(
-                azuread.ApplicationPassword(
-                    resource_name=f"eapw-{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
+            creds[cred.display_name] = azuread.ApplicationPassword(
+                resource_name=f"eapw-{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
+                args=azuread.ApplicationPasswordInitArgs(
                     display_name=cred.display_name,
                     application_id=self.app.id,
+                    end_date_relative=cred.expires_after,
                     rotate_when_changed={
                         "rotation": rotation.id.apply(lambda id: id),
                     },
-                    opts=self._opts,
-                )
+                ),
+                opts=self._opts,
             )
         return creds
 
@@ -202,6 +338,17 @@ class EntraApp(ComponentResource):
                         "tenant_id": self.service_principal.application_tenant_id,
                     },
                     "federated_credentials": _federated_credentials_outputs(),
+                    "client_credentials": {
+                        cred_name: {
+                            "display_name": cred.display_name,
+                            "secret": cred.value,
+                            "expires": cred.end_date,
+                            "expires_after": cred.end_date_relative,
+                        }
+                        for cred_name, cred in self.client_credentials.items()
+                    }
+                    if self.client_credentials
+                    else None,
                 },
             }
         )

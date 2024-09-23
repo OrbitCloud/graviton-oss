@@ -42,6 +42,7 @@ packages = [
     { include = "orbitcloud_graviton/oracledb", from = "bases" },
     { include = "orbitcloud_graviton/entra_external_id", from = "bases" },
     { include = "orbitcloud_graviton/az_backup", from = "components" },
+    { include = "orbitcloud_graviton/oauth_apps", from = "bases" },
 ]
 
 
@@ -80,6 +81,7 @@ aiohttp                  = "^3.10.3"
 jinja2                   = "^3.1.4"
 pulumi-cloudinit         = "^1.4.4"
 pulumi-postgresql        = "^3.12.0"
+pulumi-std               = "^1.7.3"
 [tool.poetry.group.dev.dependencies]
 pytest       = "^8.0.2"
 pytest-cov   = "^5.0.0"

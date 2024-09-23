@@ -1,3 +1,9 @@
+## v0.65.0 (2024-09-23)
+
+### Feat
+
+- Azure Firewall and IP groups (#396)
+
 ## v0.64.0 (2024-09-20)
 
 ### BREAKING CHANGE

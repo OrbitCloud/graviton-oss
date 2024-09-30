@@ -1,5 +1,4 @@
 from typing import Literal, Optional
-from uuid import UUID
 
 import pulumi
 from pulumi_azure_native.azureactivedirectory import v20230517preview as entra
@@ -13,7 +12,6 @@ class ExternalIdTenantConfig(BaseModel):
     country_code: str = "IS"
     display_name: str
     initial_domain_prefix: str
-    tenant_id: UUID
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -59,7 +57,6 @@ class ExternalIdTenant(pulumi.ComponentResource):
                 display_name=self.config.display_name,
                 country_code=self.config.country_code,
             ),
-            tenant_id=str(self.config.tenant_id),
             opts=self._opts,
         )
 

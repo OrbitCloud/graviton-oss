@@ -1,3 +1,18 @@
+## v0.67.0 (2024-09-30)
+
+### BREAKING CHANGE
+
+- ContainerApp: name_prefix wasn't being used for iam_assignment resource_names. Remove name_prefix from your stack config to retain same naming or destroy and reprovision those permissions.
+
+### Feat
+
+- **EventGridDomain**: Use explicit name without Pulumi suffix
+- **AzureStack**: Add fq_subscription_id output
+
+### Fix
+
+- **ContainerApp**: use name_prefix when naming iam_assignment resource_names
+
 ## v0.66.0 (2024-09-23)
 
 ### Feat

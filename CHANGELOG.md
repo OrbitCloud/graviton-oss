@@ -1,3 +1,14 @@
+## v0.68.0 (2024-09-30)
+
+### Feat
+
+- **EventHub**: Add auto inflate configuration option
+- **EventGridDomain**: Add option to assign azure permissions to managed identity
+
+### Fix
+
+- **ExternalIdTenant**: Remove tenant_id from configuration
+
 ## v0.67.0 (2024-09-30)
 
 ### BREAKING CHANGE

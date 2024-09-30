@@ -1,6 +1,6 @@
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class ContainerProbeConfig(BaseModel):
@@ -83,9 +83,9 @@ class ContainerResourcesConfig(BaseModel):
 
 
 class ResiliencyCircuitBreaker(BaseModel):
-    consecutive_errors: int
-    interval_in_seconds: int
-    max_ejection_percent: int = Field(default=..., ge=0, le=100)
+    consecutive_errors: int = Field(default=..., gt=0)
+    interval_in_seconds: int = Field(default=..., gt=0)
+    max_ejection_percent: int = Field(default=..., gt=0, le=100)
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -96,33 +96,75 @@ class ResiliencyHttpConnectionPool(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
+class ResiliencyHttpHeaders(BaseModel):
+    name: str
+    exact_match: str | None = None
+    prefix_match: str | None = None
+    suffix_match: str | None = None
+
+    @model_validator(mode="after")
+    def one_match_method(m: "ResiliencyHttpHeaders") -> "ResiliencyHttpHeaders":
+        if (
+            sum(
+                1
+                for field in ["exact_match", "prefix_match", "suffix_match"]
+                if getattr(m, field) is not None
+            )
+            != 1
+        ):
+            raise ValueError(
+                "Exactly one of 'exact_match', 'prefix_match', 'suffix_match' must be set."
+            )
+        return m
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
 class ResiliencyHttpRetry(BaseModel):
-    error_types: Literal[
-        "5xx", "connect-failure", "reset", "retriable-headers", "retriable-status-codes"
+    error_types: list[
+        Literal[
+            "5xx",
+            "connect-failure",
+            "reset",
+            "retriable-headers",
+            "retriable-status-codes",
+            "retriable-4xx",
+        ]
     ]
-    max_retries: int
-    initial_delay_ms: int
-    max_interval_ms: int
+    max_retries: int = Field(default=..., gt=0)
+    initial_delay_ms: int = Field(default=..., gt=0)
+    max_interval_ms: int = Field(default=..., gt=0)
     http_status_codes: Optional[list[int]] = None
+    headers: list[ResiliencyHttpHeaders] | None = None
+
+    @model_validator(mode="after")
+    def validate_headers(m: "ResiliencyHttpRetry") -> "ResiliencyHttpRetry":
+        if ("retriable-headers" in m.error_types and not m.headers) or (
+            m.headers and "retriable-headers" not in m.error_types
+        ):
+            raise ValueError(
+                "If 'retriable-headers' is in 'error_types', 'headers' must be set and vice versa."
+            )
+        return m
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class ResiliencyTcpConnectionPool(BaseModel):
-    max_connections: int
+    max_connections: int = Field(default=..., gt=0)
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class ResiliencyTcpRetries(BaseModel):
-    max_retries: int
+    max_retries: int = Field(default=..., gt=0)
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class ResiliencyTimeout(BaseModel):
-    connection_timeout_seconds: int
-    response_timeout_seconds: int
+    connection_timeout_seconds: int = Field(default=..., gt=0)
+    response_timeout_seconds: int = Field(default=..., gt=0)
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 

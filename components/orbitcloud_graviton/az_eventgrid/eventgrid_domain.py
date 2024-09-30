@@ -4,6 +4,7 @@ import pulumi
 from pulumi_azure_native import eventgrid, insights
 from pydantic import BaseModel, ConfigDict
 
+from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
 from orbitcloud_graviton.az_network import PrivateEndpoint, PrivateEndpointConfig
@@ -29,6 +30,7 @@ class EventGridDomainConfig(BaseModel):
     private_endpoints: Optional[List[PrivateEndpointConfig]] = None
 
     log_workspace_id: Optional[AzureIdRef] = None
+    azure_permissions: list[IamAssignmentConfig] | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -56,6 +58,7 @@ class EventGridDomain(pulumi.ComponentResource):
 
         self.eventgrid_domain: eventgrid.Domain = self._eventgrid_domain()
         self.topics: dict[str, eventgrid.DomainTopic] = self._eventgrid_topics()
+        self._azure_permissions()
         self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
 
         self._outputs()
@@ -116,6 +119,25 @@ class EventGridDomain(pulumi.ComponentResource):
                 )
                 for pe in self.config.private_endpoints
             ]
+
+    def _azure_permissions(self) -> None:
+        if self.config.azure_permissions:
+            for perm in self.config.azure_permissions:
+                iam_assignment(
+                    stack=self.stack,
+                    config=IamAssignmentConfig(
+                        name_prefix=f"{perm.name_prefix}-{self.config.name}"
+                        if perm.name_prefix
+                        else self.config.name,
+                        role=perm.role,
+                        scope=perm.scope,
+                        description=perm.description,
+                    ),
+                    principal_id=self.eventgrid_domain.identity.principal_id,
+                    opts=pulumi.ResourceOptions(
+                        parent=self.eventgrid_domain, delete_before_replace=True
+                    ),
+                )
 
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:

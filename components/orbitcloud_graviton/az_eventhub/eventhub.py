@@ -29,6 +29,8 @@ class NamespaceConfig(BaseModel):
     sku: Literal["Basic", "Standard", "Premium"] = "Standard"
 
     hubs: Optional[List[EventHubConfig]] = None
+    auto_inflate_enabled: Optional[bool] = False
+
     private_endpoints: Optional[List[PrivateEndpointConfig]] = None
 
     log_workspace_id: Optional[AzureIdRef] = None
@@ -72,7 +74,7 @@ class EventHub(ComponentResource):
             identity=pul_eventhub.IdentityArgs(
                 type=pul_eventhub.ManagedServiceIdentityType.SYSTEM_ASSIGNED
             ),
-            is_auto_inflate_enabled=False,
+            is_auto_inflate_enabled=self.config.auto_inflate_enabled,
             kafka_enabled=True,
             minimum_tls_version=pul_eventhub.TlsVersion.TLS_VERSION_1_2,
             public_network_access=self.config.public_network_access,

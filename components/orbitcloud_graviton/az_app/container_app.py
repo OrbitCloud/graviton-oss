@@ -6,6 +6,7 @@ from pulumi_azure_native.app.v20231102preview import (
     AppResiliency,
     AppResiliencyArgs,
     CircuitBreakerPolicyArgs,
+    HeaderMatchArgs,
     HttpConnectionPoolArgs,
     HttpRetryPolicyArgs,
     TcpConnectionPoolArgs,
@@ -349,9 +350,15 @@ class ContainerApp(pulumi.ComponentResource):
         if not self.config.resiliency:
             return None
 
+        # Workaround for name length limit in Azure
+        resiliency_name = f"appres-{self.config.name or self.stack.workload_name}"[
+            0:32
+        ].removesuffix("-")
+
         return AppResiliency(
-            resource_name=self.stack.name_for(resource_type=AppResiliency),
+            resource_name=resiliency_name,
             args=AppResiliencyArgs(
+                name=resiliency_name,
                 app_name=self.app.name,
                 resource_group_name=self.stack.resource_group.name,
                 circuit_breaker_policy=CircuitBreakerPolicyArgs(
@@ -373,6 +380,15 @@ class ContainerApp(pulumi.ComponentResource):
                     initial_delay_in_milliseconds=self.config.resiliency.http_retry.initial_delay_ms,
                     errors=self.config.resiliency.http_retry.error_types,
                     http_status_codes=self.config.resiliency.http_retry.http_status_codes,
+                    headers=[
+                        HeaderMatchArgs(
+                            header=header.name,
+                            exact_match=header.exact_match,
+                            prefix_match=header.prefix_match,
+                            suffix_match=header.suffix_match,
+                        )
+                        for header in self.config.resiliency.http_retry.headers or []
+                    ],
                 )
                 if self.config.resiliency.http_retry
                 else None,

@@ -1,3 +1,10 @@
+## v0.69.0 (2024-09-30)
+
+### Feat
+
+- **ContainerApp**: Support HTTP resiliency header matches
+- **ContainerApp**: Add validation on resiliency configurations
+
 ## v0.68.0 (2024-09-30)
 
 ### Feat

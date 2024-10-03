@@ -22,7 +22,12 @@ from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.az_network.types import PrivateIPv4Network, PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureStack
 
-from ._app_schema import AppResiliencyConfig, ContainerProbeConfig, ContainerResourcesConfig
+from ._app_schema import (
+    AppCorsConfig,
+    AppResiliencyConfig,
+    ContainerProbeConfig,
+    ContainerResourcesConfig,
+)
 
 
 class ContainerAppScaleConfig(BaseModel):
@@ -58,6 +63,7 @@ class HttpIngressConfig(BaseModel):
     )
     target_port: int
     sticky_sessions: Optional[pam_app.Affinity] = pam_app.Affinity.NONE
+    cors: AppCorsConfig | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -247,6 +253,15 @@ class ContainerApp(pulumi.ComponentResource):
                     )
                     for ip in self.config.ingress.ip_allow_list or []
                 ],
+                cors_policy=pam_app.CorsPolicyArgs(
+                    allowed_origins=[str(url) for url in self.config.ingress.cors.allowed_origins],
+                    allowed_methods=self.config.ingress.cors.allowed_methods,
+                    allowed_headers=self.config.ingress.cors.allowed_headers,
+                    expose_headers=self.config.ingress.cors.expose_headers,
+                    allow_credentials=self.config.ingress.cors.allow_credentials,
+                )
+                if isinstance(self.config.ingress, HttpIngressConfig) and self.config.ingress.cors
+                else None,
             ),
             registries=(
                 [

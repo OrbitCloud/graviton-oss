@@ -1,6 +1,6 @@
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
 
 
 class ContainerProbeConfig(BaseModel):
@@ -176,5 +176,15 @@ class AppResiliencyConfig(BaseModel):
     circuit_breaker: Optional[ResiliencyCircuitBreaker] = None
     tcp_connection_pool: Optional[ResiliencyTcpConnectionPool] = None
     tcp_retries: Optional[ResiliencyTcpRetries] = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class AppCorsConfig(BaseModel):
+    allow_credentials: bool = False
+    allowed_origins: list[AnyUrl]
+    allowed_methods: list[str] | None = None
+    allowed_headers: list[str] | None = None
+    expose_headers: list[str] | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")

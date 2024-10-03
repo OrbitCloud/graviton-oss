@@ -1670,12 +1670,12 @@ files = [
 
 [[package]]
 name = "pulumi"
-version = "3.134.1"
+version = "3.135.0"
 description = "Pulumi's Python SDK"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pulumi-3.134.1-py3-none-any.whl", hash = "sha256:74ac0d67454256cea6b2cd338ba64cf3067265299dd5212f740638bb7ecdd2b0"},
+    {file = "pulumi-3.135.0-py3-none-any.whl", hash = "sha256:fadda283509e360afac92f8b569b1f14b15667984ad966a2a66c6595228f9042"},
 ]
 
 [package.dependencies]
@@ -1689,29 +1689,29 @@ six = ">=1.12,<2.0"
 
 [[package]]
 name = "pulumi-azure-native"
-version = "2.64.0"
+version = "2.64.2"
 description = "A native Pulumi package for creating and managing Azure resources."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pulumi_azure_native-2.64.0-py3-none-any.whl", hash = "sha256:e53bb1ea5f0ff4c81ce20ed6bf6d176c7accbe7dfa653470e8ef87618523376b"},
-    {file = "pulumi_azure_native-2.64.0.tar.gz", hash = "sha256:085d217c08f3d94ab914474d85390f56499e341e806d60d4497e3da718375c6f"},
+    {file = "pulumi_azure_native-2.64.2-py3-none-any.whl", hash = "sha256:f6271e30e25c09080df3aef509607b362774d126016abfb50492c7587cfc47e8"},
+    {file = "pulumi_azure_native-2.64.2.tar.gz", hash = "sha256:0adaf301dcdc06d32beb2baa86044d396f5ad69ef28789ae0143c134deb93128"},
 ]
 
 [package.dependencies]
 parver = ">=0.2.1"
-pulumi = ">=3.35.0,<4.0.0"
+pulumi = ">=3.134.1,<4.0.0"
 semver = ">=2.8.1"
 
 [[package]]
 name = "pulumi-azuread"
-version = "5.53.4"
+version = "5.53.5"
 description = "A Pulumi package for creating and managing Azure Active Directory (Azure AD) cloud resources."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pulumi_azuread-5.53.4-py3-none-any.whl", hash = "sha256:97dc5fedf742f51967daee08b3f17041537127b5621555f74c01292e68eef724"},
-    {file = "pulumi_azuread-5.53.4.tar.gz", hash = "sha256:cc93cac724e5543bcb232ff7539460ee0a840a7cb8aa18b39019201841b887d1"},
+    {file = "pulumi_azuread-5.53.5-py3-none-any.whl", hash = "sha256:ae503683b9f381cab9b93ced9bba92fa260aacdd1f5f7b8ddf54d6d363f60de3"},
+    {file = "pulumi_azuread-5.53.5.tar.gz", hash = "sha256:0187c6a1b0abe0b470a36a7cb33674a80fc9d6285ed67e407231c9bbdbb0a79a"},
 ]
 
 [package.dependencies]
@@ -2029,13 +2029,13 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.382.post1"
+version = "1.1.383"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.382.post1-py3-none-any.whl", hash = "sha256:21a4749dd1740e209f88d3a601e9f40748670d39481ea32b9d77edf7f3f1fb2e"},
-    {file = "pyright-1.1.382.post1.tar.gz", hash = "sha256:66a5d4e83be9452853d73e9dd9e95ba0ac3061845270e4e331d0070a597d3445"},
+    {file = "pyright-1.1.383-py3-none-any.whl", hash = "sha256:d864d1182a313f45aaf99e9bfc7d2668eeabc99b29a556b5344894fd73cb1959"},
+    {file = "pyright-1.1.383.tar.gz", hash = "sha256:1df7f12407f3710c9c6df938d98ec53f70053e6c6bbf71ce7bcb038d42f10070"},
 ]
 
 [package.dependencies]

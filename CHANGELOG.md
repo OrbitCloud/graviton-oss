@@ -1,3 +1,9 @@
+## v0.70.0 (2024-10-03)
+
+### Feat
+
+- **ContainerApp**: Add Cors settings
+
 ## v0.69.0 (2024-09-30)
 
 ### Feat

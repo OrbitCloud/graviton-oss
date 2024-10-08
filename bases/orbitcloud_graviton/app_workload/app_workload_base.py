@@ -38,9 +38,9 @@ class AppWorkloadConfig(PulumiConfig):
                 raise ValueError(
                     cleandoc(
                         doc="""
-                        Multiple apps found in configuration, which will end up having colliding names.
-                        Ensure that no more than one app within the stack doesn't have the name parameter
-                        explicitly set (by default it will be derived from the workload name)."
+                        When more than one app is defined, app names must be unique.
+                        Only one app can be defined without a name and other apps need to have
+                        unique names.
                         """
                     )
                 )

@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pulumi
 from pulumi_azure_native.app import v20240301 as app
 from pydantic import BaseModel, Field, SecretStr
@@ -18,7 +16,7 @@ def certificate(
     stack: AzureStack,
     cert: CertificateConfig,
     environment: app.ManagedEnvironment,
-    opts: Optional[pulumi.ResourceOptions] = None,
+    opts: pulumi.ResourceOptions | None = None,
 ) -> app.Certificate:
     certificate = app.Certificate(
         resource_name=stack.name_for(
@@ -36,3 +34,27 @@ def certificate(
     )
 
     return certificate
+
+
+def managed_certificate(
+    stack: AzureStack,
+    custom_domain: str,
+    environment: app.ManagedEnvironment,
+    opts: pulumi.ResourceOptions | None = None,
+) -> app.ManagedCertificate | None:
+    app.ManagedCertificate(
+        resource_name="cert",
+        args=app.ManagedCertificateArgs(
+            resource_group_name=stack.resource_group.name,
+            environment_name=environment.name,
+            managed_certificate_name=custom_domain,
+            properties=app.ManagedCertificatePropertiesArgs(
+                domain_control_validation=app.ManagedCertificateDomainControlValidation.HTTP,
+                subject_name=custom_domain,
+            ),
+            location=stack.location,
+        ),
+        opts=pulumi.ResourceOptions.merge(
+            pulumi.ResourceOptions(custom_timeouts=pulumi.CustomTimeouts(create="1m")), opts
+        ),
+    )

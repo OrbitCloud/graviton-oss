@@ -125,7 +125,7 @@ def deep_get(obj: dict, path, default=None) -> Any | None:
 known_stacks: dict[str, pulumi.StackReference] = {}
 
 
-def get_stack_output(ref, info: ValidationInfo):
+def get_stack_output(ref):
     if not ref.startswith("stack://"):
         raise ValueError(f"{ref} is not a valid stack reference")
 
@@ -154,10 +154,7 @@ def get_stack_output(ref, info: ValidationInfo):
     return output_value
 
 
-def get_resource_id(
-    v: Union[pulumi.Output[str], str],
-    info: ValidationInfo,
-) -> str | pulumi.Output[str]:
+def get_resource_id(v: Union[pulumi.Output[str], str]) -> str | pulumi.Output[str]:
     if isinstance(v, pulumi.Output):
         return v if v.is_known() else v.apply(lambda x: x)
 
@@ -165,7 +162,7 @@ def get_resource_id(
         return AzureResourceId(id=v).id
 
     if v.startswith("stack://"):
-        return str(get_stack_output(ref=v, info=info))
+        return str(get_stack_output(ref=v))
 
     raise ValueError(f"{v} is not a valid resource ID reference")
 

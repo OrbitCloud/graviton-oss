@@ -22,7 +22,7 @@ def test_location_abbr_undefined() -> None:
         location_abbr("not_a_location")
 
 
-def test_resource_meta_basic(stack: AzureStack) -> None:
+def test_resource_meta_basic(_: AzureStack) -> None:
     rg_meta = resource_meta(resources.ResourceGroup)
     assert rg_meta.namespace == "Microsoft.Resources/resourceGroups"
     assert rg_meta.resource_type == "resourceGroup"
@@ -30,7 +30,7 @@ def test_resource_meta_basic(stack: AzureStack) -> None:
     assert rg_meta.public_dns_zone is None
 
 
-def test_versioned_resource_names(stack: AzureStack) -> None:
+def test_versioned_resource_names(_: AzureStack) -> None:
     rg_meta = resource_meta(VersionedResourceGroup)
     assert rg_meta.namespace == "Microsoft.Resources/resourceGroups"
     assert rg_meta.resource_type == "resourceGroup"

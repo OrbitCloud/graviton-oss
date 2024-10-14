@@ -1,6 +1,7 @@
 from .container_app import (
     ContainerApp,
     ContainerAppConfig,
+    ContainerAppJobConfig,
 )
 from .containerapp_env import (
     ContainerAppEnv,
@@ -12,4 +13,5 @@ __all__ = [
     "ContainerAppEnvConfig",
     "ContainerApp",
     "ContainerAppConfig",
+    "ContainerAppJobConfig",
 ]

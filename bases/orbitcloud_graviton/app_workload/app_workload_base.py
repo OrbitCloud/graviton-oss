@@ -1,30 +1,35 @@
 from inspect import cleandoc
-from typing import List, Optional, Union
 
 import pulumi
 from pulumi_azure_native.resources import ResourceGroup
 from pydantic import model_validator
 
-from orbitcloud_graviton.az_ai.search_service import SearchService, SearchServiceConfig
-from orbitcloud_graviton.az_app.container_app import ContainerApp, ContainerAppConfig
+from orbitcloud_graviton.az_ai import SearchService, SearchServiceConfig
+from orbitcloud_graviton.az_app import (
+    ContainerApp,
+    ContainerAppConfig,
+    ContainerAppJobConfig,
+)
 from orbitcloud_graviton.az_appconfig import AppConfiguration, AppConfigurationConfig
-from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig
+from orbitcloud_graviton.az_iam import IamAssignmentConfig
 from orbitcloud_graviton.az_storage import StorageAccount, StorageAccountConfig
-from orbitcloud_graviton.entra.entra_app import EntraApp, EntraAppConfig
+from orbitcloud_graviton.entra import EntraApp, EntraAppConfig
 from orbitcloud_graviton.pulumi_lib import (
     AzureStack,
+    EntraStack,
     PulumiConfig,
     generate_stack_schema,
     get_azure_stack,
+    get_entra_stack,
 )
-from orbitcloud_graviton.pulumi_lib.azure_base import EntraStack, get_entra_stack
 
 
 class AppWorkloadConfig(PulumiConfig):
-    apps: List[ContainerAppConfig]
-    app_config: Optional[AppConfigurationConfig] = None
-    storage_accounts: Optional[List[StorageAccountConfig]] = None
-    search_service: Optional[SearchServiceConfig] = None
+    apps: list[ContainerAppConfig] | None = None
+    jobs: list[ContainerAppJobConfig] | None = None
+    app_config: AppConfigurationConfig | None = None
+    storage_accounts: list[StorageAccountConfig] | None = None
+    search_service: SearchServiceConfig | None = None
     oauth_app: EntraAppConfig | None = None
 
     @model_validator(mode="after")
@@ -32,8 +37,8 @@ class AppWorkloadConfig(PulumiConfig):
         # If more than one app, ensure unique names
         # names are either derived from the workload_name or explicitly set
 
-        if len(m.apps) > 1:
-            app_names: List[str | None] = [app.name for app in m.apps]
+        if m.apps and len(m.apps) > 1:
+            app_names: list[str | None] = [app.name for app in m.apps]
             if len(app_names) != len(set(app_names)):
                 raise ValueError(
                     cleandoc(
@@ -58,7 +63,7 @@ def deploy() -> None:
     opts = pulumi.ResourceOptions(parent=rg)
 
     # Secrets from dependencies to register in Container App
-    app_secrets: dict[str, Union[str, pulumi.Output[str] | None]] = {}
+    app_secrets: dict[str, str | (pulumi.Output[str] | None)] = {}
     app_perms: list[IamAssignmentConfig] = []
     app_deps = []
 
@@ -123,13 +128,13 @@ def deploy() -> None:
         app_deps.append(appcs)
 
     ##########################################
-    # App Configuration Store
+    # Container Apps
     ##########################################
-    for container_app in config.apps:
+    for container_app in config.apps or []:
         if container_app.secrets:
             app_secrets.update(container_app.secrets)
 
-        perms: List[IamAssignmentConfig] = container_app.azure_permissions or []
+        perms: list[IamAssignmentConfig] = container_app.azure_permissions or []
         perms.extend(app_perms)
 
         ContainerApp(
@@ -137,6 +142,23 @@ def deploy() -> None:
             config=container_app.model_copy(
                 update={"secrets": app_secrets, "azure_permissions": perms}
             ),
+            opts=pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(depends_on=app_deps)),
+        )
+
+    ##########################################
+    # Container App Jobs
+    ##########################################
+
+    for job in config.jobs or []:
+        if job.secrets:
+            app_secrets.update(job.secrets)
+
+        perms: list[IamAssignmentConfig] = job.azure_permissions or []
+        perms.extend(app_perms)
+
+        ContainerApp(
+            stack=stack,
+            config=job.model_copy(update={"secrets": app_secrets, "azure_permissions": perms}),
             opts=pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(depends_on=app_deps)),
         )
 

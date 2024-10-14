@@ -24,6 +24,7 @@ class EventHubConfig(BaseModel):
 
 
 class NamespaceConfig(BaseModel):
+    name: str | None = None
     disable_local_auth: Optional[bool] = False
     public_network_access: Optional[str] = pul_eventhub.PublicNetworkAccess.DISABLED
     sku: Literal["Basic", "Standard", "Premium"] = "Standard"

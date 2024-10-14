@@ -324,12 +324,25 @@ class StorageAccount(pulumi.ComponentResource):
         else:
             endpoints = self.storage_account.primary_endpoints
 
-        return {
-            f'tables{"-" + suffix if suffix else ""}': endpoints.table,
-            f'blob{"-" + suffix if suffix else ""}': endpoints.blob,
-            f'file{"-" + suffix if suffix else ""}': endpoints.file,
-            f'queue{"-" + suffix if suffix else ""}': endpoints.queue,
-        }
+        # Endpoint availability depends on the SKU
+        # see: https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview#types-of-storage-accounts
+
+        active_endpoints = {}
+        if endpoints.blob:
+            active_endpoints.update({f'blob{"-" + suffix if suffix else ""}': endpoints.blob})
+
+        if self.config.sku.startswith("STANDARD") and endpoints.file:
+            active_endpoints.update({f'tables{"-" + suffix if suffix else ""}': endpoints.table})
+
+        if (
+            self.config.sku.startswith("STANDARD") or self.config.kind == storage.Kind.FILE_STORAGE
+        ) and endpoints.file:
+            active_endpoints.update({f'file{"-" + suffix if suffix else ""}': endpoints.file})
+
+        if self.config.sku.startswith("STANDARD") and endpoints.queue:
+            active_endpoints.update({f'queue{"-" + suffix if suffix else ""}': endpoints.queue})
+
+        return active_endpoints
 
     def get_private_endpoints(self) -> dict[pulumi.Output[str], dict[str, Any]] | None:
         if self.private_endpoints:

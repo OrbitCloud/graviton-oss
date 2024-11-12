@@ -22,7 +22,7 @@ class TokenCred(AsyncTokenCredential):
 async def get_roles() -> AsyncIterable[RoleDefinition]:
     client = AuthorizationManagementClient(
         credential=TokenCred(token=authorization.get_client_token().token),
-        subscription_id="***REMOVED***",
+        subscription_id=authorization.get_client_config().subscription_id,
         api_version="2022-05-01-preview",
     )
     return client.role_definitions.list(scope="")

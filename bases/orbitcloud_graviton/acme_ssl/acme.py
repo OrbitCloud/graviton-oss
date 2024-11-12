@@ -21,17 +21,14 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 
 from orbitcloud_graviton.az_keyvault.secret import KeyvaultSecretConfig, keyvault_secret
 from orbitcloud_graviton.az_lib import AzureIdRef
-from orbitcloud_graviton.entra import ClientCredentialsConfig, EntraApp, EntraAppConfig
 from orbitcloud_graviton.pulumi_lib import (
     AzureStack,
-    EntraStack,
     PulumiConfig,
     fmt_name,
     generate_stack_schema,
     get_azure_stack,
-    get_entra_stack,
 )
-from orbitcloud_graviton.pulumi_lib.types import TimeFromNow, email_random_plus
+from orbitcloud_graviton.pulumi_lib.types import email_random_plus
 
 
 class AcmeSslConfig(BaseModel):
@@ -53,14 +50,11 @@ class AcmeSsl(ComponentResource):
     def __init__(
         self,
         stack: AzureStack,
-        entra_config: EntraStack,
         config: AcmeSslConfig,
-        entra_app: Optional[EntraApp] = None,
         opts: Optional[ResourceOptions] = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: AcmeSslConfig = config
-        self.entra_config: EntraStack = entra_config
 
         super().__init__(
             "Graviton:AcmeSsl",
@@ -75,9 +69,6 @@ class AcmeSsl(ComponentResource):
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
 
-        # self.entra_app: EntraApp = entra_app or self._entra_app()
-        # self.azure_permissions: List[authorization.RoleAssignment] = self._azure_permissions()
-
         self.acme_account_email: EmailStr | Output[EmailStr] = email_random_plus(
             email=self.config.acme_account_email
         )
@@ -88,55 +79,6 @@ class AcmeSsl(ComponentResource):
         self.keyvault_secret: keyvault.Secret | None = self._keyvault_secret()
 
         self._outputs()
-
-    def _entra_app(self) -> EntraApp:
-        return EntraApp(
-            stack=self.stack,
-            entra=self.entra_config,
-            config=EntraAppConfig(
-                name="acmessl",
-                client_credentials=[
-                    ClientCredentialsConfig(
-                        display_name="acmessl-credentials",
-                        expires_after=TimeFromNow(after="1M"),
-                    )
-                ],
-            ),
-            opts=self._opts,
-        )
-
-    # def _azure_permissions(self) -> List[authorization.RoleAssignment]:
-    #     if isinstance(self.config.dns_zone_id, Output):
-    #         scope = self.config.dns_zone_id.apply(lambda id: f"{id}/txt/_acme-challenge")
-    #     else:
-    #         scope = f"{self.config.dns_zone_id}/txt/_acme-challenge"
-
-    #     perms = [
-    #         {
-    #             "name_prefix": fmt_name(["acme", self.config.dns_zone_name]),
-    #             "role": "DNS Zone Contributor",
-    #             "description": "Allows management of _acme-challenge TXT record.",
-    #             "scope": scope,
-    #         },
-    #         {
-    #             "name_prefix": fmt_name(["acme", self.config.dns_zone_name]),
-    #             "role": "Reader",
-    #             "description": "Allows reading of the DNS Zone.",
-    #             "scope": self.config.dns_zone_id,
-    #         },
-    #     ]
-
-    #     return [
-    #         iam_assignment(
-    #             stack=self.stack,
-    #             principal_id=self.entra_app.service_principal.id,
-    #             config=IamAssignmentConfig(**perm),
-    #             opts=pulumi.ResourceOptions.merge(
-    #                 self._opts, pulumi.ResourceOptions(self.entra_app)
-    #             ),
-    #         )
-    #         for perm in perms
-    #     ]
 
     def _dns_challenge_args(self) -> dict:
         return {
@@ -236,9 +178,6 @@ class AcmeSsl(ComponentResource):
     def _outputs(self) -> None:
         self.register_outputs(
             {
-                # "app": self.entra_app.app,
-                # "service_principal": self.entra_app.service_principal,
-                # "azure_permissions": self.azure_permissions,
                 "certificate": self.certificate,
             },
         )
@@ -300,11 +239,9 @@ class AcmeSsl(ComponentResource):
 def deploy() -> None:
     generate_stack_schema(model=AcmeSslBaseConfig, output_file=".stack_schema.json")
     stack: AzureStack = get_azure_stack()
-    entra: EntraStack = get_entra_stack()
     config: AcmeSslBaseConfig = AcmeSslBaseConfig.model_validate({})
 
     AcmeSsl(
         stack=stack,
-        entra_config=entra,
         config=config.cert_request,
     )

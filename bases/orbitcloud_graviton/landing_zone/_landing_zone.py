@@ -25,7 +25,6 @@ from orbitcloud_graviton.pulumi_lib import (
     EntraStack,
     PulumiConfig,
     get_azure_stack,
-    get_entra_stack,
 )
 from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
@@ -56,7 +55,6 @@ def deploy_landing_zone() -> None:
 
     # Get Azure Stack and export resource group
     stack: AzureStack = get_azure_stack()
-    entra: EntraStack = get_entra_stack()
 
     ##########################################
     # Log Workspace
@@ -90,7 +88,6 @@ def deploy_landing_zone() -> None:
         if config.acme_ssl:
             AcmeSsl(
                 stack=stack,
-                entra_config=entra,
                 config=AcmeSslConfig(
                     dns_zone_id=dns.zone.id,
                     dns_zone_name=config.dns_zone.name,

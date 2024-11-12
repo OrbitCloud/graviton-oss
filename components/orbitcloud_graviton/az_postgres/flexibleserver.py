@@ -72,8 +72,18 @@ class PostgresMaintenanceConfig(BaseModel):
 class PostgresStorageConfig(BaseModel):
     auto_growth: Optional[postgres.StorageAutoGrow] = postgres.StorageAutoGrow.ENABLED
     storage_size_gb: Optional[int] = Field(default=32, ge=32, le=65536)
-    iops: Optional[int] = Field(default=3000, ge=3000, le=17179)
-    throughput: Optional[int] = Field(default=125, ge=125, le=750)
+    tier: postgres.AzureManagedDiskPerformanceTiers | None = None
+    storage_type: postgres.StorageType = postgres.StorageType.PREMIUM_LRS
+    iops: int | None = None
+    throughput: int | None = Field(default=None, ge=125, le=750)
+
+    @model_validator(mode="after")
+    def validate_iops_throughput(m: "PostgresStorageConfig") -> "PostgresStorageConfig":
+        if m.storage_type == postgres.StorageType.PREMIUM_V2_LRS and (
+            not m.iops or not m.throughput
+        ):
+            raise ValueError("iops and throughput are required when storage_type is PREMIUM_V2_LRS")
+        return m
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -93,8 +103,10 @@ class PostgresFlexibleServerConfig(BaseModel):
     sku: PostgresSku = PostgresSku()
     storage: PostgresStorageConfig = PostgresStorageConfig()
     backups: PostgresBackupConfig = PostgresBackupConfig()
+    server_params: dict[str, str] | None = None
     create_mode: PostgresCreateMode = PostgresCreateMode()
     maintenance: Optional[PostgresMaintenanceConfig] = None
+    zone: str | None = None
 
     high_availability: postgres.HighAvailabilityMode = postgres.HighAvailabilityMode.DISABLED
 
@@ -132,6 +144,7 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
         self.server: postgres.Server = self._server()
         self.admins = self._server_admin()
         self._diagnostic_settings()
+        self.server_params: list[postgres.Configuration] | None = self._server_params()
 
         self._outputs()
 
@@ -151,13 +164,13 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
             ),
             version=self.config.server_version,
             # Storage
-            availability_zone="1",
+            availability_zone=self.config.zone,
             storage=postgres.StorageArgs(
                 auto_grow=self.config.storage.auto_growth,
                 storage_size_gb=self.config.storage.storage_size_gb,
+                tier=self.config.storage.tier,
                 # iops=self.config.storage.iops,
                 # throughput=self.config.storage.throughput,
-                # type=postgres.StorageType.PREMIUM_LRS,
             ),
             # Authentication
             administrator_login=self.config.authentication.admin_username,
@@ -240,6 +253,28 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
                 ),
                 opts=pulumi.ResourceOptions(parent=self.server),
             )
+
+    def _server_params(self) -> list[postgres.Configuration] | None:
+        return (
+            [
+                postgres.Configuration(
+                    resource_name=self.stack.name_for(
+                        postgres.Configuration, workload_name=k.replace("_", "-").replace(".", "-")
+                    ),
+                    args=postgres.ConfigurationArgs(
+                        resource_group_name=self.stack.resource_group.name,
+                        server_name=self.server.name,
+                        source="user-override",
+                        configuration_name=k,
+                        value=v,
+                    ),
+                    opts=pulumi.ResourceOptions(parent=self.server),
+                )
+                for k, v in self.config.server_params.items()
+            ]
+            if self.config.server_params
+            else None
+        )
 
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:

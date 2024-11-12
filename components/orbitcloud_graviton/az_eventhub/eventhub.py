@@ -1,3 +1,4 @@
+from ipaddress import IPv4Address
 from typing import List, Literal, Optional
 
 import pulumi
@@ -23,6 +24,12 @@ class EventHubConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
+class NamespaceScaling(BaseModel):
+    min: int | None = 1
+    max: int | None = None
+    auto: bool | None = False
+
+
 class NamespaceConfig(BaseModel):
     name: str | None = None
     disable_local_auth: Optional[bool] = False
@@ -30,7 +37,11 @@ class NamespaceConfig(BaseModel):
     sku: Literal["Basic", "Standard", "Premium"] = "Standard"
 
     hubs: Optional[List[EventHubConfig]] = None
-    auto_inflate_enabled: Optional[bool] = False
+    scaling: NamespaceScaling = NamespaceScaling()
+
+    allowed_public_ips: List[IPv4Address] | None = None
+    allowed_subnet_ids: List[AzureIdRef] | None = None
+    allow_azure_services: Optional[bool] = True
 
     private_endpoints: Optional[List[PrivateEndpointConfig]] = None
 
@@ -61,6 +72,7 @@ class EventHub(ComponentResource):
 
         self.namespace: pul_eventhub.Namespace = self._namespace()
         self.hubs: dict[str, pul_eventhub.EventHub] = self._eventhubs()
+        self.network_rules: pul_eventhub.NamespaceNetworkRuleSet | None = self._network_rules()
         self.private_endpoints: List[PrivateEndpoint] | None = self._private_endpoints()
         self._diagnostic_settings()
 
@@ -75,16 +87,21 @@ class EventHub(ComponentResource):
             identity=pul_eventhub.IdentityArgs(
                 type=pul_eventhub.ManagedServiceIdentityType.SYSTEM_ASSIGNED
             ),
-            is_auto_inflate_enabled=self.config.auto_inflate_enabled,
+            is_auto_inflate_enabled=self.config.scaling.auto,
+            maximum_throughput_units=self.config.scaling.max,
             kafka_enabled=True,
             minimum_tls_version=pul_eventhub.TlsVersion.TLS_VERSION_1_2,
             public_network_access=self.config.public_network_access,
             sku=pul_eventhub.SkuArgs(
                 name=self.config.sku,
                 tier=self.config.sku,
+                capacity=self.config.scaling.min,
             ),
             zone_redundant=True,
-            opts=self._opts,
+            opts=pulumi.ResourceOptions.merge(
+                opts1=self._opts,
+                opts2=pulumi.ResourceOptions(ignore_changes=["private_endpoint_connections"]),
+            ),
         )
 
     def _eventhubs(self) -> dict[str, pul_eventhub.EventHub]:
@@ -107,6 +124,33 @@ class EventHub(ComponentResource):
             )
             for hub in self.config.hubs or []
         }
+
+    def _network_rules(self) -> pul_eventhub.NamespaceNetworkRuleSet | None:
+        return pul_eventhub.NamespaceNetworkRuleSet(
+            resource_name=self.stack.name_for(resource_type=pul_eventhub.NamespaceNetworkRuleSet),
+            args=pul_eventhub.NamespaceNetworkRuleSetArgs(
+                namespace_name=self.namespace.name,
+                resource_group_name=self.stack.resource_group.name,
+                default_action="Deny",
+                public_network_access=self.config.public_network_access,
+                ip_rules=[
+                    pul_eventhub.NWRuleSetIpRulesArgs(
+                        action=pul_eventhub.NetworkRuleIPAction.ALLOW,
+                        ip_mask=str(object=ip),
+                    )
+                    for ip in self.config.allowed_public_ips or []
+                ],
+                virtual_network_rules=[
+                    pul_eventhub.NWRuleSetVirtualNetworkRulesArgs(
+                        ignore_missing_vnet_service_endpoint=False,
+                        subnet=pul_eventhub.SubnetArgs(id=ref),
+                    )
+                    for ref in self.config.allowed_subnet_ids or []
+                ],
+                trusted_service_access_enabled=self.config.allow_azure_services,
+            ),
+            opts=self._opts,
+        )
 
     def _private_endpoints(self) -> List[PrivateEndpoint] | None:
         if self.config.private_endpoints:

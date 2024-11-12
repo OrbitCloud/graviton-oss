@@ -42,7 +42,7 @@ class ContainerAppBaseConfig(BaseModel):
     environment_output_ref: DictRef
     workload_profile_name: str
     containers: list[ContainerConfig]
-    secrets: dict[str, StrRef | str] | None = Field(default_factory=dict)
+    secrets: dict[str, StrRef | str] | None = None
     scaling: ContainerAppScaleConfig | None = ContainerAppScaleConfig()
     resiliency: AppResiliencyConfig | None = None
     log_workspace_id: AzureIdRef | None = None
@@ -178,6 +178,7 @@ class ContainerApp(pulumi.ComponentResource):
                     cpu=container.resources.cpu,
                     memory=str(container.resources.memory_gb) + "Gi",
                 ),
+                probes=[probe.args() for probe in container.probes] if container.probes else None,
             )
             for container in self.config.containers
         ]

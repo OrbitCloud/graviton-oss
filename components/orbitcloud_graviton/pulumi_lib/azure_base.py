@@ -29,6 +29,7 @@ class AzureEnvironmentPulumiConfig(BaseModel):
 
 class AzureStack(PulumiConfig):
     subscription_id: UUID = Field(..., validation_alias="azure-native:subscriptionId")
+    fq_subscription_id: str | None = None
     tenant_id: UUID = Field(..., validation_alias="azure-native:tenantId")
     location: str = Field(..., validation_alias="azure-native:location")
 

@@ -1,3 +1,9 @@
+## v0.71.1 (2024-11-12)
+
+### Fix
+
+- **az_iam**: Dynamically set subscription ID for auth client
+
 ## v0.71.0 (2024-11-12)
 
 ### Feat

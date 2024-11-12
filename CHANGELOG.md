@@ -1,3 +1,24 @@
+## v0.71.0 (2024-11-12)
+
+### Feat
+
+- **ContainerApp**: Add support for health probes
+- **PostgresFlexibleServer**: Add storage & server configuration parameters
+- **EventHub**: Add scaling and networking configuration options
+- **AzureStack**: Add fq_subscription_id to model (/subscription/... format)
+- **ContainerApp**: Add keda scalers & container app jobs
+
+### Fix
+
+- **lib**: Support Pulumi stack secret schema
+- **StorageAccount**: Only register outputs for endpoints which are available
+
+### Refactor
+
+- **DnsZone**: Properly merge pulumi ResourceOptions
+- **AcmeSsl**: Remove entra_config parameter
+- **app_workload**: Improve validation error for colliding app names
+
 ## v0.70.0 (2024-10-03)
 
 ### Feat

@@ -13,7 +13,9 @@ from pulumi.runtime.sync_await import _sync_await
 from pulumi_azure_native import resources
 from pydantic import (
     AfterValidator,
+    BaseModel,
     BeforeValidator,
+    Field,
     GetCoreSchemaHandler,
     SecretStr,
     ValidationInfo,
@@ -167,14 +169,31 @@ def get_resource_id(v: Union[pulumi.Output[str], str]) -> str | pulumi.Output[st
     raise ValueError(f"{v} is not a valid resource ID reference")
 
 
+#
+# Pulumi secrets are stored as a dictionary with a single key "secure"
+# the actual value will be resolved at runtime but we need to allow for
+# the dictionary structure for schema validation purposes
+#
+class _PulumiSecretSchemaObject(BaseModel):
+    secure: str
+
+
+PulumiSecretField = Field(json_schema_extra=_PulumiSecretSchemaObject.model_json_schema())
+
 AzureIdRef = Annotated[
     Union[str, pulumi.Output[str]],
     AfterValidator(func=get_resource_id),
 ]
 
-StrRef = Annotated[Union[str, pulumi.Output], AfterValidator(func=get_stack_output)]
+StrRef = Annotated[
+    Union[str, pulumi.Output],
+    PulumiSecretField,
+    AfterValidator(func=get_stack_output),
+]
 SecretStrRef = Annotated[
-    Union[SecretStr, pulumi.Output[str]], AfterValidator(func=get_stack_output)
+    Union[SecretStr, pulumi.Output[str]],
+    PulumiSecretField,
+    AfterValidator(func=get_stack_output),
 ]
 
 DictRef = Annotated[

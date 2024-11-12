@@ -94,16 +94,16 @@
     pytest-sugar = "^1.0.0"
     ruff         = "^0.7"
 
-    # [tool.pyright]
-    #     include = ["bases", "components", "development", "test"]
-    #     # ignore = ["development"]
-    #     extraPaths             = ["bases", "components"]
-    #     reportMissingTypeStubs = true
-    #     ruff                   = "^0.2.1"
-    #     typeCheckingMode       = "basic"
-    #     useLibraryCodeForTypes = true
-    #     venv                   = ".venv"
-    #     venvPath               = "."
+[tool.pyright]
+    include = ["bases", "components", "development", "test"]
+    # ignore = ["development"]
+    extraPaths             = ["bases", "components"]
+    reportMissingTypeStubs = true
+    ruff                   = "^0.2.1"
+    typeCheckingMode       = "basic"
+    useLibraryCodeForTypes = true
+    venv                   = ".venv"
+    venvPath               = "."
 
 [tool.pytest.ini_options]
     addopts = ["-s", "-vvv"]

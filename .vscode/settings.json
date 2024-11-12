@@ -63,8 +63,6 @@
   "python.analysis.persistAllIndices": true,
   "python.analysis.indexing": true,
   "python.analysis.enablePytestSupport": true,
-  "python.analysis.include": ["bases", "components", "development", "test"],
-  "python.analysis.extraPaths": ["bases", "components"],
   "python.analysis.userFileIndexingLimit": 25000,
   "python.defaultInterpreterPath": ".venv/bin/python",
   "python.poetryPath": ".venv/bin/poetry",
@@ -77,6 +75,5 @@
   "ruff.lint.run": "onType",
   "ruff.path": [".venv/bin/ruff"],
   "pythonIndent.trimLinesWithOnlyWhitespace": true,
-  "python.analysis.typeCheckingMode": "basic",
   "yaml.hover": true
 }

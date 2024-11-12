@@ -94,7 +94,9 @@ class DnsZone(pulumi.ComponentResource):
             record_type=record.record_type,
             ttl=record.ttl,
             **record_args,
-            opts=self._opts._merge_instance(pulumi.ResourceOptions(parent=self.zone)),
+            opts=pulumi.ResourceOptions.merge(
+                opts1=self._opts, opts2=pulumi.ResourceOptions(parent=self.zone)
+            ),
         )
 
     def _record_args(self, record: Record) -> dict[str, Any]:

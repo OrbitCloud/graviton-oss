@@ -78,7 +78,7 @@
     pulumi-tls               = "^5.0.1"
     pulumiverse-acme         = "^0.5"
     pulumiverse-time         = "^0.1"
-    pydantic                 = { extras = ["email"], version = "2.8.2" }
+    pydantic                 = { extras = ["email"], version = "2.9.2" }
     pydantic-settings        = "^2.4"
     python                   = "^3.12"
 

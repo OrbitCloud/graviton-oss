@@ -14,7 +14,7 @@ from orbitcloud_graviton.pulumi_lib.types import DomainName
 
 class ResolverInboundEndpoint(BaseModel):
     subnet_id: AzureIdRef = Field(
-        default=None,
+        ...,
         title="Inbound Endpoint Subnet",
         description="The subnet to be used for the Inbound Endpoint. The subnet must be in the same virtual network as the DNS Resolver.",
         examples=[
@@ -52,7 +52,7 @@ class ForwardingRuleConfig(BaseModel):
 
 class ResolverOutboundEndpoint(BaseModel):
     subnet_id: AzureIdRef = Field(
-        default=None,
+        default=...,
         title="Outbound Endpoint Subnet",
         description="The subnet to be used for the Outbound Endpoint. The subnet must be in the same virtual network as the DNS Resolver.",
         examples=[
@@ -92,7 +92,7 @@ class ResolverOutboundEndpoint(BaseModel):
 
 class PrivateDnsResolverConfig(BaseModel):
     virtual_network: AzureIdRef = Field(
-        default=None,
+        default=...,
         title="Virtual Network",
         description="The virtual network to be used for the Private DNS Resolver.",
         examples=[

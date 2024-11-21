@@ -1,15 +1,17 @@
+# [Alpha preview] Graviton CDK – "Infrastructure as Lego"
+
 ![Alt text](graviton.jpg)
 
-# Graviton CDK – "Infrastructure as Lego"
-
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 ![Build status](https://github.com/OrbitCloud/Graviton/actions/workflows/build.yml/badge.svg)
+![License](https://img.shields.io/badge/License-MIT-green)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json)](https://github.com/charliermarsh/ruff)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
 ## Overview
 
 Graviton CDK is a modular infrastructure as code (IaC) development kit that enables composing secure, reliable and manageable infrastructure stacks using reusable components akin to building Lego.
+
+> :warning: **WARNING**: This project is an alpha preview (v0.x.x) and under development. Breaking changes should be expected.
 
 ## Development
 

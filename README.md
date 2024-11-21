@@ -31,6 +31,7 @@ Local development
 
 Scaffolding
     component            Create a new component
+    base                 Create a new base
 
 Dependency choirs
     outdated             Check for outdated Poetry dependencies

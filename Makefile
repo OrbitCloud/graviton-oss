@@ -59,7 +59,7 @@ component: ##@ Create a new component
 	copier copy templates/component_class .
 
 .PHONY: base
-base: ##@ Create a new component
+base: ##@ Create a new base
 	copier copy templates/base .
 
 ##@

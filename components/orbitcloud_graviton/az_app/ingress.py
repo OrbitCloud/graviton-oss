@@ -25,9 +25,7 @@ class HttpIngressConfig(BaseModel):
     https_only: bool | None = True
     external: bool | None = False
     custom_domains: list[CustomDomainConfig] | None = None
-    ip_allow_list: list[PrivateIPv4Network | PublicIPv4Network | StrRef] | None = Field(
-        ..., default_factory=list
-    )
+    ip_allow_list: list[PrivateIPv4Network | PublicIPv4Network | StrRef] | None = None
     target_port: int
     sticky_sessions: app.Affinity | None = app.Affinity.NONE
     cors: AppCorsConfig | None = None

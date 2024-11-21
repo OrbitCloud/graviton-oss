@@ -15,7 +15,7 @@ class ContainerRegistryConfig(BaseModel):
         containerregistry.PublicNetworkAccess.DISABLED
     )
     ip_allow_list: Optional[List[Union[PrivateIPv4Network, PublicIPv4Network, StrRef]]] = Field(
-        ..., default_factory=list
+        default_factory=list
     )
     admin_user_enabled: Optional[bool] = False
 

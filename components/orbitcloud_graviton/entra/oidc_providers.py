@@ -5,6 +5,7 @@ import pulumi
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig
+from orbitcloud_graviton.az_lib import fmt_name
 from orbitcloud_graviton.entra.entra_app import FederatedCredentialsConfig
 from orbitcloud_graviton.pulumi_lib import AzureStack
 
@@ -113,7 +114,7 @@ class AzureDevOpsOIDCCredentials(BaseModel):
 class GitHubOIDCCredentials(BaseModel):
     credential_type: Literal["github"] = "github"
     github_org: str
-    repo: str
+    repo: str | list[str]
 
     # At least one of the following must be set
     environments: Optional[List[str]] = None
@@ -122,29 +123,33 @@ class GitHubOIDCCredentials(BaseModel):
     pull_request: Optional[bool] = False
 
     def credentials(self) -> list[FederatedCredentialsConfig]:
-        prefix: str = f"repo:{self.github_org}/{self.repo}"
+        repos = self.repo if isinstance(self.repo, list) else [self.repo]
         creds = []
 
-        self.environments = [] if not self.environments else self.environments
-        self.branches = [] if not self.branches else self.branches
-        self.tags = [] if not self.tags else self.tags
+        for repo in repos:
+            prefix: str = f"repo:{self.github_org}/{repo}"
 
-        subjects = []
-        subjects.extend(
-            [f"{prefix}:environment:{environment}" for environment in self.environments]
-        )
-        subjects.extend([f"{prefix}:ref:refs/heads/{branch}" for branch in self.branches])
-        subjects.extend([f"{prefix}:ref:refs/tags/{tag}" for tag in self.tags])
-        subjects.extend([f"{prefix}:pull_request"] if self.pull_request else [])
+            self.environments = [] if not self.environments else self.environments
+            self.branches = [] if not self.branches else self.branches
+            self.tags = [] if not self.tags else self.tags
 
-        for subject in subjects:
-            creds.append(
-                FederatedCredentialsConfig(
-                    issuer="https://token.actions.githubusercontent.com",
-                    audiences=["api://AzureADTokenExchange"],
-                    subject=subject,
-                )
+            subjects = []
+            subjects.extend(
+                [f"{prefix}:environment:{environment}" for environment in self.environments]
             )
+            subjects.extend([f"{prefix}:ref:refs/heads/{branch}" for branch in self.branches])
+            subjects.extend([f"{prefix}:ref:refs/tags/{tag}" for tag in self.tags])
+            subjects.extend([f"{prefix}:pull_request"] if self.pull_request else [])
+
+            for subject in subjects:
+                creds.append(
+                    FederatedCredentialsConfig(
+                        name=fmt_name(subject),
+                        issuer="https://token.actions.githubusercontent.com",
+                        audiences=["api://AzureADTokenExchange"],
+                        subject=subject,
+                    )
+                )
 
         return creds
 

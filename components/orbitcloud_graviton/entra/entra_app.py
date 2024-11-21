@@ -24,6 +24,7 @@ class ClientCredentialsConfig(BaseModel):
 
 
 class FederatedCredentialsConfig(BaseModel):
+    name: str | None = None
     issuer: str
     audiences: List[str]
     subject: str
@@ -262,8 +263,8 @@ class EntraApp(ComponentResource):
         return (
             [
                 azuread.ApplicationFederatedIdentityCredential(
-                    f"oidc-{self.config.name}-{self.stack.env}",
-                    display_name=f"oidc-{self.config.name}",
+                    f"oidc-{cred.name or self.config.name}-{self.stack.env}",
+                    display_name=f"oidc-{cred.name or self.config.name}",
                     application_id=self.app.id,
                     issuer=cred.issuer,
                     audiences=cred.audiences,

@@ -14,8 +14,8 @@ def fmt_name(
     sep = "" if sep is None else sep
 
     def _format(_str) -> str:
-        # split by space, hyphen, underscore, or period
-        parts: list[str] = re.split(pattern=r"[\s\-\._]", string=_str)
+        # split by space, -, _, ., /, :
+        parts: list[str] = re.split(pattern=r"[\s\-\._/:]", string=_str)
         if case == "title":
             return sep.join([part.title() for part in parts])
 

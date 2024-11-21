@@ -12,6 +12,8 @@
         <link rel="prev" href="../..">
       
       
+        <link rel="next" href="../components/">
+      
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
@@ -301,6 +303,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Stacks
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -311,6 +324,174 @@
 
       </a>
       
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-stacks-in-graviton" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring stacks in Graviton
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring stacks in Graviton">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-stack-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example stack configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required configurations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional configurations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Components
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../naming/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Automatic naming
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Configuration
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/models/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Models
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -343,6 +524,56 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-stacks-in-graviton" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring stacks in Graviton
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring stacks in Graviton">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-stack-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example stack configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required configurations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional configurations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -361,6 +592,50 @@
 group and manage resources in the cloud. Stacks are a way to manage resources as
 a single unit. Stacks generally consist of services and resources that are related
 to each other.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>For information on stacks in Pulumi, refer to the
+<a href="https://www.pulumi.com/docs/iac/concepts/stacks/">Pulumi documentation</a>.</p>
+</div>
+<h2 id="configuring-stacks-in-graviton">Configuring stacks in Graviton</h2>
+<p>Templated stacks in Graviton are called
+<a href="https://github.com/OrbitCloud/graviton-oss/tree/main/bases">bases</a>. Bases consist
+of a set of reusable
+<a href="https://github.com/OrbitCloud/graviton-oss/tree/main/bases">components</a>
+(usually Azure services).</p>
+<p>You may need to set different configurations depending on the configuration schema
+defined by a base.</p>
+<h3 id="example-stack-configuration">Example stack configuration</h3>
+<p>Pulumi stack configuration files are written in YAML. The following is an example
+of a stack configuration file for a Graviton stack:</p>
+<div class="highlight"><span class="filename">Pulumi.prod.yaml</span><pre><span></span><code><span class="nt">config</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">azure-native:location</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">northeurope</span>
+<span class="w">  </span><span class="nt">azure-native:subscriptionId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+<span class="w">  </span><span class="nt">azure-native:tenantId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+<span class="w">  </span><span class="nt">azuread:tenantId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00000000-0000-0000-0000-000000000000</span>
+<span class="w">  </span><span class="nt">env</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prod</span>
+<span class="w">  </span><span class="nt">workload_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myapp</span>
+</code></pre></div>
+<h3 id="required-configurations">Required configurations</h3>
+<ul>
+<li><code>env</code>: The environment in which the stack is deployed (e.g. <code>dev</code>, <code>staging</code>, <code>prod</code>).</li>
+<li><code>workload_name</code>: The name of the workload that the stack is deploying.</li>
+<li><code>azure-native:location</code>: The Azure region where the resources will be deployed.</li>
+<li><code>azure-native:tenantId</code>: The Azure tenant ID.</li>
+<li><code>azure-native:subscriptionId</code>: The Azure subscription ID.</li>
+<li><code>azuread:tenantId</code>: Entra tenant ID.</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Although setting the <code>tenantId</code> and <code>subscriptionId</code> is not strictly required
+by the Pulumi Azure &amp; Entra providers, we require them to ensure resources
+are created in the correct Azure subscription and tenant.</p>
+</div>
+<h3 id="optional-configurations">Optional configurations</h3>
+<ul>
+<li><code>resource_group_name</code>: The name of the resource group where the resources will
+be deployed. If not provided, a new resource group will be created.</li>
+</ul>
 
 
 
@@ -407,7 +682,7 @@ to each other.</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>

@@ -30,6 +30,11 @@ class DedicatedProfile(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
+WorkloadProfile = Annotated[
+    ConsumptionProfile | DedicatedProfile, Field(discriminator="workload_type")
+]
+
+
 class CustomDomain(BaseModel):
     dns_suffix: DomainName
     cert_password: SecretStr

@@ -94,6 +94,11 @@
     pytest-sugar = "^1.0.0"
     ruff         = "^0.7"
 
+
+[tool.poetry.group.development.dependencies]
+mkdocs = "^1.6.1"
+mkdocs-material = "^9.5.45"
+
 [tool.pyright]
     include = ["bases", "components", "development", "test"]
     # ignore = ["development"]

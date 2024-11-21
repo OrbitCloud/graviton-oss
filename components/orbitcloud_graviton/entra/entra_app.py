@@ -295,7 +295,7 @@ class EntraApp(ComponentResource):
             iam_assignment(
                 stack=self.stack,
                 config=perm,
-                principal_id=self.service_principal.id,
+                principal_id=self.service_principal.object_id,
                 opts=pulumi.ResourceOptions(
                     parent=self.service_principal,
                     delete_before_replace=True,

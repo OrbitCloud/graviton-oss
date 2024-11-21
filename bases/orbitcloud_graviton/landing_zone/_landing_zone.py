@@ -156,7 +156,7 @@ def deploy_landing_zone() -> None:
                 iam_assignment(
                     stack=stack,
                     config=permission,
-                    principal_id=entra_app.service_principal.id,
+                    principal_id=entra_app.service_principal.object_id,
                     opts=pulumi.ResourceOptions(
                         parent=entra_app.service_principal, delete_before_replace=True
                     ),

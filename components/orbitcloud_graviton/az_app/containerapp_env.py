@@ -17,7 +17,7 @@ from orbitcloud_graviton.az_network import DnsZone, DnsZoneConfig
 from orbitcloud_graviton.az_network.types import ARecord, TxtRecord
 from orbitcloud_graviton.pulumi_lib import AzureStack, DomainName, fmt_name
 
-from ._env_schema import ConsumptionProfile, DedicatedProfile
+from ._env_schema import ConsumptionProfile, DedicatedProfile, WorkloadProfile
 from .certificate import CertificateConfig, certificate
 
 
@@ -34,8 +34,7 @@ class CustomDomainConfig(BaseModel):
 
 
 class ContainerAppEnvConfig(BaseModel):
-    workload_profiles: list[ConsumptionProfile | DedicatedProfile] = Field(
-        discriminator="workload_type",
+    workload_profiles: list[WorkloadProfile] = Field(
         default_factory=lambda: [ConsumptionProfile()],
         title="Workload Profiles",
         description="List of workload profiles for instances behind the Container App Environment.",

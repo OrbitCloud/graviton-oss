@@ -6,15 +6,16 @@ Graviton CDK is designed to simplify the process of creating and managing cloud
 infrastructure. It provides a set of reusable components that can be combined to
 build complex infrastructure stacks.
 
-> **DISCLAIMER**: The project is currently in alpha stage (v0.x.x), so it is still
-> under active development and may undergo significant changes. Users should be
-> prepared for potential breaking changes as the project evolves.
->
-> This documentation is a work in progress and may not be complete.
->
-> We expect users to have a general understanding of cloud infrastructure concept
-> and be aware that resources created by Graviton will incur costs in your
-> Azure subscription.
+!!! warning
+    The project is currently in alpha stage (v0.x.x), so it is still
+    under active development and may undergo significant changes. Users should be
+    prepared for potential breaking changes as the project evolves.
+
+    This documentation is a work in progress and may not be complete.
+
+    We expect users to have a general understanding of cloud infrastructure concept
+    and be aware that resources created by Graviton will incur costs in your
+    Azure subscription.
 
 ## Crafted with :heart: by Orbit
 

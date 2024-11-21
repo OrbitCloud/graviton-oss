@@ -1,3 +1,15 @@
+## v0.72.0 (2024-11-21)
+
+### Feat
+
+- **oidc-providers**: Allow defining multiple repos for GitHub OIDC credentials
+- **az_lib**: Add colons and slashes to fmt_name() helper
+
+### Fix
+
+- **iam_assignment**: Use service principal object_id instead of id after updating pulumi-azuread
+- **ContainerAppEnv**: Fix workload_profiles typing after Pydantic update
+
 ## v0.71.1 (2024-11-12)
 
 ### Fix

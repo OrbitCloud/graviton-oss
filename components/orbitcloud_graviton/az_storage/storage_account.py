@@ -34,6 +34,30 @@ class StorageAccountFileShareConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
+class StorageAccountCustomDomainConfig(BaseModel):
+    name: str
+    use_subdomain: Optional[bool] = False
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
+class SftpSshKeyConfig(BaseModel):
+    description: Optional[str]
+    key: str
+
+
+class SftpContainerPermissions(BaseModel):
+    container_name: str
+    permissions: List[Literal["l", "r", "w", "d", "c"]]
+
+
+class SftpUserConfig(BaseModel):
+    username: str
+    password_auth: bool = True
+    home_directory: str = "/"
+    containers: List[SftpContainerPermissions]
+    ssh_keys: Optional[List[SftpSshKeyConfig]] = None
+
+
 class StorageAccountConfig(BaseModel):
     name: Optional[str] = None
     kind: storage.Kind = storage.Kind.STORAGE_V2
@@ -51,13 +75,19 @@ class StorageAccountConfig(BaseModel):
     smb_secure_defaults: Optional[bool] = True
     nfs_v3: Optional[bool] = False
     large_file_shares: Optional[storage.LargeFileSharesState] = storage.LargeFileSharesState.ENABLED
+    hierarchical_namespace: Optional[bool] = False
+
+    # SFTP options
+    sftp_enabled: Optional[bool] = False
+    sftp_users: Optional[List[SftpUserConfig]] = None
 
     # Networking
     allowed_private_subnets: Optional[List[AzureIdRef]] = None
     allowed_public_ips: Optional[List[IPv4Address]] = None
     routing: StorageAccountRoutingConfig = StorageAccountRoutingConfig()
-
     private_endpoints: Optional[list[StorageAccountPrivateEndpointConfig]] = None
+    custom_domain: Optional[StorageAccountCustomDomainConfig] = None
+
     storage_containers: Optional[List[str]] = None
     storage_tables: Optional[List[str]] = None
     storage_queues: Optional[List[str]] = None
@@ -99,6 +129,8 @@ class StorageAccount(pulumi.ComponentResource):
         self.storage_queues: List[storage.Queue] = self._storage_queues()
         self.storage_shares: dict[str, storage.FileShare] = self._storage_file_shares()
 
+        self.sftp_users: List[storage.LocalUser] = self._sftp_users()
+
         self.private_endpoints: List[PrivateEndpoint] = self._private_endpoints()
 
         self._outputs()
@@ -126,10 +158,18 @@ class StorageAccount(pulumi.ComponentResource):
                     publish_microsoft_endpoints=self.config.routing.publish_microsoft_endpoints,
                     publish_internet_endpoints=self.config.routing.publish_internet_endpoints,
                 ),
+                custom_domain=storage.CustomDomainArgs(
+                    name=self.config.custom_domain.name,
+                    use_sub_domain_name=self.config.custom_domain.use_subdomain,
+                )
+                if self.config.custom_domain
+                else None,
                 # Protocols
                 minimum_tls_version=storage.MinimumTlsVersion.TLS1_2,
                 enable_nfs_v3=self.config.nfs_v3,
                 large_file_shares_state=self.config.large_file_shares,
+                is_sftp_enabled=self.config.sftp_enabled,
+                is_hns_enabled=self.config.hierarchical_namespace,
             ),
             opts=self._opts,
         )
@@ -310,6 +350,52 @@ class StorageAccount(pulumi.ComponentResource):
             ),
             opts=self._opts,
         )
+
+    def _sftp_users(self) -> List[storage.LocalUser]:
+        users = []
+        existing_containers: set[str] = set(self.config.storage_containers or [])
+
+        if self.config.sftp_users:
+            for user in self.config.sftp_users:
+                for container_permission in user.containers:
+                    container_name = container_permission.container_name
+
+                    # Check if the container exists
+                    if container_name not in existing_containers:
+                        raise ValueError(
+                            f"Container '{container_name}' does not exist for user '{user.username}'. Container name must be speficied in 'storage_containers' config."
+                        )
+
+                    permission_scopes = [
+                        storage.PermissionScopeArgs(
+                            permissions="".join(container_permission.permissions),
+                            service="blob",
+                            resource_name=container_name,
+                        )
+                    ]
+
+                    sftp_user = storage.LocalUser(
+                        resource_name=f"sftp-{container_name}-{user.username}",
+                        args=storage.LocalUserArgs(
+                            account_name=self.storage_account.name,
+                            username=user.username,
+                            resource_group_name=self.stack.resource_group.name,
+                            home_directory=user.home_directory,
+                            has_ssh_password=user.password_auth,
+                            permission_scopes=permission_scopes,
+                            ssh_authorized_keys=[
+                                storage.SshPublicKeyArgs(key=key.key, description=key.description)
+                                for key in user.ssh_keys or []
+                            ],
+                        ),
+                        opts=self._opts._merge_instance(
+                            opts=pulumi.ResourceOptions(
+                                parent=self.storage_account, depends_on=self.storage_container
+                            )
+                        ),
+                    )
+                    users.append(sftp_user)
+        return users
 
     def get_endpoints(
         self, suffix: str | None = None

@@ -1,5 +1,5 @@
 from ipaddress import IPv4Address
-from typing import List, Literal, Optional
+from typing import Literal
 
 import pulumi
 from pulumi import ComponentResource
@@ -15,9 +15,9 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 class EventHubConfig(BaseModel):
     name: str
-    partitions: Optional[int] = 1
-    retention_hours: Optional[int] = 1
-    cleanup_policy: Optional[pul_eventhub.CleanupPolicyRetentionDescription] = (
+    partitions: int | None = 1
+    retention_hours: int | None = 1
+    cleanup_policy: pul_eventhub.CleanupPolicyRetentionDescription | None = (
         pul_eventhub.CleanupPolicyRetentionDescription.DELETE
     )
 
@@ -32,20 +32,20 @@ class NamespaceScaling(BaseModel):
 
 class NamespaceConfig(BaseModel):
     name: str | None = None
-    disable_local_auth: Optional[bool] = False
-    public_network_access: Optional[str] = pul_eventhub.PublicNetworkAccess.DISABLED
+    disable_local_auth: bool | None = False
+    public_network_access: str | None = pul_eventhub.PublicNetworkAccess.DISABLED
     sku: Literal["Basic", "Standard", "Premium"] = "Standard"
 
-    hubs: Optional[List[EventHubConfig]] = None
+    hubs: list[EventHubConfig] | None = None
     scaling: NamespaceScaling = NamespaceScaling()
 
-    allowed_public_ips: List[IPv4Address] | None = None
-    allowed_subnet_ids: List[AzureIdRef] | None = None
-    allow_azure_services: Optional[bool] = True
+    allowed_public_ips: list[IPv4Address] | None = None
+    allowed_subnet_ids: list[AzureIdRef] | None = None
+    allow_azure_services: bool | None = True
 
-    private_endpoints: Optional[List[PrivateEndpointConfig]] = None
+    private_endpoints: list[PrivateEndpointConfig] | None = None
 
-    log_workspace_id: Optional[AzureIdRef] = None
+    log_workspace_id: AzureIdRef | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -55,7 +55,7 @@ class EventHub(ComponentResource):
         self,
         stack: AzureStack,
         config: NamespaceConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: NamespaceConfig = config
@@ -73,7 +73,7 @@ class EventHub(ComponentResource):
         self.namespace: pul_eventhub.Namespace = self._namespace()
         self.hubs: dict[str, pul_eventhub.EventHub] = self._eventhubs()
         self.network_rules: pul_eventhub.NamespaceNetworkRuleSet | None = self._network_rules()
-        self.private_endpoints: List[PrivateEndpoint] | None = self._private_endpoints()
+        self.private_endpoints: list[PrivateEndpoint] | None = self._private_endpoints()
         self._diagnostic_settings()
 
         self._outputs()
@@ -126,6 +126,9 @@ class EventHub(ComponentResource):
         }
 
     def _network_rules(self) -> pul_eventhub.NamespaceNetworkRuleSet | None:
+        if not self.config.allowed_public_ips and not self.config.allowed_subnet_ids:
+            return None
+
         return pul_eventhub.NamespaceNetworkRuleSet(
             resource_name=self.stack.name_for(resource_type=pul_eventhub.NamespaceNetworkRuleSet),
             args=pul_eventhub.NamespaceNetworkRuleSetArgs(
@@ -152,7 +155,7 @@ class EventHub(ComponentResource):
             opts=self._opts,
         )
 
-    def _private_endpoints(self) -> List[PrivateEndpoint] | None:
+    def _private_endpoints(self) -> list[PrivateEndpoint] | None:
         if self.config.private_endpoints:
             return [
                 PrivateEndpoint(

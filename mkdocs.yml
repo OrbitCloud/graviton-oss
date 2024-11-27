@@ -1,0 +1,82 @@
+site_name: Graviton
+
+theme:
+  name: material
+  palette:
+  - media: "(prefers-color-scheme)"
+    toggle:
+      icon: material/lightbulb-auto
+      name: Switch to light mode
+  - media: '(prefers-color-scheme: light)'
+    scheme: default
+    primary: teal
+    accent: amber
+    toggle:
+      icon: material/lightbulb
+      name: Switch to dark mode
+  - media: '(prefers-color-scheme: dark)'
+    scheme: slate
+    primary: teal
+    accent: amber
+    toggle:
+      icon: material/lightbulb-outline
+      name: Switch to system preference
+  features:
+    - navigation.expand
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_members_full_path: false
+            show_if_no_docstring: true
+            modernize_annotations: true
+            show_submodules: true
+            show_labels: false
+            members_order: source
+            inherit-member: true
+            # heading_level: 3
+            separate_signature: true
+            filters: ["!^_"]
+            docstring_options:
+              ignore_init_summary: true
+            merge_init_into_class: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            parameter_headings: true
+            docstring_section_style: table
+            extensions:
+            - griffe_pydantic:
+                schema: true
+
+extra_css:
+  - stylesheets/mkdocstrings.css
+
+markdown_extensions:
+  - attr_list
+  - tables
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Overview: index.md
+  - Concepts:
+    - Stacks: concepts/stacks.md
+    - Components: concepts/components.md
+    - Automatic naming: concepts/naming.md
+  - Configuration:
+    - Models: configuration/models.md
+  - API Reference:
+    - pulumi_lib:
+      - AzureStack: api/azurestack.md
+  - Components:
+     - az_postgres: components/az_postgres.md

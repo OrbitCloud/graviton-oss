@@ -335,7 +335,8 @@ class EntraApp(ComponentResource):
                         "client_id": self.app.object_id,
                     },
                     "service_principal": {
-                        "id": self.service_principal.id,
+                        "id": self.service_principal.object_id,
+                        "object_id": self.service_principal.object_id,
                         "client_id": self.service_principal.client_id,
                         "tenant_id": self.service_principal.application_tenant_id,
                     },

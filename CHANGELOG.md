@@ -1,3 +1,9 @@
+## v0.73.0 (2024-11-27)
+
+### Feat
+
+- **storage_account**: Add SFTP and Custom Domain Support
+
 ## v0.72.0 (2024-11-21)
 
 ### Feat

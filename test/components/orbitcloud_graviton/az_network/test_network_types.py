@@ -1,5 +1,4 @@
 from ipaddress import IPv4Network
-from typing import Optional
 
 import pytest
 from pydantic import BaseModel
@@ -8,8 +7,8 @@ from orbitcloud_graviton.az_network.types import PrivateIPv4Network, PublicIPv4N
 
 
 class DemoModel(BaseModel):
-    public_network: Optional[PublicIPv4Network] = None
-    private_network: Optional[PrivateIPv4Network] = None
+    public_network: PublicIPv4Network | None = None
+    private_network: PrivateIPv4Network | None = None
 
 
 def test_public_ipv4_network_validation() -> None:

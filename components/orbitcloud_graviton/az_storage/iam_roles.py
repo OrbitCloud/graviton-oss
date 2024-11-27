@@ -1,11 +1,9 @@
-from typing import Optional
-
 from pydantic import BaseModel, ConfigDict
 
 
 class TableRoles(BaseModel):
-    reader: Optional[bool] = False
-    contributor: Optional[bool] = False
+    reader: bool | None = False
+    contributor: bool | None = False
 
     def roles(self) -> list[str]:
         roles: list[str] = []
@@ -20,9 +18,9 @@ class TableRoles(BaseModel):
 
 
 class BlobRoles(BaseModel):
-    reader: Optional[bool] = False
-    contributor: Optional[bool] = False
-    owner: Optional[bool] = False
+    reader: bool | None = False
+    contributor: bool | None = False
+    owner: bool | None = False
 
     def roles(self) -> list[str]:
         roles: list[str] = []
@@ -39,10 +37,10 @@ class BlobRoles(BaseModel):
 
 
 class QueueRoles(BaseModel):
-    message_processor: Optional[bool] = False
-    message_sender: Optional[bool] = False
-    contributor: Optional[bool] = False
-    reader: Optional[bool] = False
+    message_processor: bool | None = False
+    message_sender: bool | None = False
+    contributor: bool | None = False
+    reader: bool | None = False
 
     def roles(self) -> list[str]:
         roles: list[str] = []
@@ -61,9 +59,9 @@ class QueueRoles(BaseModel):
 
 
 class StorageAccountAppPermissions(BaseModel):
-    tables: Optional[TableRoles] = None
-    queues: Optional[QueueRoles] = None
-    blobs: Optional[BlobRoles] = None
+    tables: TableRoles | None = None
+    queues: QueueRoles | None = None
+    blobs: BlobRoles | None = None
 
     def roles(self) -> list[str]:
         roles: list[str] = []

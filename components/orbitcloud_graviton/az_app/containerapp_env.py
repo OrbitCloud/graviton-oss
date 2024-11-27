@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pulumi
 from pulumi_azure_native import insights, network
@@ -23,9 +23,9 @@ from .certificate import CertificateConfig, certificate
 
 class CustomDomainConfig(BaseModel):
     name: DomainName
-    create_dns_suffix: Optional[bool] = False
-    dns_zone_id: Optional[AzureIdRef] = None
-    dns_zone_stack: Optional[DictRef] = None
+    create_dns_suffix: bool | None = False
+    dns_zone_id: AzureIdRef | None = None
+    dns_zone_stack: DictRef | None = None
 
     cert_value: StrRef | str
     cert_pass: StrRef | str
@@ -40,7 +40,7 @@ class ContainerAppEnvConfig(BaseModel):
         description="List of workload profiles for instances behind the Container App Environment.",
     )
 
-    subnet_id: Optional[AzureIdRef] = Field(
+    subnet_id: AzureIdRef | None = Field(
         default=None,
         title="Subnet to run in",
         description="The subnet to run the Container App Environment in. Required for Zone Redundancy.",
@@ -51,17 +51,17 @@ class ContainerAppEnvConfig(BaseModel):
             "stack://project/stack-name/output-name.subnets.subnet_id",
         ],
     )
-    zone_redundant: Optional[bool] = False
-    public_network_access: Optional[bool] = False
+    zone_redundant: bool | None = False
+    public_network_access: bool | None = False
 
-    certificates: Optional[List[CertificateConfig]] = None
+    certificates: list[CertificateConfig] | None = None
 
-    custom_domain: Optional[CustomDomainConfig] = None
+    custom_domain: CustomDomainConfig | None = None
 
-    dapr_appi_connstring: Optional[Union[str, pulumi.Output]] = None
-    dapr_appi_instrumentation_key: Optional[Union[str, pulumi.Output]] = None
+    dapr_appi_connstring: str | pulumi.Output | None = None
+    dapr_appi_instrumentation_key: str | pulumi.Output | None = None
 
-    log_workspace_id: Optional[AzureIdRef] = None
+    log_workspace_id: AzureIdRef | None = None
 
     @model_validator(mode="after")
     def zone_redundancy_requires_subnet(m: "ContainerAppEnvConfig") -> "ContainerAppEnvConfig":
@@ -79,7 +79,7 @@ class ContainerAppEnv(pulumi.ComponentResource):
         self,
         stack: AzureStack,
         config: ContainerAppEnvConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: ContainerAppEnvConfig = config
@@ -95,8 +95,8 @@ class ContainerAppEnv(pulumi.ComponentResource):
         )
 
         self.environment: app.ManagedEnvironment = self._environment()
-        self.dns_records: List[network.RecordSet] | None = self._dns_records()
-        self.certificates: Dict[str, app.Certificate] = self._certificates()
+        self.dns_records: list[network.RecordSet] | None = self._dns_records()
+        self.certificates: dict[str, app.Certificate] = self._certificates()
         self._diagnostic_settings()
 
         self._outputs()
@@ -128,7 +128,7 @@ class ContainerAppEnv(pulumi.ComponentResource):
 
         return environment
 
-    def _dns_records(self) -> List[network.RecordSet] | None:
+    def _dns_records(self) -> list[network.RecordSet] | None:
         if self.config.custom_domain and self.config.custom_domain.dns_zone_id:
             stack: AzureStack | None = None
             if self.config.custom_domain.dns_zone_stack and isinstance(
@@ -216,7 +216,7 @@ class ContainerAppEnv(pulumi.ComponentResource):
                 opts=pulumi.ResourceOptions(parent=self.environment),
             )
 
-    def _certificates(self) -> Dict[str, app.Certificate]:
+    def _certificates(self) -> dict[str, app.Certificate]:
         # Also add the custom domain certificate as a certificate resource if it doesn't exist
         self.config.certificates = self.config.certificates or []
         if self.config.custom_domain and not any(

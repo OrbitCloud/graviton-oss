@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pulumi
 from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
@@ -12,8 +10,8 @@ from .types import PrivateIPv4Network
 
 class VwanP2sVpnGwConfig(BaseModel):
     client_address_pool: PrivateIPv4Network
-    entra_auth: Optional[bool] = True
-    cert_auth_root_cert: Optional[str] = None
+    entra_auth: bool | None = True
+    cert_auth_root_cert: str | None = None
 
     @field_validator("entra_auth")
     def validate_auth(cls, v, values):
@@ -30,7 +28,7 @@ class VwanP2sVpnGw(ComponentResource):
         stack: AzureStack,
         config: VwanP2sVpnGwConfig,
         vhub: network.VirtualHub,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: VwanP2sVpnGwConfig = config

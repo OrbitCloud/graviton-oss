@@ -1,5 +1,3 @@
-from typing import Optional, Union
-
 import pulumi
 from pulumi_azure_native import keyvault
 from pydantic import BaseModel, ConfigDict, SecretStr
@@ -10,8 +8,8 @@ from orbitcloud_graviton.pulumi_lib.azure_base import AzureStack
 
 class KeyvaultSecretConfig(BaseModel):
     name: str
-    value: Union[SecretStr, pulumi.Output[str]]
-    content_type: Optional[str] = None
+    value: SecretStr | pulumi.Output[str]
+    content_type: str | None = None
     keyvault_id: AzureIdRef
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
@@ -20,7 +18,7 @@ class KeyvaultSecretConfig(BaseModel):
 def keyvault_secret(
     stack: AzureStack,
     config: KeyvaultSecretConfig,
-    opts: Optional[pulumi.ResourceOptions] = None,
+    opts: pulumi.ResourceOptions | None = None,
 ) -> keyvault.Secret:
     if isinstance(config.value, SecretStr):
         value = str(config.value.get_secret_value())

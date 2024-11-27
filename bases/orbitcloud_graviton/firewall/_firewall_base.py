@@ -1,5 +1,3 @@
-from typing import Optional, Union
-
 import pulumi
 from pulumi_azure_native import operationalinsights, resources
 
@@ -12,7 +10,7 @@ from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
 class FirewallBaseConfig(PulumiConfig):
     firewall: FirewallConfig
-    log: Optional[Union[bool, AzureIdRef]] = True
+    log: bool | AzureIdRef | None = True
 
 
 def deploy_firewall():

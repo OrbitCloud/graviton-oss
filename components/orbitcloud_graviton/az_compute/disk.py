@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal
 
 import pulumi
 from pulumi_azure_native.compute import v20240302 as compute
@@ -12,19 +12,19 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 class VirtualMachineDiskConfig(BaseModel):
     size_gb: int
     create_mode: compute.DiskCreateOption = compute.DiskCreateOption.EMPTY
-    sku: Optional[compute.DiskStorageAccountTypes] = compute.DiskStorageAccountTypes.PREMIUM_V2_LRS
-    caching: Optional[CachingTypes] = None
-    source_disk_id: Optional[AzureIdRef] = None
-    source_image_id: Optional[AzureIdRef] = None
-    zone: Optional[str] = None
-    bursting_enabled: Optional[bool] = False
-    iops: Optional[int] = 3000
-    throughput_mbps: Optional[int] = 125
+    sku: compute.DiskStorageAccountTypes | None = compute.DiskStorageAccountTypes.PREMIUM_V2_LRS
+    caching: CachingTypes | None = None
+    source_disk_id: AzureIdRef | None = None
+    source_image_id: AzureIdRef | None = None
+    zone: str | None = None
+    bursting_enabled: bool | None = False
+    iops: int | None = 3000
+    throughput_mbps: int | None = 125
     logical_sector_size: Literal[512, 4096] = 4096
 
     # Optional configurations (– v1 generation and windows is not supported yet)
-    hyper_v_generation: Optional[compute.HyperVGeneration] = compute.HyperVGeneration.V2
-    os_type: Optional[compute.OperatingSystemTypes] = compute.OperatingSystemTypes.LINUX
+    hyper_v_generation: compute.HyperVGeneration | None = compute.HyperVGeneration.V2
+    os_type: compute.OperatingSystemTypes | None = compute.OperatingSystemTypes.LINUX
 
     @model_validator(mode="after")
     def validate_create_mode(m: "VirtualMachineDiskConfig") -> "VirtualMachineDiskConfig":
@@ -48,7 +48,7 @@ class VirtualMachineDiskConfig(BaseModel):
 
         return m
 
-    log_workspace_id: Optional[AzureIdRef] = None
+    log_workspace_id: AzureIdRef | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -56,7 +56,7 @@ class VirtualMachineDiskConfig(BaseModel):
 class VirtualMachineDataDiskConfig(VirtualMachineDiskConfig):
     lun: int
     name: str
-    mount_point: Optional[str] = None
+    mount_point: str | None = None
 
 
 class VirtualMachineDisk:
@@ -64,7 +64,7 @@ class VirtualMachineDisk:
         self,
         stack: AzureStack,
         config: VirtualMachineDiskConfig | VirtualMachineDataDiskConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: VirtualMachineDiskConfig = config

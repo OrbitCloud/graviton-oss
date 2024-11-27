@@ -3,8 +3,6 @@ from functools import reduce
 from typing import (
     Annotated,
     Any,
-    Optional,
-    Union,
 )
 from uuid import UUID
 
@@ -91,10 +89,10 @@ class AzureResourceId:
             "resource_name",
             "sub_resource",
         ]
-        return {key: value for key, value in zip(keys, groups) if value is not None}
+        return {key: value for key, value in zip(keys, groups, strict=False) if value is not None}
 
 
-def parse_stack_reference(v: str) -> tuple[str, str, Optional[str]]:
+def parse_stack_reference(v: str) -> tuple[str, str, str | None]:
     parts: list[str] = v.removeprefix("stack://").split("/")
     path = None
     if len(parts) < 3 or len(parts) > 4:
@@ -156,7 +154,7 @@ def get_stack_output(ref):
     return output_value
 
 
-def get_resource_id(v: Union[pulumi.Output[str], str]) -> str | pulumi.Output[str]:
+def get_resource_id(v: pulumi.Output[str] | str) -> str | pulumi.Output[str]:
     if isinstance(v, pulumi.Output):
         return v if v.is_known() else v.apply(lambda x: x)
 
@@ -181,22 +179,22 @@ class _PulumiSecretSchemaObject(BaseModel):
 PulumiSecretField = Field(json_schema_extra=_PulumiSecretSchemaObject.model_json_schema())
 
 AzureIdRef = Annotated[
-    Union[str, pulumi.Output[str]],
+    str | pulumi.Output[str],
     AfterValidator(func=get_resource_id),
 ]
 
 StrRef = Annotated[
-    Union[str, pulumi.Output],
+    str | pulumi.Output,
     PulumiSecretField,
     AfterValidator(func=get_stack_output),
 ]
 SecretStrRef = Annotated[
-    Union[SecretStr, pulumi.Output[str]],
+    SecretStr | pulumi.Output[str],
     PulumiSecretField,
     AfterValidator(func=get_stack_output),
 ]
 
 DictRef = Annotated[
-    Union[dict[str, Any], str],
+    dict[str, Any] | str,
     BeforeValidator(func=get_stack_output),
 ]

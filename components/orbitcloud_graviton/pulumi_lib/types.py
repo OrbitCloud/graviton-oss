@@ -1,7 +1,7 @@
 # Create an annotated Pydantic type for domain
 import datetime
 import re
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any
 
 import pulumi
 from pulumi_random import RandomString
@@ -46,7 +46,7 @@ def email_random_plus(email: EmailStr) -> EmailStr | pulumi.Output[EmailStr]:
 RandomPlusEmail = Annotated[EmailStr, AfterValidator(email_random_plus)]
 
 
-def tokenize(value: str, allowed_literals: Optional[list] = None) -> tuple[int, str]:
+def tokenize(value: str, allowed_literals: list | None = None) -> tuple[int, str]:
     """
     Tokenize a text into number and string.
     >>> tokenize("10m")
@@ -132,8 +132,8 @@ class TimeFromNow(str):
     def Rotating(
         self,
         resource_name: str,
-        triggers: Optional[dict[str, str]] = None,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        triggers: dict[str, str] | None = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> Rotating:
         return Rotating(
             resource_name=resource_name,

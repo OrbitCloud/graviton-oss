@@ -1,5 +1,5 @@
 from hashlib import md5
-from typing import Any, Dict, Optional
+from typing import Any
 
 import pulumi
 import yaml
@@ -9,9 +9,9 @@ from pydantic.alias_generators import to_camel
 
 
 class PulumiEnvConfigValues(BaseModel):
-    azure: Optional[Dict[str, Any]] = None
-    pulumi_config: Optional[Dict[str, Any]] = None
-    environment_variables: Optional[dict[str, str]] = None
+    azure: dict[str, Any] | None = None
+    pulumi_config: dict[str, Any] | None = None
+    environment_variables: dict[str, str] | None = None
 
     model_config = ConfigDict(
         alias_generator=to_camel,
@@ -22,7 +22,7 @@ class PulumiEnvConfigValues(BaseModel):
 
 class PulumiEnvConfig(BaseModel):
     env_name: str
-    imports: Optional[list[str]] = None
+    imports: list[str] | None = None
     values: PulumiEnvConfigValues = PulumiEnvConfigValues()
 
     model_config = ConfigDict(extra="forbid")
@@ -53,7 +53,7 @@ class PulumiEnv(pulumi.ComponentResource):
         self,
         config: PulumiEnvConfig,
         input: dict,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         super().__init__(
             "Graviton:PulumiEscEnv",

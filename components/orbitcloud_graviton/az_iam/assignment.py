@@ -1,5 +1,3 @@
-from typing import Optional, Union
-
 import pulumi
 from pulumi_azure_native import authorization
 from pydantic import BaseModel, ConfigDict
@@ -12,10 +10,10 @@ from ._roles import get_role_id_by_name
 
 
 class IamAssignmentConfig(BaseModel):
-    name_prefix: Optional[str] = None
+    name_prefix: str | None = None
     role: str
     scope: AzureIdRef
-    description: Optional[str] = None
+    description: str | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -23,9 +21,9 @@ class IamAssignmentConfig(BaseModel):
 def iam_assignment(
     stack: AzureStack,
     config: IamAssignmentConfig,
-    principal_id: Union[str, pulumi.Output[str]],
+    principal_id: str | pulumi.Output[str],
     principal_type: str = "ServicePrincipal",
-    opts: Optional[pulumi.ResourceOptions] = None,
+    opts: pulumi.ResourceOptions | None = None,
 ) -> authorization.RoleAssignment:
     role_definition_id: pulumi.Output[str] = get_role_id_by_name(role_name=config.role)
 

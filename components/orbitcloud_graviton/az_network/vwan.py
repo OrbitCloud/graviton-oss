@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 import pulumi
 from pulumi import ComponentResource
 from pulumi_azure_native.network import v20230901 as network
@@ -19,7 +17,7 @@ class RemoteVirtualNetwork(BaseModel):
 
 class VirtualWanConfig(BaseModel):
     address_prefix: PrivateIPv4Network
-    hub_vnet_connections: Optional[List[RemoteVirtualNetwork]] = Field(default_factory=list)
+    hub_vnet_connections: list[RemoteVirtualNetwork] | None = Field(default_factory=list)
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -29,7 +27,7 @@ class VirtualWan(ComponentResource):
         self,
         stack: AzureStack,
         config: VirtualWanConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ):
         self.stack: AzureStack = stack
         self.config: VirtualWanConfig = config
@@ -47,7 +45,7 @@ class VirtualWan(ComponentResource):
 
         self.vwan: network.VirtualWan = self._vwan()
         self.vhub: network.VirtualHub = self._vhub()
-        self.vhub_vnet_connections: List[network.HubVirtualNetworkConnection] | None = (
+        self.vhub_vnet_connections: list[network.HubVirtualNetworkConnection] | None = (
             self.vhub_vnet_connection()
         )
 
@@ -87,9 +85,9 @@ class VirtualWan(ComponentResource):
 
     def vhub_vnet_connection(
         self,
-    ) -> List[network.HubVirtualNetworkConnection] | None:
+    ) -> list[network.HubVirtualNetworkConnection] | None:
         """Creates a Virtual Network Connection in virtual hub"""
-        vnet_connections: List[network.HubVirtualNetworkConnection] = []
+        vnet_connections: list[network.HubVirtualNetworkConnection] = []
 
         if not self.config.hub_vnet_connections:
             return None

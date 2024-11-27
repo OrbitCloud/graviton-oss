@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional, Union
+from typing import Literal
 from uuid import UUID
 
 import pulumi
@@ -14,8 +14,8 @@ class PulumiEscOidcProvider(BaseModel):
     credential_type: Literal["pulumi"] = "pulumi"
     organization: str
     environment_name: str
-    allowed_in_childs: Optional[bool] = False
-    allowed_pulumi_logins: Optional[List[str]] = None
+    allowed_in_childs: bool | None = False
+    allowed_pulumi_logins: list[str] | None = None
 
     def _subject_attrs(self) -> tuple[list, list]:
         attrs: list[tuple[str, str]] = [("pulumi.organization.login", self.organization)]
@@ -33,7 +33,7 @@ class PulumiEscOidcProvider(BaseModel):
                 f"{subject}:pulumi.user.login:{login}" for login in self.allowed_pulumi_logins
             ]
         else:
-            subjects: List[str] = [subject]
+            subjects: list[str] = [subject]
 
         return subjects, attrs
 
@@ -117,10 +117,10 @@ class GitHubOIDCCredentials(BaseModel):
     repo: str | list[str]
 
     # At least one of the following must be set
-    environments: Optional[List[str]] = None
-    branches: Optional[List[str]] = None
-    tags: Optional[List[str]] = None
-    pull_request: Optional[bool] = False
+    environments: list[str] | None = None
+    branches: list[str] | None = None
+    tags: list[str] | None = None
+    pull_request: bool | None = False
 
     def credentials(self) -> list[FederatedCredentialsConfig]:
         repos = self.repo if isinstance(self.repo, list) else [self.repo]
@@ -166,9 +166,9 @@ class GitHubOIDCCredentials(BaseModel):
 
 
 class WorkloadIdentityConfig(BaseModel):
-    workload: Union[AzureDevOpsOIDCCredentials, GitHubOIDCCredentials, PulumiEscOidcProvider] = (
-        Field(default=..., discriminator="credential_type")
+    workload: AzureDevOpsOIDCCredentials | GitHubOIDCCredentials | PulumiEscOidcProvider = Field(
+        default=..., discriminator="credential_type"
     )
-    azure_permissions: Optional[list[IamAssignmentConfig]] = None
+    azure_permissions: list[IamAssignmentConfig] | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")

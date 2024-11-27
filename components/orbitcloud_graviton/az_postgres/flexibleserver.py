@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pulumi
@@ -16,10 +15,10 @@ from orbitcloud_graviton.pulumi_lib import AzureStack, EntraStack
 
 class PostgresAuthConfig(BaseModel):
     admin_username: str = "cloudsa"
-    admin_password: Optional[str] = None
+    admin_password: str | None = None
 
     entra_auth: postgres.ActiveDirectoryAuthEnum = postgres.ActiveDirectoryAuthEnum.ENABLED
-    entra_admins: Optional[list[UUID]] = None
+    entra_admins: list[UUID] | None = None
     postgres_auth: postgres.PasswordAuthEnum = postgres.PasswordAuthEnum.ENABLED
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
@@ -40,8 +39,8 @@ class PostgresSku(BaseModel):
 
 
 class PostgresCreateMode(BaseModel):
-    mode: Optional[postgres.CreateMode] = None
-    source_server_id: Optional[AzureIdRef] = None
+    mode: postgres.CreateMode | None = None
+    source_server_id: AzureIdRef | None = None
 
     @model_validator(mode="after")
     def validate_source_server_id(m: "PostgresCreateMode") -> "PostgresCreateMode":
@@ -62,16 +61,16 @@ class PostgresCreateMode(BaseModel):
 
 
 class PostgresMaintenanceConfig(BaseModel):
-    day_of_week: Optional[int] = Field(default=0, ge=0, le=6)
-    start_hour: Optional[int] = Field(default=0, ge=0, le=23)
-    start_minute: Optional[int] = Field(default=0, ge=0, le=59)
+    day_of_week: int | None = Field(default=0, ge=0, le=6)
+    start_hour: int | None = Field(default=0, ge=0, le=23)
+    start_minute: int | None = Field(default=0, ge=0, le=59)
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class PostgresStorageConfig(BaseModel):
-    auto_growth: Optional[postgres.StorageAutoGrow] = postgres.StorageAutoGrow.ENABLED
-    storage_size_gb: Optional[int] = Field(default=32, ge=32, le=65536)
+    auto_growth: postgres.StorageAutoGrow | None = postgres.StorageAutoGrow.ENABLED
+    storage_size_gb: int | None = Field(default=32, ge=32, le=65536)
     tier: postgres.AzureManagedDiskPerformanceTiers | None = None
     storage_type: postgres.StorageType = postgres.StorageType.PREMIUM_LRS
     iops: int | None = None
@@ -96,21 +95,21 @@ class PostgresNetworkConfig(BaseModel):
 
 
 class PostgresFlexibleServerConfig(BaseModel):
-    server_name: Optional[str] = None
+    server_name: str | None = None
     server_version: postgres.ServerVersion = postgres.ServerVersion.SERVER_VERSION_16
     authentication: PostgresAuthConfig = PostgresAuthConfig()
-    network: Optional[PostgresNetworkConfig] = None
+    network: PostgresNetworkConfig | None = None
     sku: PostgresSku = PostgresSku()
     storage: PostgresStorageConfig = PostgresStorageConfig()
     backups: PostgresBackupConfig = PostgresBackupConfig()
     server_params: dict[str, str] | None = None
     create_mode: PostgresCreateMode = PostgresCreateMode()
-    maintenance: Optional[PostgresMaintenanceConfig] = None
+    maintenance: PostgresMaintenanceConfig | None = None
     zone: str | None = None
 
     high_availability: postgres.HighAvailabilityMode = postgres.HighAvailabilityMode.DISABLED
 
-    log_workspace_id: Optional[AzureIdRef] = None
+    log_workspace_id: AzureIdRef | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -121,7 +120,7 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
         stack: AzureStack,
         entra_config: EntraStack,
         config: PostgresFlexibleServerConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: PostgresFlexibleServerConfig = config

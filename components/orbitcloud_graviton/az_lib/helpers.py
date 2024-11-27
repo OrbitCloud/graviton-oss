@@ -1,5 +1,6 @@
 import re
-from typing import Literal, Optional, Sequence
+from collections.abc import Sequence
+from typing import Literal
 
 import pulumi
 
@@ -8,7 +9,7 @@ from .metadata.azure import _azure_regions
 
 def fmt_name(
     v: str | Sequence,
-    sep: Optional[str] = "-",
+    sep: str | None = "-",
     case: Literal["lower", "title"] = "lower",
 ) -> str:
     sep = "" if sep is None else sep

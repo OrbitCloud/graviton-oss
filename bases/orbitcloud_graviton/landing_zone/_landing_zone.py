@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 import pulumi
 from pulumi_azure_native import operationalinsights
 
@@ -30,22 +28,22 @@ from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
 
 class LandingZoneConfig(PulumiConfig):
-    container_registry: Optional[ContainerRegistryConfig] = ContainerRegistryConfig()
-    keyvault: Optional[KeyVaultConfig] = KeyVaultConfig()
-    eventhub: Optional[NamespaceConfig] = None
-    eventgrid_domain: Optional[EventGridDomainConfig] = None
+    container_registry: ContainerRegistryConfig | None = ContainerRegistryConfig()
+    keyvault: KeyVaultConfig | None = KeyVaultConfig()
+    eventhub: NamespaceConfig | None = None
+    eventgrid_domain: EventGridDomainConfig | None = None
     log_workspace: LogWorkspaceConfig = LogWorkspaceConfig()
 
-    has_keyvault: Optional[bool] = True
-    has_container_registry: Optional[bool] = True
+    has_keyvault: bool | None = True
+    has_container_registry: bool | None = True
 
-    search_service: Optional[SearchServiceConfig] = None
+    search_service: SearchServiceConfig | None = None
 
-    workload_identities: Optional[List[WorkloadIdentityConfig]] = None
-    resource_providers: Optional[list[str]] = None
+    workload_identities: list[WorkloadIdentityConfig] | None = None
+    resource_providers: list[str] | None = None
 
-    dns_zone: Optional[DnsZoneConfig] = None
-    acme_ssl: Optional[bool] = False
+    dns_zone: DnsZoneConfig | None = None
+    acme_ssl: bool | None = False
 
 
 def deploy_landing_zone() -> None:

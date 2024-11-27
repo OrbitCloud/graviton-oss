@@ -83,7 +83,7 @@
     python                   = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
-    commitizen   = "^3.27"
+    commitizen   = "^4.0"
     copier       = "^9.1.1"
     debugpy      = "^1.8.6"
     ipykernel    = "^6.29.3"
@@ -92,14 +92,13 @@
     pytest       = "^8.0.2"
     pytest-cov   = "^6.0.0"
     pytest-sugar = "^1.0.0"
-    ruff         = "^0.7"
+    ruff         = "^0.8"
 
 [tool.pyright]
     include = ["bases", "components", "development", "test"]
     # ignore = ["development"]
     extraPaths             = ["bases", "components"]
     reportMissingTypeStubs = true
-    ruff                   = "^0.2.1"
     typeCheckingMode       = "basic"
     useLibraryCodeForTypes = true
     venv                   = ".venv"
@@ -132,7 +131,6 @@
     skip_empty                 = true
 
 [tool.ruff]
-    # target-version = "py310"
     extend-exclude = [
         # "development/*",
         "tests/*",
@@ -155,10 +153,11 @@
         "UP",     # pyupgrade
         "W",      # pycodestyle warnings
     ]
+    target-version = "py310"
 
-    [tool.ruff.lint.pyupgrade]
-        # Preserve types, even if a file imports `from __future__ import annotations`.
-        keep-runtime-typing = true
+    # [tool.ruff.lint.pyupgrade]
+    #     # Preserve types, even if a file imports `from __future__ import annotations`.
+    #     keep-runtime-typing = true
 
     [tool.ruff.lint.isort]
         known-first-party = ["orbitcloud_graviton"]

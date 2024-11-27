@@ -1,5 +1,5 @@
 from ipaddress import IPv4Address
-from typing import List, Literal, Optional
+from typing import Literal
 
 import pulumi
 from pulumi import ComponentResource
@@ -25,7 +25,7 @@ class ResolverInboundEndpoint(BaseModel):
         ],
     )
 
-    private_ip_address: Optional[IPv4Address] = Field(
+    private_ip_address: IPv4Address | None = Field(
         default=None,
         title="Private IP Address",
         description="Statically assign Endpoint IP Address. If not specified, IP Allocation Method will be 'Dynamic'.",
@@ -41,7 +41,7 @@ class ForwardingRuleConfig(BaseModel):
         description="The domain name to be forwarded.",
         examples=["int.mydomain.local"],
     )
-    target_dns_servers: List[IPv4Address] = Field(
+    target_dns_servers: list[IPv4Address] = Field(
         title="Target DNS Servers",
         description="The target DNS servers to forward the requests to.",
         examples=["- 10.243.1.10", "- 10.243.1.11"],
@@ -62,12 +62,12 @@ class ResolverOutboundEndpoint(BaseModel):
             "stack://project/stack-name/output-name.subnets.subnet_id",
         ],
     )
-    rules: Optional[List[ForwardingRuleConfig]] = Field(
+    rules: list[ForwardingRuleConfig] | None = Field(
         default=None,
         title="Forwarding Rules",
         description="The forwarding rules to be used for the Outbound Endpoint.",
     )
-    linked_vnets: Optional[List[AzureIdRef]] = Field(
+    linked_vnets: list[AzureIdRef] | None = Field(
         default=None,
         title="Linked Virtual Networks",
         description="The VNET(s) that will be able to utilize the Outbound Endpoint.",
@@ -101,12 +101,12 @@ class PrivateDnsResolverConfig(BaseModel):
             "stack://project/stack-name/output-name.vnet_id",
         ],
     )
-    inbound_endpoint: Optional[ResolverInboundEndpoint] = Field(
+    inbound_endpoint: ResolverInboundEndpoint | None = Field(
         default=None,
         title="Inbound Endpoint",
         description="Inbound endpoint to be used for the Private DNS Resolver.",
     )
-    outbound_endpoint: Optional[ResolverOutboundEndpoint] = Field(
+    outbound_endpoint: ResolverOutboundEndpoint | None = Field(
         default=None,
         title="Outbound Endpoint",
         description="Outbound endpoint to be used for the Private DNS Resolver.",
@@ -119,7 +119,7 @@ class PrivateDnsResolver(ComponentResource):
         self,
         stack: AzureStack,
         config: PrivateDnsResolverConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: PrivateDnsResolverConfig = config
@@ -207,7 +207,7 @@ class PrivateDnsResolver(ComponentResource):
                     opts=self._opts,
                 )
                 for rule in self.config.outbound_endpoint.rules:
-                    targets: List[network.TargetDnsServerArgsDict] = [
+                    targets: list[network.TargetDnsServerArgsDict] = [
                         network.TargetDnsServerArgsDict({"ip_address": str(ip)})
                         for ip in rule.target_dns_servers
                     ]

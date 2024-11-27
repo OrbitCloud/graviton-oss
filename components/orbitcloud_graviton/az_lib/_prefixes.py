@@ -1,6 +1,6 @@
-from typing import Any, Dict
+from typing import Any
 
-LOCATION_ABBR: Dict[str, str] = {
+LOCATION_ABBR: dict[str, str] = {
     "westeurope": "weu",
     "northeurope": "neu",
     "norwayeast": "noe",
@@ -8,7 +8,7 @@ LOCATION_ABBR: Dict[str, str] = {
     "swedencentral": "swe",
 }
 
-RESOURCE_PREFIXES: Dict[str, Any] = {
+RESOURCE_PREFIXES: dict[str, Any] = {
     "pulumi_azure_native.resources.resource_group": {"prefix": "rg"},
     "pulumi_azure_native.operationalinsights.workspace": {
         "prefix": "log",

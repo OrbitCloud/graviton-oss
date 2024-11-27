@@ -1,6 +1,7 @@
 import json
+from collections.abc import Callable
 from copy import deepcopy
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, create_model
@@ -12,7 +13,7 @@ T = TypeVar("T", bound="BaseModel")
 
 
 def _make_optional(
-    include: Optional[list[str]] = None, exclude: Optional[list[str]] = None
+    include: list[str] | None = None, exclude: list[str] | None = None
 ) -> Callable[[type[T]], type[T]]:
     """Return a decorator to make Pydantic model fields optional"""
 
@@ -59,7 +60,7 @@ def generate_stack_schema(model, output_file: str):
 
     # Representation of a Pulumi.stack.yaml file
     class PulumiStackConfig(BaseModel):
-        environment: Optional[list[str]] = None
+        environment: list[str] | None = None
         config: ConfigObject
 
         model_config = ConfigDict(extra="forbid")

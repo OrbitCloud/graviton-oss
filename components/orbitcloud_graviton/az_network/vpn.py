@@ -1,5 +1,5 @@
 from ipaddress import IPv4Address
-from typing import List, Literal, Optional
+from typing import Literal
 
 import pulumi
 from pulumi import ComponentResource
@@ -42,25 +42,25 @@ class S2SConnectionConfig(BaseModel):
 
 
 class S2SConfig(BaseModel):
-    fqdn: Optional[str] = None
-    public_ip: Optional[IPv4Address] = None
-    local_network_address_spaces: Optional[list[PrivateIPv4Network]] = Field(
+    fqdn: str | None = None
+    public_ip: IPv4Address | None = None
+    local_network_address_spaces: list[PrivateIPv4Network] | None = Field(
         default=None,
         title="Local Address Spaces",
         description="One or more IP address ranges (in CIDR notation) that define your local network's (on-prem) address space.",
     )
-    traffic_policy_azure_address_ranges: Optional[List[PrivateIPv4Network]] = Field(
+    traffic_policy_azure_address_ranges: list[PrivateIPv4Network] | None = Field(
         default=None,
         title="Azure Address Ranges",
         description="Represents the IP Ranges of Azure VNET / Subnets that will be reachable from the local network's (on-prem). Used with policy_based_traffic_selectors = true.",
     )
-    traffic_policy_local_address_ranges: Optional[List[PrivateIPv4Network]] = Field(
+    traffic_policy_local_address_ranges: list[PrivateIPv4Network] | None = Field(
         default=None,
         title="Local Address Ranges",
         description="Represents the IP Ranges of local network's (on-prem) that will be reachable from Azure. Used with policy_based_traffic_selectors = true. Defaults to local_network_address_spaces if not defined.",
     )
-    policy_based_traffic_selectors: Optional[bool] = False
-    bgp_settings: Optional[BgpConfig] = None
+    policy_based_traffic_selectors: bool | None = False
+    bgp_settings: BgpConfig | None = None
     connection_settings: S2SConnectionConfig
 
     @model_validator(mode="after")
@@ -92,8 +92,8 @@ class S2SConfig(BaseModel):
 
 class P2SConfig(BaseModel):
     client_address_pool: PrivateIPv4Network
-    entra_auth: Optional[bool] = True
-    cert_auth_root_cert: Optional[str] = None
+    entra_auth: bool | None = True
+    cert_auth_root_cert: str | None = None
 
     @model_validator(mode="after")
     def validate_p2s_config(m: "P2SConfig") -> "P2SConfig":
@@ -105,14 +105,14 @@ class P2SConfig(BaseModel):
 
 
 class VirtualNetworkGatewayConfig(BaseModel):
-    active_active: Optional[bool] = False
-    allow_remote_vnet_traffic: Optional[bool] = False
-    public_ips: Optional[list[AzureIdRef]] = (
+    active_active: bool | None = False
+    allow_remote_vnet_traffic: bool | None = False
+    public_ips: list[AzureIdRef] | None = (
         None  # TBD: Consider allowing use of pre-created Public IP - (To keep the same public IP during VPN-rebuild)
     )
     subnet: AzureIdRef
-    bgp_config: Optional[BgpConfig] = None
-    sku: Optional[
+    bgp_config: BgpConfig | None = None
+    sku: (
         Literal[
             "BASIC",
             "VpnGw1",
@@ -128,10 +128,11 @@ class VirtualNetworkGatewayConfig(BaseModel):
             "VpnGw4AZ",
             "VpnGw5AZ",
         ]
-    ] = "VpnGw1"
-    site_to_site: Optional[S2SConfig] = None
-    point_to_site: Optional[P2SConfig] = None
-    gateway_generation: Optional[Literal["Generation1", "Generation2"]] = None
+        | None
+    ) = "VpnGw1"
+    site_to_site: S2SConfig | None = None
+    point_to_site: P2SConfig | None = None
+    gateway_generation: Literal["Generation1", "Generation2"] | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -182,7 +183,7 @@ class VirtualNetworkGateway(ComponentResource):
         self,
         stack: AzureStack,
         config: VirtualNetworkGatewayConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: VirtualNetworkGatewayConfig = config

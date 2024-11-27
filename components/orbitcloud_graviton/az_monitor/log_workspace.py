@@ -1,6 +1,6 @@
 """Core module for creating Azure LogAnalytics Workspaces"""
 
-from typing import Literal, Optional
+from typing import Literal
 
 import pulumi
 from pulumi_azure_native import operationalinsights
@@ -10,19 +10,19 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class LogWorkspaceConfig(BaseModel):
-    public_network_access_for_ingestion: Optional[operationalinsights.PublicNetworkAccessType] = (
+    public_network_access_for_ingestion: operationalinsights.PublicNetworkAccessType | None = (
         operationalinsights.PublicNetworkAccessType.ENABLED
     )
-    public_network_access_for_query: Optional[operationalinsights.PublicNetworkAccessType] = (
+    public_network_access_for_query: operationalinsights.PublicNetworkAccessType | None = (
         operationalinsights.PublicNetworkAccessType.ENABLED
     )
 
-    retention_in_days: Optional[Literal[30, 31, 60, 90, 120, 180, 270, 365, 550, 730]] = 30
+    retention_in_days: Literal[30, 31, 60, 90, 120, 180, 270, 365, 550, 730] | None = 30
     sku: operationalinsights.WorkspaceSkuNameEnum = Field(
         default=operationalinsights.WorkspaceSkuNameEnum.PER_GB2018, validate_default=True
     )
-    daily_quota_gb: Optional[float] = None
-    disable_local_auth: Optional[bool] = False
+    daily_quota_gb: float | None = None
+    disable_local_auth: bool | None = False
 
     model_config = ConfigDict(use_enum_values=True)
 
@@ -30,7 +30,7 @@ class LogWorkspaceConfig(BaseModel):
 def log_workspace(
     config: LogWorkspaceConfig,
     stack: AzureStack,
-    opts: Optional[pulumi.ResourceOptions] = None,
+    opts: pulumi.ResourceOptions | None = None,
 ) -> operationalinsights.Workspace:
     pulumi.debug(config.sku)
     log = operationalinsights.Workspace(

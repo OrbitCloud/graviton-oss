@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 import pulumi
 from pulumi_azure_native.network import v20230901 as network
@@ -12,7 +12,7 @@ from orbitcloud_graviton.pulumi_lib.types import DomainName
 
 class PrivateEndpointConfig(BaseModel):
     subnet_id: AzureIdRef
-    private_dns_zone_id: Optional[AzureIdRef] = None
+    private_dns_zone_id: AzureIdRef | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -23,8 +23,8 @@ class PrivateEndpoint(pulumi.ComponentResource):
         stack: AzureStack,
         config: PrivateEndpointConfig,
         target_resource: Any,
-        target_resource_name: Optional[str] = None,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        target_resource_name: str | None = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: PrivateEndpointConfig = config

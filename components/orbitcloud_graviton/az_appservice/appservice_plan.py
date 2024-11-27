@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Optional
 
 import pulumi
 from pulumi_azure_native import insights, operationalinsights, resources, web
@@ -47,13 +46,13 @@ class PlanSkuNames(str, Enum):
 
 @dataclass(kw_only=True, frozen=True)
 class AppServicePlanStackSchema:
-    plan_per_site_scaling: Optional[bool] = True
-    plan_sku: Optional[str] = PlanSkuNames.P0V3
-    plan_instance_count_default: Optional[int] = 2
-    plan_instance_count_min: Optional[int] = 2
-    plan_instance_count_max: Optional[int] = 2
-    plan_zone_redundant: Optional[bool] = False
-    plan_log_workspace_ref: Optional[str] = None
+    plan_per_site_scaling: bool | None = True
+    plan_sku: str | None = PlanSkuNames.P0V3
+    plan_instance_count_default: int | None = 2
+    plan_instance_count_min: int | None = 2
+    plan_instance_count_max: int | None = 2
+    plan_zone_redundant: bool | None = False
+    plan_log_workspace_ref: str | None = None
 
     @property
     def plan_sku_args(self) -> web.SkuDescriptionArgs:
@@ -79,10 +78,10 @@ def az_appservice_plan(
     env: str,
     location: str,
     resource_group: resources.ResourceGroup,
-    kind: Optional[str] = "Linux",
-    per_site_scaling: Optional[bool] = True,
-    zone_redundant: Optional[bool] = False,
-    sku: Optional[web.SkuDescriptionArgs] = web.SkuDescriptionArgs(
+    kind: str | None = "Linux",
+    per_site_scaling: bool | None = True,
+    zone_redundant: bool | None = False,
+    sku: web.SkuDescriptionArgs | None = web.SkuDescriptionArgs(
         name="P0V3",
         tier="PremiumV3",
         sku_capacity=web.SkuCapacityArgs(
@@ -91,9 +90,9 @@ def az_appservice_plan(
             minimum=2,
         ),
     ),
-    log_workspace: Optional[operationalinsights.Workspace] = None,
-    tags: Optional[Dict[str, str]] = None,
-    opts: Optional[pulumi.ResourceOptions] = None,
+    log_workspace: operationalinsights.Workspace | None = None,
+    tags: dict[str, str] | None = None,
+    opts: pulumi.ResourceOptions | None = None,
 ) -> web.AppServicePlan:
     plan_name: str = resource_namer(
         resource_type=web.AppServicePlan,
@@ -126,7 +125,7 @@ def az_appservice_plan(
 
 def az_appservice_plan_from_config(
     config,
-    resource_group: Optional[resources.ResourceGroup] = None,
+    resource_group: resources.ResourceGroup | None = None,
 ) -> web.AppServicePlan:
     if not resource_group and not config.resource_group:
         raise ValueError("Either resource_group or resource_group_name must be set")

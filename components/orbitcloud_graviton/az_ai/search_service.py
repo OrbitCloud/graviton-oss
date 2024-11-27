@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pulumi
 from pulumi_azure_native import search
 from pydantic import BaseModel, ConfigDict
@@ -10,15 +8,13 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class SearchServiceConfig(BaseModel):
-    partitions: Optional[int] = 1
-    replicas: Optional[int] = 1
-    sku: Optional[search.SkuName] = search.SkuName.STANDARD
-    disable_local_auth: Optional[bool] = True
-    public_network_access: Optional[search.PublicNetworkAccess] = (
-        search.PublicNetworkAccess.DISABLED
-    )
-    allowed_public_ips: Optional[list[PublicIPv4Network]] = None
-    private_endpoints: Optional[list[PrivateEndpointConfig]] = None
+    partitions: int | None = 1
+    replicas: int | None = 1
+    sku: search.SkuName | None = search.SkuName.STANDARD
+    disable_local_auth: bool | None = True
+    public_network_access: search.PublicNetworkAccess | None = search.PublicNetworkAccess.DISABLED
+    allowed_public_ips: list[PublicIPv4Network] | None = None
+    private_endpoints: list[PrivateEndpointConfig] | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -28,7 +24,7 @@ class SearchService(pulumi.ComponentResource):
         self,
         stack: AzureStack,
         config: SearchServiceConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: SearchServiceConfig = config

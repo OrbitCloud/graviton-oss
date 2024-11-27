@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional, Union
+from typing import Any, Literal
 
 import pulumi
 from pulumi_azure_native.containerregistry import v20231101preview as containerregistry
@@ -10,16 +10,16 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class ContainerRegistryConfig(BaseModel):
-    name: Optional[str] = None
+    name: str | None = None
     public_network_access: containerregistry.PublicNetworkAccess = (
         containerregistry.PublicNetworkAccess.DISABLED
     )
-    ip_allow_list: Optional[List[Union[PrivateIPv4Network, PublicIPv4Network, StrRef]]] = Field(
+    ip_allow_list: list[PrivateIPv4Network | PublicIPv4Network | StrRef] | None = Field(
         default_factory=list
     )
-    admin_user_enabled: Optional[bool] = False
+    admin_user_enabled: bool | None = False
 
-    sku: Optional[Literal["Standard", "Premium"]] = Field(
+    sku: Literal["Standard", "Premium"] | None = Field(
         default="Premium",
         title="SKU",
         description="The SKU of the Container Registry. Default is Premium.",
@@ -32,7 +32,7 @@ class ContainerRegistryConfig(BaseModel):
 def container_registry(
     stack: AzureStack,
     config: ContainerRegistryConfig,
-    opts: Optional[pulumi.ResourceOptions] = None,
+    opts: pulumi.ResourceOptions | None = None,
 ) -> containerregistry.Registry:
     """Create container registry"""
 

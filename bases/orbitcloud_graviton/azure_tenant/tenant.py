@@ -52,7 +52,7 @@ Possible features to be added:
 
 """
 
-from typing import Any, List, Literal, Optional
+from typing import Any, Literal
 
 import pulumi
 from pydantic import BaseModel
@@ -137,8 +137,8 @@ class TaggingRules(BaseModel):
     - all/subset of the above?
     """
 
-    required_tags: List[str]
-    optional_tags: List[str]
+    required_tags: list[str]
+    optional_tags: list[str]
 
 
 class Subscription(BaseModel):
@@ -146,8 +146,8 @@ class Subscription(BaseModel):
     subscription_name: str
     env: str
 
-    security_contact: Optional[str] = None  # (See azure-native.security.SecurityContact)
-    billing_alert_monthly_threshold_usd: Optional[int] = None
+    security_contact: str | None = None  # (See azure-native.security.SecurityContact)
+    billing_alert_monthly_threshold_usd: int | None = None
 
     # TODO: validate that subscription_name matches the name of the retreived subscription_id
     # So that we can avoid having to eye-ball whether subscription_id is correct in downstream projects
@@ -165,15 +165,15 @@ class Globals(BaseModel):
     pulumi: PulumiDefaults = PulumiDefaults()
     location: str = "northeurope"
 
-    resource_name_prefix: Optional[str] = None
+    resource_name_prefix: str | None = None
 
     # trusted_locations: Country eða CIDR spaces...
 
     # Should use key/values for describing the values
-    ip_allow_list: Optional[List[PublicIPv4Network]] = None
+    ip_allow_list: list[PublicIPv4Network] | None = None
 
-    tags: Optional[dict[str, str]] = None
-    tagging_rules: Optional[TaggingRules] = TaggingRules(
+    tags: dict[str, str] | None = None
+    tagging_rules: TaggingRules | None = TaggingRules(
         required_tags=[
             "Env",
             "WorkloadName",
@@ -192,7 +192,7 @@ class Globals(BaseModel):
         ],
     )
 
-    resource_args: Optional[List[ResourceArgsDefaults]] = None
+    resource_args: list[ResourceArgsDefaults] | None = None
 
 
 class AzureTenantConfig(PulumiConfig):

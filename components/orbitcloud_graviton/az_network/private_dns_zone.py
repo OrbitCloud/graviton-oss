@@ -1,5 +1,5 @@
 from ipaddress import IPv4Address
-from typing import Any, List, Optional
+from typing import Any
 
 import pulumi
 from pulumi import ComponentResource
@@ -14,8 +14,8 @@ from .types import ARecord, CnameRecord, MxRecord, Record, TxtRecord
 
 class PrivateDNSZoneConfig(BaseModel):
     name: str
-    records: Optional[List[Record]] = None
-    linked_vnets: Optional[List[AzureIdRef]] = None  # List of VNET IDs
+    records: list[Record] | None = None
+    linked_vnets: list[AzureIdRef] | None = None  # List of VNET IDs
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -24,7 +24,7 @@ class PrivateDnsZone(ComponentResource):
         self,
         stack: AzureStack,
         config: PrivateDNSZoneConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: PrivateDNSZoneConfig = config
@@ -40,7 +40,7 @@ class PrivateDnsZone(ComponentResource):
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
         self.zone: network.PrivateZone = self._zone()
-        self.records: List[network.PrivateRecordSet] = self._records()
+        self.records: list[network.PrivateRecordSet] = self._records()
         self._outputs()
 
     def _zone(self) -> network.PrivateZone:
@@ -72,7 +72,7 @@ class PrivateDnsZone(ComponentResource):
                 )
         return zone
 
-    def _records(self) -> List[network.PrivateRecordSet]:
+    def _records(self) -> list[network.PrivateRecordSet]:
         if self.config.records:
             return [self.record(record) for record in self.config.records]
         return []

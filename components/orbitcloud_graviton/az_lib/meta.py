@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -21,19 +20,19 @@ class PulumiResource(BaseModel):
 
 class AzureResourceMetadata(BaseModel):
     naming: ResourceNameRule
-    namespace: Optional[str] = None
-    resource_type: Optional[str] = None
-    sub_resource_name: Optional[str] = None
-    public_dns_zone: Optional[DomainName] = None
-    private_dns_zone: Optional[DomainName] = None
+    namespace: str | None = None
+    resource_type: str | None = None
+    sub_resource_name: str | None = None
+    public_dns_zone: DomainName | None = None
+    private_dns_zone: DomainName | None = None
     pulumi_resource: PulumiResource
 
     def autoname(
         self,
         stack: AzureStack,
-        workload_name: Optional[str] = None,
-        separator: Optional[str] = "-",
-        instance_number: Optional[str] = "01",
+        workload_name: str | None = None,
+        separator: str | None = "-",
+        instance_number: str | None = "01",
     ) -> str:
         # Return prefix-{workload_name}-{env}-{location}-{instance_number}
         # In accordance with ResourceNameRule

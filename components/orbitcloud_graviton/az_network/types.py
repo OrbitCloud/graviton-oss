@@ -1,5 +1,5 @@
 from ipaddress import IPv4Address, IPv4Network
-from typing import Annotated, List, Literal, Union
+from typing import Annotated, Literal
 
 import pulumi
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
@@ -47,7 +47,7 @@ class ARecord(BaseModel):
     relative_name: str = Field(..., pattern=r"^[a-zA-Z0-9-*]+(\.[a-zA-Z0-9-*]+)?$")
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["A"] = "A"
-    ip_addresses: Union[List[IPv4Address], List[pulumi.Output[str]]]
+    ip_addresses: list[IPv4Address] | list[pulumi.Output[str]]
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -60,10 +60,10 @@ class CnameRecord(BaseModel):
 
 
 class NsRecord(BaseModel):
-    relative_name: Union[str, pulumi.Output]
+    relative_name: str | pulumi.Output
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["NS"] = "NS"
-    ns_records: Union[List[str], pulumi.Output]
+    ns_records: list[str] | pulumi.Output
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -80,11 +80,11 @@ class TxtRecord(BaseModel):
     relative_name: str = Field(..., pattern=r"^[a-zA-Z0-9-*]+(\.[a-zA-Z0-9-*]+)?$")
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["TXT"] = "TXT"
-    values: List[Union[str, pulumi.Output[str]]]
+    values: list[str | pulumi.Output[str]]
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 Record = Annotated[
-    Union[ARecord, CnameRecord, NsRecord, MxRecord, TxtRecord],
+    ARecord | CnameRecord | NsRecord | MxRecord | TxtRecord,
     Field(discriminator="record_type"),
 ]

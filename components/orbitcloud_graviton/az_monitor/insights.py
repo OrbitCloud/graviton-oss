@@ -1,7 +1,5 @@
 """Azure Application Insights Module"""
 
-from typing import Optional
-
 import pulumi
 from pulumi_azure_native import insights
 from pydantic import BaseModel, ConfigDict
@@ -20,7 +18,7 @@ class AppInsightsConfig(BaseModel):
 def app_insights(
     stack: AzureStack,
     config: AppInsightsConfig,
-    opts: Optional[pulumi.ResourceOptions] = None,
+    opts: pulumi.ResourceOptions | None = None,
 ) -> insights.Component:
     """
     Create an Application Insights component

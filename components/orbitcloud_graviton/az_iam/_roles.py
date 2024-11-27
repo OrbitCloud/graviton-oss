@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncIterable
+from collections.abc import AsyncIterable
 
 from azure.core.credentials import AccessToken
 from azure.core.credentials_async import AsyncTokenCredential

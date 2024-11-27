@@ -1,5 +1,5 @@
 from ipaddress import IPv4Address
-from typing import Any, List, Literal, Optional
+from typing import Any, Literal
 
 import pulumi
 from pulumi import ComponentResource
@@ -12,10 +12,10 @@ from .types import PrivateIPv4Network
 
 
 class S2sVPNConnectionConfig(BaseModel):
-    vpn_connection_protocol_type: Optional[Literal["IKEv2", "IKEv1"]] = "IKEv2"
+    vpn_connection_protocol_type: Literal["IKEv2", "IKEv1"] | None = "IKEv2"
     shared_key: SecretStr
-    policy_based_traffic_selector: Optional[bool] = True
-    connection_bandwidth: Optional[int] = 1000
+    policy_based_traffic_selector: bool | None = True
+    connection_bandwidth: int | None = 1000
     dh_group: Literal[
         "DHGroup1", "DHGroup2", "DHGroup14", "DHGroup2048", "ECP256", "ECP384", "DH_GROUP24"
     ] = "DHGroup14"
@@ -38,12 +38,12 @@ class S2sVPNConnectionConfig(BaseModel):
 
 class SiteLinkConfig(BaseModel):
     name: str
-    speed: Optional[int] = 1000
-    provider_name: Optional[str] = "provider"
-    public_ip: Optional[IPv4Address] = None
-    fqdn: Optional[str] = None
-    bgp_address: Optional[IPv4Address] = None
-    bgp_asn: Optional[int] = None
+    speed: int | None = 1000
+    provider_name: str | None = "provider"
+    public_ip: IPv4Address | None = None
+    fqdn: str | None = None
+    bgp_address: IPv4Address | None = None
+    bgp_asn: int | None = None
     connection_settings: S2sVPNConnectionConfig
 
     @model_validator(mode="after")
@@ -55,17 +55,17 @@ class SiteLinkConfig(BaseModel):
 
 class S2sVpnSiteConfig(BaseModel):
     name: str
-    device_vendor: Optional[str] = "vendor"
-    address_prefixes: Optional[List[PrivateIPv4Network]] = Field(
+    device_vendor: str | None = "vendor"
+    address_prefixes: list[PrivateIPv4Network] | None = Field(
         default=None,
         description="The IP address space that is located on your on-premises site. Traffic destined for this address space is routed to your local site. This is required when BGP isn't enabled for the site.",
         examples=[["192.168.10.0/24"]],
     )
-    site_links: List[SiteLinkConfig]
-    policy_based_traffic_selectors: Optional[bool] = False
-    propagate_default_route: Optional[bool] = False
-    traffic_policy_local_address_ranges: Optional[List[PrivateIPv4Network]] = None
-    traffic_policy_remote_address_ranges: Optional[List[PrivateIPv4Network]] = None
+    site_links: list[SiteLinkConfig]
+    policy_based_traffic_selectors: bool | None = False
+    propagate_default_route: bool | None = False
+    traffic_policy_local_address_ranges: list[PrivateIPv4Network] | None = None
+    traffic_policy_remote_address_ranges: list[PrivateIPv4Network] | None = None
 
     @model_validator(mode="after")
     def validate_vpn_site_config(m: "S2sVpnSiteConfig") -> "S2sVpnSiteConfig":
@@ -93,9 +93,9 @@ class S2sVpnSiteConfig(BaseModel):
 
 
 class VwanS2sVpnGatewayConfig(BaseModel):
-    scale_unit: Optional[int] = 1
-    asn: Optional[int] = 65515
-    sites: List[S2sVpnSiteConfig]
+    scale_unit: int | None = 1
+    asn: int | None = 65515
+    sites: list[S2sVpnSiteConfig]
 
 
 class VwanS2SVpnGw(ComponentResource):
@@ -105,7 +105,7 @@ class VwanS2SVpnGw(ComponentResource):
         config: VwanS2sVpnGatewayConfig,
         vhub: network.VirtualHub,
         vwan: network.VirtualWan,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: VwanS2sVpnGatewayConfig = config
@@ -113,7 +113,7 @@ class VwanS2SVpnGw(ComponentResource):
         self._vhub: network.VirtualHub = vhub
         self._vwan: network.VirtualWan = vwan
 
-        self.s2s_sites: List[dict[str, Any]] = self._vpn_sites()
+        self.s2s_sites: list[dict[str, Any]] = self._vpn_sites()
         self.s2s_vpngw: network.VpnGateway = self._s2s_vpngw()
 
     def _ipsec_policy(self, link_config) -> network.IpsecPolicyArgs:
@@ -128,7 +128,7 @@ class VwanS2SVpnGw(ComponentResource):
             sa_life_time_seconds=link_config.connection_settings.sa_lifetime_seconds,
         )
 
-    def _vpn_site_links(self, site_links, site_name) -> List[network.VpnSiteLinkArgs]:
+    def _vpn_site_links(self, site_links, site_name) -> list[network.VpnSiteLinkArgs]:
         vpn_site_links = []
         for link in site_links:
             vpn_site_link = network.VpnSiteLinkArgs(
@@ -186,7 +186,7 @@ class VwanS2SVpnGw(ComponentResource):
                         use_policy_based_traffic_selectors=site_config.policy_based_traffic_selectors,
                         ipsec_policies=[self._ipsec_policy(link_config)],
                     )
-                    for link, link_config in zip(links, site_config.site_links)
+                    for link, link_config in zip(links, site_config.site_links, strict=False)
                 ]
                 # Only add traffic selector policies if policy_based_traffic_selectors = true
                 if site_config.policy_based_traffic_selectors:

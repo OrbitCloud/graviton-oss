@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import Literal
 
 import pulumi
 from pulumi_azure_native.network import v20230901 as network
@@ -9,19 +9,19 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 class PublicIpDnsConfig(BaseModel):
     dns_name: str
-    dns_scope: Optional[
-        Literal["TENANT_REUSE", "SUBSCRIPTION_REUSE", "RESOURCE_GROUP_REUSE", "NO_REUSE"]
-    ] = None
+    dns_scope: (
+        Literal["TENANT_REUSE", "SUBSCRIPTION_REUSE", "RESOURCE_GROUP_REUSE", "NO_REUSE"] | None
+    ) = None
 
 
 class PublicIpConfig(BaseModel):
     # resource: pulumi.CustomResource
     workload: str
-    address_version: Optional[Literal["IPv4", "IPv6"]] = "IPv4"
-    tier: Optional[Literal["Regional", "Global"]] = "Regional"
-    idle_timeout_in_minutes: Optional[int] = 4
-    zone: Optional[List[Literal["1", "2", "3"]]] = None
-    dns_config: Optional[PublicIpDnsConfig] = None
+    address_version: Literal["IPv4", "IPv6"] | None = "IPv4"
+    tier: Literal["Regional", "Global"] | None = "Regional"
+    idle_timeout_in_minutes: int | None = 4
+    zone: list[Literal["1", "2", "3"]] | None = None
+    dns_config: PublicIpDnsConfig | None = None
 
     @model_validator(mode="after")
     def validate_public_ip_config(m: "PublicIpConfig") -> "PublicIpConfig":
@@ -39,7 +39,7 @@ class PublicIp:
         self,
         stack: AzureStack,
         config: PublicIpConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: PublicIpConfig = config
@@ -47,7 +47,7 @@ class PublicIp:
 
         self.public_ip: network.PublicIPAddress = self._public_ip()
 
-    def _dns_config(self) -> Optional[network.PublicIPAddressDnsSettingsArgs]:
+    def _dns_config(self) -> network.PublicIPAddressDnsSettingsArgs | None:
         if self.config.dns_config:
             dns_scope_type = None
             if self.config.dns_config.dns_scope:

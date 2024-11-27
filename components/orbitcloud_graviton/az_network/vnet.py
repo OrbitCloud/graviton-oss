@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pulumi
 from pulumi import ComponentResource
@@ -17,14 +17,14 @@ from .types import PrivateIPv4Network
 class SubnetConfig(BaseModel):
     name: str
     address_prefix: PrivateIPv4Network
-    delegation: Optional[str] = None
+    delegation: str | None = None
     private_endpoint_network_policies: network.VirtualNetworkPrivateEndpointNetworkPolicies = (
         network.VirtualNetworkPrivateEndpointNetworkPolicies.ENABLED
     )
 
-    virtual_network_name: Optional[Union[str, pulumi.Output[str]]] = None
-    service_endpoints: Optional[List[SubnetServiceEndpoints]] = None
-    network_rules: Optional[List[NsgRuleConfig]] = None
+    virtual_network_name: str | pulumi.Output[str] | None = None
+    service_endpoints: list[SubnetServiceEndpoints] | None = None
+    network_rules: list[NsgRuleConfig] | None = None
 
     @model_validator(mode="after")
     def validate_network_rules(m: "SubnetConfig") -> "SubnetConfig":
@@ -36,21 +36,21 @@ class SubnetConfig(BaseModel):
 
 
 class VnetPeeringConfig(BaseModel):
-    allow_forwarded_traffic: Optional[bool] = True
-    allow_gateway_transit: Optional[bool] = False
-    allow_virtual_network_access: Optional[bool] = True
-    use_remote_gateways: Optional[bool] = False
+    allow_forwarded_traffic: bool | None = True
+    allow_gateway_transit: bool | None = False
+    allow_virtual_network_access: bool | None = True
+    use_remote_gateways: bool | None = False
     remote_virtual_network: AzureIdRef
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class VnetConfig(BaseModel):
-    address_space: List[PrivateIPv4Network]
+    address_space: list[PrivateIPv4Network]
     subnets: list[SubnetConfig]
-    peered_vnets: Optional[List[VnetPeeringConfig]] = None
-    create_default_nsgs: Optional[bool] = False
-    create_ip_groups: Optional[bool] = False
+    peered_vnets: list[VnetPeeringConfig] | None = None
+    create_default_nsgs: bool | None = False
+    create_ip_groups: bool | None = False
 
     # Validate that subnets are unique, don't overlap and are within the vnet address space
     @model_validator(mode="after")
@@ -94,7 +94,7 @@ class Vnet(ComponentResource):
         self,
         stack: AzureStack,
         config: VnetConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: VnetConfig = config
@@ -110,9 +110,9 @@ class Vnet(ComponentResource):
         )
 
         self.vnet: network.VirtualNetwork = self._vnet()
-        self.nsgs: Dict[str, network.NetworkSecurityGroup] = self._nsgs()
-        self.subnets: Dict[str, network.Subnet] = self._subnets()
-        self.ip_groups: Dict[str, network.IpGroup] | None = self._ip_groups()
+        self.nsgs: dict[str, network.NetworkSecurityGroup] = self._nsgs()
+        self.subnets: dict[str, network.Subnet] = self._subnets()
+        self.ip_groups: dict[str, network.IpGroup] | None = self._ip_groups()
         self.vnet_peering = self._vnet_peerings()
 
         self._outputs()
@@ -132,7 +132,7 @@ class Vnet(ComponentResource):
             ),
         )
 
-    def _nsgs(self) -> Dict[str, network.NetworkSecurityGroup]:
+    def _nsgs(self) -> dict[str, network.NetworkSecurityGroup]:
         nsgs = {}
         # Declare default deny rule added by default to all NSGs
 
@@ -192,7 +192,7 @@ class Vnet(ComponentResource):
                 nsgs[subnet.name] = nsg
         return nsgs
 
-    def _subnets(self) -> Dict[str, network.Subnet]:
+    def _subnets(self) -> dict[str, network.Subnet]:
         return {
             subnet.name: network.Subnet(
                 resource_name=subnet.name
@@ -218,7 +218,7 @@ class Vnet(ComponentResource):
             for subnet in self.config.subnets
         }
 
-    def _ip_groups(self) -> Dict[str, network.IpGroup] | None:
+    def _ip_groups(self) -> dict[str, network.IpGroup] | None:
         if self.config.create_ip_groups:
             ip_groups = {}
             for subnet in self.config.subnets:  # We could maybe use self.subnets instead.

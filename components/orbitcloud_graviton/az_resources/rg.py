@@ -1,14 +1,12 @@
 """Azure ResourceGroup Component"""
 
-from typing import Optional
-
 import pulumi
 from pulumi_azure_native import resources
 
 
 def resource_group(
     stack,
-    opts: Optional[pulumi.ResourceOptions] = None,
+    opts: pulumi.ResourceOptions | None = None,
 ) -> resources.ResourceGroup:
     if stack.resource_group_name:
         existing_rg: resources.AwaitableGetResourceGroupResult = resources.get_resource_group(

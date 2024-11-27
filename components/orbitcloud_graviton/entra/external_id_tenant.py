@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal
 
 import pulumi
 from pulumi_azure_native.azureactivedirectory import v20230517preview as entra
@@ -22,7 +22,7 @@ class ExternalIdTenant(pulumi.ComponentResource):
         stack: AzureStack,
         entra_config: EntraStack,
         config: ExternalIdTenantConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: ExternalIdTenantConfig = config

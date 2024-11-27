@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pulumi
 from pulumi_azure_native.network import v20230901 as network
 from pydantic import BaseModel, ConfigDict
@@ -13,7 +11,7 @@ class NetworkInterfaceConfig(BaseModel):
     accelerated_networking: bool = True
     ip_allocation: network.IPAllocationMethod = network.IPAllocationMethod.DYNAMIC
 
-    log_workspace_id: Optional[AzureIdRef] = None
+    log_workspace_id: AzureIdRef | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -23,7 +21,7 @@ class NetworkInterface:
         self,
         stack: AzureStack,
         config: NetworkInterfaceConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: NetworkInterfaceConfig = config

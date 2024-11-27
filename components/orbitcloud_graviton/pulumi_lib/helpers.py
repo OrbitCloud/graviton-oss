@@ -1,10 +1,10 @@
-from typing import Optional, Sequence, Union
+from collections.abc import Sequence
 
 import pulumi
 from pulumi_azure_native import provider
 
 
-def fmt_name(v: Union[str, pulumi.Output[str], Sequence], sep: Optional[str] = "-") -> str:
+def fmt_name(v: str | pulumi.Output[str] | Sequence, sep: str | None = "-") -> str:
     def format(v):
         return v.lower().replace(" ", sep).replace("_", sep).replace(".", sep)
 

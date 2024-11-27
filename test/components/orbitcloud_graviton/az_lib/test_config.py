@@ -1,5 +1,4 @@
 import json
-from typing import Optional
 
 import pulumi
 import pytest
@@ -31,16 +30,16 @@ def pulumi_project_mock() -> None:
 @pytest.mark.usefixtures("pulumi_project_mock")
 def test_pulumi_config() -> None:
     class TestBaseConfig(PulumiConfig):
-        resource_group_name: Optional[str] = "test-resource-group"
+        resource_group_name: str | None = "test-resource-group"
         some_other_string: str
         some_other_int: int = 1
-        some_other_optional_int: Optional[int] = 1
+        some_other_optional_int: int | None = 1
         some_false_bool: bool = False
         some_true_bool: bool = True
-        some_optional_false_bool: Optional[bool] = False
-        some_optional_true_bool: Optional[bool] = True
-        some_optional_unset_bool: Optional[bool] = None
-        some_optional_true_bool_set_false: Optional[bool] = True
+        some_optional_false_bool: bool | None = False
+        some_optional_true_bool: bool | None = True
+        some_optional_unset_bool: bool | None = None
+        some_optional_true_bool_set_false: bool | None = True
 
     stack_config: TestBaseConfig = TestBaseConfig.model_validate({})
 

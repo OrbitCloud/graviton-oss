@@ -1,5 +1,4 @@
 from ipaddress import IPv4Network
-from typing import List, Optional, Union
 
 import pulumi
 from pulumi_azure_native.network import v20230901 as network
@@ -10,7 +9,7 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 class IpGroupConfig(BaseModel):
     workload: str
-    ip_addresses: Union[IPv4Network, List[IPv4Network]]
+    ip_addresses: IPv4Network | list[IPv4Network]
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -18,7 +17,7 @@ class IpGroupConfig(BaseModel):
 def ip_group(
     stack: AzureStack,
     config: IpGroupConfig,
-    opts: Optional[pulumi.ResourceOptions] = None,
+    opts: pulumi.ResourceOptions | None = None,
 ) -> network.IpGroup:
     if isinstance(config.ip_addresses, list):
         ip_addresses = [str(ip) for ip in config.ip_addresses]

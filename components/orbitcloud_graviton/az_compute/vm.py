@@ -1,5 +1,4 @@
 import base64
-from typing import Optional
 
 import pulumi
 from pulumi_azure_native.compute import v20230701 as compute
@@ -13,12 +12,12 @@ from .disk import VirtualMachineDataDiskConfig, VirtualMachineDisk, VirtualMachi
 
 
 class VirtualMachineOsImage(BaseModel):
-    offer: Optional[str] = None
-    publisher: Optional[str] = None
-    sku: Optional[str] = None
-    version: Optional[str] = "latest"
-    gallery_urn: Optional[str] = None
-    is_marketplace_image: Optional[bool] = False
+    offer: str | None = None
+    publisher: str | None = None
+    sku: str | None = None
+    version: str | None = "latest"
+    gallery_urn: str | None = None
+    is_marketplace_image: bool | None = False
 
     @model_validator(mode="after")
     def validate_urn(m: "VirtualMachineOsImage") -> "VirtualMachineOsImage":
@@ -31,19 +30,19 @@ class VirtualMachineOsImage(BaseModel):
 
 
 class VirtualMachineOsAdminUser(BaseModel):
-    username: Optional[str] = "azureuser"
-    authorized_ssh_keys: Optional[list[str]] = None
+    username: str | None = "azureuser"
+    authorized_ssh_keys: list[str] | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class VirtualMachineOsConfig(BaseModel):
     image: VirtualMachineOsImage
-    hostname: Optional[str] = None
+    hostname: str | None = None
     disk: VirtualMachineDiskConfig
     admin: VirtualMachineOsAdminUser = VirtualMachineOsAdminUser()
-    custom_data: Optional[Base64Str | pulumi.Output[str]] = None
-    custom_data_file: Optional[str] = None
+    custom_data: Base64Str | pulumi.Output[str] | None = None
+    custom_data_file: str | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -57,11 +56,11 @@ class VirtualMachineNetworking(BaseModel):
 class VirtualMachineConfig(BaseModel):
     os: VirtualMachineOsConfig
     networking: VirtualMachineNetworking
-    storage: Optional[list[VirtualMachineDataDiskConfig]] = None
+    storage: list[VirtualMachineDataDiskConfig] | None = None
     sku: str = compute.VirtualMachineSizeTypes.STANDARD_B2S
-    zone: Optional[str] = None
+    zone: str | None = None
 
-    log_workspace_id: Optional[AzureIdRef] = None
+    log_workspace_id: AzureIdRef | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -73,7 +72,7 @@ class VirtualMachine(pulumi.ComponentResource):
         entra_config: EntraStack,
         config: VirtualMachineConfig,
         nic: NetworkInterface | None = None,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: VirtualMachineConfig = config

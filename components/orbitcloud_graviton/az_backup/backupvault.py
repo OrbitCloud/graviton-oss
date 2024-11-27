@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pulumi
 
 # from pulumi_azure_native import
@@ -26,7 +24,7 @@ class BackupVault(pulumi.ComponentResource):
         stack: AzureStack,
         entra_config: EntraStack,
         config: BackupVaultConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: BackupVaultConfig = config

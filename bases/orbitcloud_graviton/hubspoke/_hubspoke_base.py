@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pulumi
 from pulumi_azure_native import resources
@@ -31,13 +31,13 @@ from .privateendpoint_zones import default_private_endpoint_zones
 
 class NetworkBaseConfig(PulumiConfig):
     vnet: VnetConfig
-    vwan: Optional[VirtualWanConfig] = None
-    p2s_vpn: Optional[VwanP2sVpnGwConfig] = None
-    s2s_vpn: Optional[VwanS2sVpnGatewayConfig] = None
-    dns_zone: Optional[DnsZoneConfig] = None
-    private_dns_zones: Optional[List[PrivateDNSZoneConfig]] = None
-    private_dns_resolver: Optional[PrivateDnsResolverConfig] = None
-    vpn: Optional[VirtualNetworkGatewayConfig] = None
+    vwan: VirtualWanConfig | None = None
+    p2s_vpn: VwanP2sVpnGwConfig | None = None
+    s2s_vpn: VwanS2sVpnGatewayConfig | None = None
+    dns_zone: DnsZoneConfig | None = None
+    private_dns_zones: list[PrivateDNSZoneConfig] | None = None
+    private_dns_resolver: PrivateDnsResolverConfig | None = None
+    vpn: VirtualNetworkGatewayConfig | None = None
 
 
 def deploy_hub_spoke():
@@ -83,7 +83,7 @@ def deploy_hub_spoke():
                 opts=pulumi.ResourceOptions(parent=vwan.vwan),
             )
 
-        private_endpoint_dns_zones: Dict[DomainName, Dict[str, Any]] = {}
+        private_endpoint_dns_zones: dict[DomainName, dict[str, Any]] = {}
         for zone_name in default_private_endpoint_zones():
             if zone_name in private_endpoint_dns_zones:
                 continue

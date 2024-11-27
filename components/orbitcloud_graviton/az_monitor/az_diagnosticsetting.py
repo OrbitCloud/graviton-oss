@@ -1,14 +1,12 @@
-from typing import List, Optional, Union
-
 import pulumi
 from pulumi_azure_native import insights
 
 
 def diagnostic_setting(
     resource: pulumi.CustomResource,
-    log_workspace_id: Union[str, pulumi.Output[str]],
-    log_categories: Optional[List[str]] = None,
-    metric_categories: Optional[List[str]] = None,
+    log_workspace_id: str | pulumi.Output[str],
+    log_categories: list[str] | None = None,
+    metric_categories: list[str] | None = None,
     opts=None,
 ) -> insights.DiagnosticSetting:
     # Have a look at the supported logs and metrics here:

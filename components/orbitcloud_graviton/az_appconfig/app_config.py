@@ -1,5 +1,3 @@
-from typing import Dict, Optional
-
 import pulumi
 from pulumi_azure_native import appconfiguration as pam_appconfig
 from pulumi_azure_native import insights
@@ -15,12 +13,12 @@ class AppConfigurationConfig(BaseModel):
         pam_appconfig.PublicNetworkAccess.DISABLED
     )
 
-    keys: Optional[Dict[str, StrRef | str]] = None
-    label: Optional[str] = None
+    keys: dict[str, StrRef | str] | None = None
+    label: str | None = None
 
-    export_endpoint_as_secret: Optional[str] = Field(default=None, pattern="^[a-z0-9_-]+$")
+    export_endpoint_as_secret: str | None = Field(default=None, pattern="^[a-z0-9_-]+$")
 
-    log_workspace_id: Optional[AzureIdRef] = None
+    log_workspace_id: AzureIdRef | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -30,7 +28,7 @@ class AppConfiguration(pulumi.ComponentResource):
         self,
         stack: AzureStack,
         config: AppConfigurationConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: AppConfigurationConfig = config

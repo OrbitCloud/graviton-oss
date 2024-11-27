@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 import pulumi
 
 from orbitcloud_graviton.az_iam import iam_assignment
@@ -15,7 +13,7 @@ from orbitcloud_graviton.pulumi_lib import (
 
 
 class WorkloadIdentitiesConfig(PulumiConfig):
-    identities: Optional[List[WorkloadIdentityConfig]] = None
+    identities: list[WorkloadIdentityConfig] | None = None
 
 
 def deploy() -> None:

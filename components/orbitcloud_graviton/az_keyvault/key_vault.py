@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 import pulumi
 from pulumi import ComponentResource
 from pulumi_azure_native import insights, keyvault
@@ -12,7 +10,7 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class KeyVaultConfig(BaseModel):
-    name: Optional[str] = Field(
+    name: str | None = Field(
         default=None,
         title="Explicitly set Key Vault name",
         description="The name of the Key Vault. If not set, a name will be generated.",
@@ -22,7 +20,7 @@ class KeyVaultConfig(BaseModel):
         title="Public Network Access",
         description="Whether the key vault is accessible from public networks.",
     )
-    allowed_private_subnets: Optional[List[AzureIdRef]] = Field(
+    allowed_private_subnets: list[AzureIdRef] | None = Field(
         default=None,
         title="Allowed private subnets",
         description="Allows network access from a list of Private Subnets",
@@ -33,21 +31,21 @@ class KeyVaultConfig(BaseModel):
             "stack://project/stack-name/output-name.subnets.subnet_id",
         ],
     )
-    allowed_public_networks: Optional[List[PublicIPv4Network]] = Field(
+    allowed_public_networks: list[PublicIPv4Network] | None = Field(
         default=None,
         title="Allowed public networks",
         description="Allows network access from a list of Public Networks. Must be in CIDR notation.",
         examples=["157.157.205.0/24", "103.103.10.5/32"],
     )
-    allow_azure_services: Optional[bool] = Field(
+    allow_azure_services: bool | None = Field(
         default=True,
         title="Allow Azure Services",
         description="Allow traffic from trusted Azure services",
     )
 
-    enable_purge_protection: Optional[bool] = True
+    enable_purge_protection: bool | None = True
 
-    log_workspace_id: Optional[AzureIdRef] = None
+    log_workspace_id: AzureIdRef | None = None
 
     @model_validator(mode="after")
     def validate_network_access(m: "KeyVaultConfig") -> "KeyVaultConfig":
@@ -68,7 +66,7 @@ class KeyVault(ComponentResource):
         self,
         stack: AzureStack,
         config: KeyVaultConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: KeyVaultConfig = config

@@ -1,5 +1,3 @@
-from typing import List, Optional, Union
-
 import pulumi
 from pulumi_azure_native import eventgrid, insights
 from pydantic import BaseModel, ConfigDict
@@ -13,23 +11,23 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class EventGridDomainConfig(BaseModel):
-    name: Optional[str] = None
-    disable_local_auth: Optional[bool] = True
+    name: str | None = None
+    disable_local_auth: bool | None = True
 
     data_residency: eventgrid.DataResidencyBoundary = eventgrid.DataResidencyBoundary.WITHIN_REGION
     input_schema: eventgrid.InputSchema = eventgrid.InputSchema.EVENT_GRID_SCHEMA
 
     # Topic properties
-    auto_delete_topic_with_last_subscription: Optional[bool] = False
-    auto_create_topic_with_first_subscription: Optional[bool] = False
-    topics: Optional[List[str]] = None
+    auto_delete_topic_with_last_subscription: bool | None = False
+    auto_create_topic_with_first_subscription: bool | None = False
+    topics: list[str] | None = None
 
     # Networking
-    public_network_access: Optional[bool] = False
-    inbound_ip_rules: Optional[List[Union[PublicIPv4Network, PrivateIPv4Network, StrRef]]] = None
-    private_endpoints: Optional[List[PrivateEndpointConfig]] = None
+    public_network_access: bool | None = False
+    inbound_ip_rules: list[PublicIPv4Network | PrivateIPv4Network | StrRef] | None = None
+    private_endpoints: list[PrivateEndpointConfig] | None = None
 
-    log_workspace_id: Optional[AzureIdRef] = None
+    log_workspace_id: AzureIdRef | None = None
     azure_permissions: list[IamAssignmentConfig] | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
@@ -40,7 +38,7 @@ class EventGridDomain(pulumi.ComponentResource):
         self,
         stack: AzureStack,
         config: EventGridDomainConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: EventGridDomainConfig = config
@@ -82,7 +80,7 @@ class EventGridDomain(pulumi.ComponentResource):
             opts=self._opts,
         )
 
-    def _eventgrid_domain_ip_rules(self) -> List[eventgrid.InboundIpRuleArgs]:
+    def _eventgrid_domain_ip_rules(self) -> list[eventgrid.InboundIpRuleArgs]:
         return (
             [
                 eventgrid.InboundIpRuleArgs(action="Allow", ip_mask=str(ip))

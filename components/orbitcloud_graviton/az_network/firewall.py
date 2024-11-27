@@ -1,5 +1,5 @@
 from ipaddress import IPv4Address, IPv4Network
-from typing import Annotated, Any, ClassVar, List, Literal, Optional, Union
+from typing import Annotated, Any, ClassVar, Literal
 
 import pulumi
 from pulumi import ComponentResource
@@ -43,20 +43,16 @@ from .public_ip import PublicIp, PublicIpConfig
 
 class NetworkRule(BaseModel):
     name: str
-    destination_ip_addresses: Optional[
-        Union[StrRef, IPv4Network, str, List[Union[IPv4Network, StrRef]]]
-    ] = None
-    destination_ip_groups: Optional[List[AzureIdRef]] = None
-    destination_service_tags: Optional[List[str]] = None
-    destination_fqdns: Optional[List[str]] = None
-    destination_ports: Union[str, int, List[Union[str, int]]]
-    source_ip_addresses: Optional[
-        Union[StrRef, IPv4Network, str, List[Union[IPv4Network, StrRef]]]
-    ] = None
-    source_ip_groups: Optional[List[AzureIdRef]] = None
-    protocols: Optional[Union[List[Literal["TCP", "UDP", "ICMP"]], Literal["ANY"]]] = ["TCP"]
-    description: Optional[str] = None
-    web_categories: Optional[List[str]] = None
+    destination_ip_addresses: StrRef | IPv4Network | str | list[IPv4Network | StrRef] | None = None
+    destination_ip_groups: list[AzureIdRef] | None = None
+    destination_service_tags: list[str] | None = None
+    destination_fqdns: list[str] | None = None
+    destination_ports: str | int | list[str | int]
+    source_ip_addresses: StrRef | IPv4Network | str | list[IPv4Network | StrRef] | None = None
+    source_ip_groups: list[AzureIdRef] | None = None
+    protocols: list[Literal["TCP", "UDP", "ICMP"]] | Literal["ANY"] | None = ["TCP"]
+    description: str | None = None
+    web_categories: list[str] | None = None
 
     @model_validator(mode="after")
     def validate_network_rule(m: "NetworkRule") -> "NetworkRule":
@@ -111,7 +107,7 @@ class NetworkRule(BaseModel):
 
         # Validate ports
         if m.destination_ports is not None:
-            if isinstance(m.destination_ports, (str, int)):
+            if isinstance(m.destination_ports, str | int):
                 m.destination_ports = [m.destination_ports]
 
             for item in m.destination_ports:
@@ -147,7 +143,7 @@ class NetworkRule(BaseModel):
 
 class ProtocolPort(BaseModel):
     protocol: Literal["Http", "Https", "Mssql"]
-    port: Optional[int] = None
+    port: int | None = None
 
     DEFAULT_PORTS: ClassVar[dict[str, int]] = {
         "Http": 80,
@@ -175,16 +171,14 @@ class ProtocolPort(BaseModel):
 
 class ApplicationRule(BaseModel):
     name: str
-    source_ip_addresses: Optional[
-        Union[StrRef, IPv4Network, str, List[Union[IPv4Network, StrRef]]]
-    ] = None
-    source_ip_groups: Optional[List[AzureIdRef]] = None
-    destination_fqdns: Optional[List[str]] = None
-    destination_fqdn_tags: Optional[List[str]] = None
-    destination_urls: Optional[List[str]] = None
-    destination_web_categories: Optional[List[str]] = None
-    protocols: List[ProtocolPort]
-    description: Optional[str] = None
+    source_ip_addresses: StrRef | IPv4Network | str | list[IPv4Network | StrRef] | None = None
+    source_ip_groups: list[AzureIdRef] | None = None
+    destination_fqdns: list[str] | None = None
+    destination_fqdn_tags: list[str] | None = None
+    destination_urls: list[str] | None = None
+    destination_web_categories: list[str] | None = None
+    protocols: list[ProtocolPort]
+    description: str | None = None
 
     @model_validator(mode="after")
     def validate_network_rule(m: "ApplicationRule") -> "ApplicationRule":
@@ -232,7 +226,7 @@ class RuleCollection(BaseModel):
     type: Literal["Application", "Network", "DNAT"]
     priority: Annotated[int, Field(ge=100, le=65000)]
     action: Literal["Allow", "Deny"] = "Allow"  # TODO: Consider adding support for DNAT
-    rules: Optional[List[Union[ApplicationRule, NetworkRule]]] = None
+    rules: list[ApplicationRule | NetworkRule] | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -240,22 +234,22 @@ class RuleCollection(BaseModel):
 class RuleCollectionGroup(BaseModel):
     name: str
     priority: Annotated[int, Field(ge=100, le=65000)]
-    rule_collections: List[RuleCollection]
+    rule_collections: list[RuleCollection]
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class FirewallConfig(BaseModel):
-    name: Optional[str] = None
+    name: str | None = None
     sku: Literal["Basic", "Standard", "Premium"] = "Basic"
-    virtual_hub: Optional[AzureIdRef] = None
-    dns_proxy: Optional[bool] = False
-    custom_dns_servers: Optional[List[IPv4Address]] = None
+    virtual_hub: AzureIdRef | None = None
+    dns_proxy: bool | None = False
+    custom_dns_servers: list[IPv4Address] | None = None
     subnet: AzureIdRef
-    log_workspace_id: Optional[AzureIdRef] = None
-    management_subnet: Optional[AzureIdRef] = None
-    rule_collection_groups: Optional[List[RuleCollectionGroup]] = None
-    zones: Optional[List[Literal["1", "2", "3"]]] = None
+    log_workspace_id: AzureIdRef | None = None
+    management_subnet: AzureIdRef | None = None
+    rule_collection_groups: list[RuleCollectionGroup] | None = None
+    zones: list[Literal["1", "2", "3"]] | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -307,7 +301,7 @@ class Firewall(ComponentResource):
         self,
         stack: AzureStack,
         config: FirewallConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: FirewallConfig = config
@@ -458,7 +452,7 @@ class Firewall(ComponentResource):
     def _zones(self):
         return self.config.zones if self.config.zones else None
 
-    def _rule_collection_groups(self, rule_collection_groups: List[RuleCollectionGroup]):
+    def _rule_collection_groups(self, rule_collection_groups: list[RuleCollectionGroup]):
         _parent_dependant = None
         for group in rule_collection_groups:
             policy = FirewallPolicyRuleCollectionGroup(
@@ -475,7 +469,7 @@ class Firewall(ComponentResource):
             )
             _parent_dependant = policy
 
-    def _rule_collections(self, rule_collections: List[RuleCollection]):
+    def _rule_collections(self, rule_collections: list[RuleCollection]):
         collections = []
         action_map = {
             "Allow": FirewallPolicyFilterRuleCollectionActionType.ALLOW,
@@ -514,8 +508,8 @@ class Firewall(ComponentResource):
         return collections
 
     def _rules(
-        self, rules: List[Union[NetworkRule, ApplicationRule]]
-    ) -> List[Union[ApplicationRuleArgs, NetworkRuleArgs]] | None:
+        self, rules: list[NetworkRule | ApplicationRule]
+    ) -> list[ApplicationRuleArgs | NetworkRuleArgs] | None:
         if rules:
             constructed_rules = []
             network_protocol_map = {
@@ -535,7 +529,7 @@ class Firewall(ComponentResource):
                             ip_protocols = [network_protocol_map[proto] for proto in rule.protocols]
 
                     # Convert destination_ports to list of strings
-                    if isinstance(rule.destination_ports, (str, int)):
+                    if isinstance(rule.destination_ports, str | int):
                         destination_ports = [str(rule.destination_ports)]
                     elif isinstance(rule.destination_ports, list):
                         destination_ports = [str(port) for port in rule.destination_ports]

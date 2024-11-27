@@ -1,5 +1,5 @@
 from ipaddress import IPv4Address
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 import pulumi
 from pulumi_azure_native.storage import v20230501 as storage
@@ -13,15 +13,15 @@ from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
 class StorageAccountRoutingConfig(BaseModel):
-    routing_preference: Optional[storage.RoutingChoice] = storage.RoutingChoice.MICROSOFT_ROUTING
-    publish_microsoft_endpoints: Optional[bool] = True
-    publish_internet_endpoints: Optional[bool] = False
+    routing_preference: storage.RoutingChoice | None = storage.RoutingChoice.MICROSOFT_ROUTING
+    publish_microsoft_endpoints: bool | None = True
+    publish_internet_endpoints: bool | None = False
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class StorageAccountPrivateEndpointConfig(BaseModel):
-    sub_types: List[Literal["blob", "file", "queue", "table"]]
+    sub_types: list[Literal["blob", "file", "queue", "table"]]
     subnet_id: AzureIdRef
     private_dns_zone_id: AzureIdRef
 
@@ -30,72 +30,70 @@ class StorageAccountPrivateEndpointConfig(BaseModel):
 
 class StorageAccountFileShareConfig(BaseModel):
     name: str
-    share_quota: Optional[int] = 102400
+    share_quota: int | None = 102400
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class StorageAccountCustomDomainConfig(BaseModel):
     name: str
-    use_subdomain: Optional[bool] = False
+    use_subdomain: bool | None = False
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class SftpSshKeyConfig(BaseModel):
-    description: Optional[str]
+    description: str | None
     key: str
 
 
 class SftpContainerPermissions(BaseModel):
     container_name: str
-    permissions: List[Literal["l", "r", "w", "d", "c"]]
+    permissions: list[Literal["l", "r", "w", "d", "c"]]
 
 
 class SftpUserConfig(BaseModel):
     username: str
     password_auth: bool = True
     home_directory: str = "/"
-    containers: List[SftpContainerPermissions]
-    ssh_keys: Optional[List[SftpSshKeyConfig]] = None
+    containers: list[SftpContainerPermissions]
+    ssh_keys: list[SftpSshKeyConfig] | None = None
 
 
 class StorageAccountConfig(BaseModel):
-    name: Optional[str] = None
+    name: str | None = None
     kind: storage.Kind = storage.Kind.STORAGE_V2
     sku: storage.SkuName = storage.SkuName.PREMIUM_LRS
     tier: storage.AccessTier = storage.AccessTier.HOT
 
-    allow_blob_public_access: Optional[bool] = False
-    allow_shared_key_access: Optional[bool] = False
-    public_network_access: Optional[storage.PublicNetworkAccess] = (
-        storage.PublicNetworkAccess.DISABLED
-    )
-    azure_portal_use_oauth: Optional[bool] = True
+    allow_blob_public_access: bool | None = False
+    allow_shared_key_access: bool | None = False
+    public_network_access: storage.PublicNetworkAccess | None = storage.PublicNetworkAccess.DISABLED
+    azure_portal_use_oauth: bool | None = True
 
     # File share options
-    smb_secure_defaults: Optional[bool] = True
-    nfs_v3: Optional[bool] = False
-    large_file_shares: Optional[storage.LargeFileSharesState] = storage.LargeFileSharesState.ENABLED
-    hierarchical_namespace: Optional[bool] = False
+    smb_secure_defaults: bool | None = True
+    nfs_v3: bool | None = False
+    large_file_shares: storage.LargeFileSharesState | None = storage.LargeFileSharesState.ENABLED
+    hierarchical_namespace: bool | None = False
 
     # SFTP options
-    sftp_enabled: Optional[bool] = False
-    sftp_users: Optional[List[SftpUserConfig]] = None
+    sftp_enabled: bool | None = False
+    sftp_users: list[SftpUserConfig] | None = None
 
     # Networking
-    allowed_private_subnets: Optional[List[AzureIdRef]] = None
-    allowed_public_ips: Optional[List[IPv4Address]] = None
+    allowed_private_subnets: list[AzureIdRef] | None = None
+    allowed_public_ips: list[IPv4Address] | None = None
     routing: StorageAccountRoutingConfig = StorageAccountRoutingConfig()
-    private_endpoints: Optional[list[StorageAccountPrivateEndpointConfig]] = None
-    custom_domain: Optional[StorageAccountCustomDomainConfig] = None
+    private_endpoints: list[StorageAccountPrivateEndpointConfig] | None = None
+    custom_domain: StorageAccountCustomDomainConfig | None = None
 
-    storage_containers: Optional[List[str]] = None
-    storage_tables: Optional[List[str]] = None
-    storage_queues: Optional[List[str]] = None
-    file_shares: Optional[List[StorageAccountFileShareConfig]] = None
+    storage_containers: list[str] | None = None
+    storage_tables: list[str] | None = None
+    storage_queues: list[str] | None = None
+    file_shares: list[StorageAccountFileShareConfig] | None = None
 
-    app_permissions: Optional[StorageAccountAppPermissions] = None
+    app_permissions: StorageAccountAppPermissions | None = None
 
-    exports_prefix: Optional[str] = None
+    exports_prefix: str | None = None
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -104,7 +102,7 @@ class StorageAccount(pulumi.ComponentResource):
         self,
         stack: AzureStack,
         config: StorageAccountConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.config: StorageAccountConfig = config
         self.stack: AzureStack = stack
@@ -124,14 +122,14 @@ class StorageAccount(pulumi.ComponentResource):
         )
 
         self.storage_account: storage.StorageAccount = self._storage_account()
-        self.storage_container: List[storage.BlobContainer] = self._storage_containers()
-        self.storage_tables: List[storage.Table] = self._storage_tables()
-        self.storage_queues: List[storage.Queue] = self._storage_queues()
+        self.storage_container: list[storage.BlobContainer] = self._storage_containers()
+        self.storage_tables: list[storage.Table] = self._storage_tables()
+        self.storage_queues: list[storage.Queue] = self._storage_queues()
         self.storage_shares: dict[str, storage.FileShare] = self._storage_file_shares()
 
-        self.sftp_users: List[storage.LocalUser] = self._sftp_users()
+        self.sftp_users: list[storage.LocalUser] = self._sftp_users()
 
-        self.private_endpoints: List[PrivateEndpoint] = self._private_endpoints()
+        self.private_endpoints: list[PrivateEndpoint] = self._private_endpoints()
 
         self._outputs()
 
@@ -232,7 +230,7 @@ class StorageAccount(pulumi.ComponentResource):
                     )
         return endpoints
 
-    def _storage_containers(self) -> List[storage.BlobContainer]:
+    def _storage_containers(self) -> list[storage.BlobContainer]:
         return (
             (
                 [
@@ -256,7 +254,7 @@ class StorageAccount(pulumi.ComponentResource):
             else []
         )
 
-    def _storage_tables(self) -> List[storage.Table]:
+    def _storage_tables(self) -> list[storage.Table]:
         return (
             (
                 [
@@ -279,7 +277,7 @@ class StorageAccount(pulumi.ComponentResource):
             else []
         )
 
-    def _storage_queues(self) -> List[storage.Queue]:
+    def _storage_queues(self) -> list[storage.Queue]:
         return (
             [
                 (
@@ -351,7 +349,7 @@ class StorageAccount(pulumi.ComponentResource):
             opts=self._opts,
         )
 
-    def _sftp_users(self) -> List[storage.LocalUser]:
+    def _sftp_users(self) -> list[storage.LocalUser]:
         users = []
         existing_containers: set[str] = set(self.config.storage_containers or [])
 
@@ -399,7 +397,7 @@ class StorageAccount(pulumi.ComponentResource):
 
     def get_endpoints(
         self, suffix: str | None = None
-    ) -> pulumi.Output[Dict[str, Any]] | dict[str, pulumi.Output[Any]]:
+    ) -> pulumi.Output[dict[str, Any]] | dict[str, pulumi.Output[Any]]:
         if (
             self.config.routing.routing_preference is storage.RoutingChoice.MICROSOFT_ROUTING
             and self.config.routing.publish_microsoft_endpoints

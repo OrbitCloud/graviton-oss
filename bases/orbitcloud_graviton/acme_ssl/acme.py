@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pulumi
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -33,11 +31,11 @@ from orbitcloud_graviton.pulumi_lib.types import email_random_plus
 
 class AcmeSslConfig(BaseModel):
     dns_zone_id: AzureIdRef
-    dns_zone_resource_group_name: Optional[str] = None
+    dns_zone_resource_group_name: str | None = None
     dns_zone_name: str
 
     acme_account_email: EmailStr
-    keyvault_id: Optional[AzureIdRef] = None
+    keyvault_id: AzureIdRef | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -51,7 +49,7 @@ class AcmeSsl(ComponentResource):
         self,
         stack: AzureStack,
         config: AcmeSslConfig,
-        opts: Optional[ResourceOptions] = None,
+        opts: ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: AcmeSslConfig = config

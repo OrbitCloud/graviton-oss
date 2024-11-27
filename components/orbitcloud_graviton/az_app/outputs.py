@@ -1,5 +1,4 @@
 from ipaddress import IPv4Address
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -12,8 +11,8 @@ class ContainerAppEnvOutput(BaseModel):
     name: str
     static_ip: IPv4Address
     custom_domain_verification_id: str
-    dns_suffix: Optional[DomainName] = None
-    certificates: Optional[dict] = None
+    dns_suffix: DomainName | None = None
+    certificates: dict | None = None
 
     @property
     def resource_group_name(self) -> str:

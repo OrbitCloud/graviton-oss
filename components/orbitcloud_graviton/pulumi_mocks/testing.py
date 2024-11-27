@@ -21,7 +21,7 @@ def test_something():
 
 import json
 from os import environ
-from typing import Any, Dict, Optional
+from typing import Any
 
 import pulumi
 
@@ -36,19 +36,19 @@ class MyPulumiMocks(pulumi.runtime.Mocks):
         return {}
 
 
-def mock_pulumi_settings(settings: Dict) -> None:
+def mock_pulumi_settings(settings: dict) -> None:
     """Mock Pulumi settings.
 
     https://github.com/pulumi/pulumi/issues/4472#issuecomment-1015818376
     """
-    pulumi_settings: Dict[str, str] = {}
+    pulumi_settings: dict[str, str] = {}
     for key, val in settings.items():
         pulumi_settings[key] = val
     pulumi_settings_str = json.dumps(pulumi_settings)
     environ["PULUMI_CONFIG"] = pulumi_settings_str
 
 
-def set_mocks(settings: Optional[Dict] = None) -> None:
+def set_mocks(settings: dict | None = None) -> None:
     """Set up Pulumi mocks.
 
     Args:

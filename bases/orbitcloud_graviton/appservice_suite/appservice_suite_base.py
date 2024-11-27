@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pulumi
 from pulumi_azure_native import resources
 
@@ -10,9 +8,9 @@ from orbitcloud_graviton.pulumi_lib import AzureStack, PulumiConfig, get_azure_s
 
 
 class AppserviceSuiteConfig(PulumiConfig):
-    include_log_workspace: Optional[bool] = True
-    log_workspace_ref_id: Optional[str] = None
-    include_keyvault: Optional[bool] = True
+    include_log_workspace: bool | None = True
+    log_workspace_ref_id: str | None = None
+    include_keyvault: bool | None = True
 
 
 def deploy() -> None:

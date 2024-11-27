@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 import pulumi
 from pulumi_azure_native import insights, operationalinsights
 from pydantic import Field
@@ -31,15 +29,15 @@ class AppZoneBaseConfig(PulumiConfig):
     keyvault: KeyVaultConfig = Field(
         default=KeyVaultConfig(), title="Key Vault Config", description="Key Vault Configuration"
     )
-    event_hub: Optional[NamespaceConfig] = None
+    event_hub: NamespaceConfig | None = None
 
-    has_container_registry: Optional[bool] = False
-    container_registry: Optional[ContainerRegistryConfig] = ContainerRegistryConfig()
+    has_container_registry: bool | None = False
+    container_registry: ContainerRegistryConfig | None = ContainerRegistryConfig()
 
-    app_insights: Optional[AppInsightsConfig] = None
-    storage_accounts: Optional[List[StorageAccountConfig]] = None
+    app_insights: AppInsightsConfig | None = None
+    storage_accounts: list[StorageAccountConfig] | None = None
 
-    workload_identities: Optional[List[WorkloadIdentityConfig]] = None
+    workload_identities: list[WorkloadIdentityConfig] | None = None
 
 
 def deploy() -> None:

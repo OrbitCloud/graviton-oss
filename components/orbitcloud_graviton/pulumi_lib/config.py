@@ -1,13 +1,9 @@
 import inspect
+from collections.abc import Collection
 from typing import (
     Annotated,
     Any,
-    Collection,
-    Dict,
     Literal,
-    Optional,
-    Tuple,
-    Type,
     get_args,
     get_origin,
 )
@@ -23,7 +19,7 @@ from pydantic_settings import (
 
 class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
     def config_path(
-        self, field: FieldInfo, field_name: str, bag: Optional[str] = ""
+        self, field: FieldInfo, field_name: str, bag: str | None = ""
     ) -> tuple[pulumi.Config, str]:
         alias: str = (
             field.validation_alias if isinstance(field.validation_alias, str) else field_name
@@ -35,9 +31,9 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
         config = pulumi.Config(name=bag)
         return config, alias
 
-    def get_field_type(self, field_type: Type) -> Type:
+    def get_field_type(self, field_type: type) -> type:
         # Unwrap Optional[]
-        field_type = get_args(field_type)[0] if field_type == Optional[field_type] else field_type
+        field_type = get_args(field_type)[0] if field_type == field_type | None else field_type
 
         # Unwrap Annotated[]
         field_type = get_args(field_type)[0] if get_origin(field_type) is Annotated else field_type
@@ -62,7 +58,7 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
         self,
         field: FieldInfo,
         field_name: str,
-        config_bag: Optional[str] = None,
+        config_bag: str | None = None,
     ) -> tuple[Any | None, str, Literal[True]] | tuple[str | None, str, Literal[False]]:
         config, alias = self.config_path(field, field_name, config_bag)
         field_type = self.get_field_type(field.annotation) if field.annotation else None
@@ -72,7 +68,7 @@ class PulumiConfigSettingsSource(PydanticBaseSettingsSource):
 
         return config.get(alias), field_name, False
 
-    def __call__(self) -> Dict[str, Any]:
+    def __call__(self) -> dict[str, Any]:
         pulumi_config_bag = getattr(self.settings_cls.model_config, "pulumi_config_bag", None)
 
         values = {}
@@ -94,12 +90,12 @@ class PulumiConfig(BaseSettings, extra="forbid"):
     @classmethod
     def settings_customise_sources(
         cls,
-        settings_cls: Type[BaseSettings],
+        settings_cls: type[BaseSettings],
         init_settings: PydanticBaseSettingsSource,
         env_settings: PydanticBaseSettingsSource,
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
-    ) -> Tuple[PydanticBaseSettingsSource, ...]:
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
         return (
             init_settings,
             PulumiConfigSettingsSource(settings_cls=settings_cls),

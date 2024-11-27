@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from ipaddress import IPv4Address
-from typing import Any, List, Optional, Sequence, Union
+from typing import Any
 
 import pulumi
 from pulumi_azure_native import Provider, network
@@ -14,9 +15,9 @@ from .types import ARecord, CnameRecord, MxRecord, NsRecord, Record, TxtRecord
 
 class DnsZoneConfig(BaseModel):
     name: DomainName
-    records: Optional[List[Record]] = None
+    records: list[Record] | None = None
 
-    parent_zone_id: Optional[AzureIdRef] = Field(
+    parent_zone_id: AzureIdRef | None = Field(
         default=None, title="ID of a parent zone in which NS records will be created"
     )
 
@@ -28,8 +29,8 @@ class DnsZone(pulumi.ComponentResource):
         self,
         stack: AzureStack,
         config: DnsZoneConfig,
-        dns_zone_id: Optional[Union[str, pulumi.Output[str]]] = None,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        dns_zone_id: str | pulumi.Output[str] | None = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
         self.config: DnsZoneConfig = config
@@ -44,9 +45,9 @@ class DnsZone(pulumi.ComponentResource):
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
 
-        self.dns_zone_id: Optional[str | pulumi.Output[str]] = dns_zone_id
+        self.dns_zone_id: str | pulumi.Output[str] | None = dns_zone_id
         self.zone: network.Zone = self._zone()
-        self.records: List[network.RecordSet] = self._records()
+        self.records: list[network.RecordSet] = self._records()
         self.parent_zone_ns_records = self._parent_zone_ns_records()
 
         self._outputs()
@@ -74,7 +75,7 @@ class DnsZone(pulumi.ComponentResource):
             opts=self._opts,
         )
 
-    def _records(self) -> List[network.RecordSet]:
+    def _records(self) -> list[network.RecordSet]:
         if self.config.records:
             return [self.record(record) for record in self.config.records]
         return []
@@ -123,7 +124,7 @@ class DnsZone(pulumi.ComponentResource):
 
         raise NotImplementedError(f"Record type {record.record_type} not implemented")
 
-    def _parent_zone_ns_records(self) -> List[network.RecordSet] | None:
+    def _parent_zone_ns_records(self) -> list[network.RecordSet] | None:
         if self.config.parent_zone_id:
             parent_zone = AzureResourceId(str(self.config.parent_zone_id))
             if not parent_zone.resource_name:

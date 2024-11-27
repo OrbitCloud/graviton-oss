@@ -1,5 +1,5 @@
 from ipaddress import IPv4Network
-from typing import List, Literal, Optional, Union
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -11,24 +11,14 @@ from .helpers import is_service_tag
 class NsgRuleConfig(BaseModel):
     name: str
     action: Literal["Allow", "Deny"] = "Allow"
-    destination_addresses: Union[
-        StrRef,
-        IPv4Network,
-        str,
-        List[Union[IPv4Network, StrRef]],
-    ] = "*"
+    destination_addresses: StrRef | IPv4Network | str | list[IPv4Network | StrRef] = "*"
     destination_port_range: str = "*"
-    source_addresses: Union[
-        StrRef,
-        IPv4Network,
-        str,
-        List[Union[IPv4Network, StrRef]],
-    ] = "*"
+    source_addresses: StrRef | IPv4Network | str | list[IPv4Network | StrRef] = "*"
     source_port_range: str = "*"
     direction: Literal["Inbound", "Outbound"] = "Inbound"
-    priority: Optional[int] = None
+    priority: int | None = None
     protocol: Literal["*", "TCP", "UDP", "ICMP"] = "TCP"
-    description: Optional[str] = None
+    description: str | None = None
 
     @model_validator(mode="after")
     def validate_addresses(m: "NsgRuleConfig") -> "NsgRuleConfig":

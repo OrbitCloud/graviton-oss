@@ -1,13 +1,13 @@
 """Helper functions for creating Azure related resources"""
 
 import re
-from typing import Any, Dict
+from typing import Any
 
 from ._prefixes import RESOURCE_PREFIXES
 from .helpers import location_abbr
 
 
-def get_prefix(resource_type) -> Dict[str, Any]:
+def get_prefix(resource_type) -> dict[str, Any]:
     """Return a resource prefix for a given resource type"""
     # Extract the base module path without the version
     base_module_path: str = re.sub(r"\.v\d{8}(preview)?", "", resource_type.__module__)
@@ -25,7 +25,7 @@ def resource_namer(
     resource_type, workload_name: str, env, location, instance_number: str = "01"
 ) -> str:
     """Return a resource name for a given resource type"""
-    opts: Dict[str, Any] = get_prefix(resource_type=resource_type)
+    opts: dict[str, Any] = get_prefix(resource_type=resource_type)
     prefix: str | Any = opts.get("prefix")
     location_short: str = location_abbr(location=location)
     separator: str = "-"

@@ -24,7 +24,7 @@ def az_privatednszonegroup(
         # Determine if Private DNS Zone is an object or a string (resource ID)
     if isinstance(
         private_dns_zone,
-        (PrivateZone, AwaitableGetPrivateZoneResult),
+        PrivateZone | AwaitableGetPrivateZoneResult,
     ):
         private_dns_zone_id = private_dns_zone.id
     elif isinstance(private_dns_zone, str):

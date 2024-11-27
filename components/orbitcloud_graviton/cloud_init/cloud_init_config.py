@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pulumi
 from pydantic import BaseModel, ConfigDict
 
@@ -11,7 +9,7 @@ class CloudInitConfig(BaseModel):
     str_reference: StrRef
     dict_reference: DictRef
 
-    log_workspace_id: Optional[AzureIdRef] = None
+    log_workspace_id: AzureIdRef | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -20,7 +18,7 @@ class CloudInit:
     def __init__(
         self,
         config: CloudInitConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.config: CloudInitConfig = config
         self.opts = opts

@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 import pulumi
 from pydantic import Field
@@ -18,11 +18,11 @@ from orbitcloud_graviton.pulumi_lib.stack_schema import generate_stack_schema
 
 
 class AzureEnvironmentConfig(PulumiConfig):
-    esc_env_name: Optional[str] = None
-    imports: Optional[list[str]] = None
-    pulumi_config: Optional[dict[str, Any]] = Field(default_factory=dict)
-    environment_variables: Optional[dict[str, Any]] = Field(default_factory=dict)
-    azure_permissions: Optional[list[IamAssignmentConfig]] = None
+    esc_env_name: str | None = None
+    imports: list[str] | None = None
+    pulumi_config: dict[str, Any] | None = Field(default_factory=dict)
+    environment_variables: dict[str, Any] | None = Field(default_factory=dict)
+    azure_permissions: list[IamAssignmentConfig] | None = None
     allowed_in_childs: bool = False
 
 

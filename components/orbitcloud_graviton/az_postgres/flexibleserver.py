@@ -1,3 +1,5 @@
+"""Azure Postgres Flexible Server Component"""
+
 from typing import Optional
 from uuid import UUID
 
@@ -15,11 +17,22 @@ from orbitcloud_graviton.pulumi_lib import AzureStack, EntraStack
 
 
 class PostgresAuthConfig(BaseModel):
-    admin_username: str = "cloudsa"
-    admin_password: Optional[str] = None
+    """Azure Postgres Authentication Configuration"""
+
+    admin_username: str = Field(default="cloudsa", min_length=1, max_length=63)
+    """ Default admin username for the Postgres Flexible Server. """
+
+    admin_password: str | None = None
+    """ Admin password for the Postgres Flexible Server.
+
+    If not provided, a random password will be generated."""
 
     entra_auth: postgres.ActiveDirectoryAuthEnum = postgres.ActiveDirectoryAuthEnum.ENABLED
+    """Something about Active Directory"""
+
     entra_admins: Optional[list[UUID]] = None
+    """List of Active Directory Object IDs to be added as admins to the Postgres Flexible Server."""
+
     postgres_auth: postgres.PasswordAuthEnum = postgres.PasswordAuthEnum.ENABLED
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
@@ -96,8 +109,14 @@ class PostgresNetworkConfig(BaseModel):
 
 
 class PostgresFlexibleServerConfig(BaseModel):
-    server_name: Optional[str] = None
+    """Azure Postgres Flexible Server Configuration"""
+
+    server_name: str | None = None
+    """ Name of the Postgres Flexible Server. If not provided, a name will be generated. """
+
     server_version: postgres.ServerVersion = postgres.ServerVersion.SERVER_VERSION_16
+    """ Version of the Postgres Flexible Server. """
+
     authentication: PostgresAuthConfig = PostgresAuthConfig()
     network: Optional[PostgresNetworkConfig] = None
     sku: PostgresSku = PostgresSku()

@@ -28,7 +28,11 @@ class AzureEnvironmentPulumiConfig(BaseModel):
 
 
 class AzureStack(PulumiConfig):
+    """Configuration model for Azure stacks"""
+
     subscription_id: UUID = Field(..., validation_alias="azure-native:subscriptionId")
+    """ Azure subscription ID """
+
     fq_subscription_id: str | None = None
     tenant_id: UUID = Field(..., validation_alias="azure-native:tenantId")
     location: str = Field(..., validation_alias="azure-native:location")
@@ -103,6 +107,10 @@ class AzureStack(PulumiConfig):
 
 @lru_cache
 def get_azure_stack() -> AzureStack:
+    """Returns a validated AzureStack configuration model (from Pulumi config)
+
+    Exports the stack configuration to Pulumi outputs unless `skip_exports` is False
+    """
     stack: AzureStack = AzureStack.model_validate({})
     if not stack.skip_exports:
         stack.export(

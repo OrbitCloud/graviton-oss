@@ -1,5 +1,5 @@
 from pathlib import PosixPath
-from typing import List, Literal, Optional, Self
+from typing import Literal, Self
 
 import pulumi
 import pulumi_azuread as azuread
@@ -26,9 +26,9 @@ class ClientCredentialsConfig(BaseModel):
 class FederatedCredentialsConfig(BaseModel):
     name: str | None = None
     issuer: str
-    audiences: List[str]
+    audiences: list[str]
     subject: str
-    description: Optional[str] = None
+    description: str | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -81,7 +81,7 @@ class EntraAppGraphApiPermissions(BaseModel):
     scopes: list[str]
     resource_app_id: str = "00000003-0000-0000-c000-000000000000"
 
-    def resource_args(self) -> List[azuread.ApplicationRequiredResourceAccessResourceAccessArgs]:
+    def resource_args(self) -> list[azuread.ApplicationRequiredResourceAccessResourceAccessArgs]:
         graph_permissions: dict[str, dict[str, str]] = {
             "GroupMember.Read.All": {
                 "id": "bc024368-1153-4739-b217-4326f2e966d0",
@@ -94,7 +94,7 @@ class EntraAppGraphApiPermissions(BaseModel):
         }
 
         try:
-            resources: List[azuread.ApplicationRequiredResourceAccessResourceAccessArgs] = [
+            resources: list[azuread.ApplicationRequiredResourceAccessResourceAccessArgs] = [
                 azuread.ApplicationRequiredResourceAccessResourceAccessArgs(
                     id=graph_permissions[perm]["id"],
                     type=graph_permissions[perm]["type"],
@@ -110,14 +110,15 @@ class EntraAppGraphApiPermissions(BaseModel):
 
 
 class EntraAppAuthentication(BaseModel):
-    audience: Optional[
+    audience: (
         Literal[
             "AzureADMyOrg",
             "AzureADMultipleOrgs",
             "AzureADandPersonalMicrosoftAccount",
             "PersonalMicrosoftAccount",
         ]
-    ] = "AzureADMyOrg"
+        | None
+    ) = "AzureADMyOrg"
     identifier_uris: list[str] | None = None
     logout_url: str | None = None
     redirect_uris: list[str] | None = None
@@ -136,13 +137,13 @@ class EntraAppConfig(
     BaseModel,
 ):
     name: str
-    display_name: Optional[str] = None
-    client_credentials: Optional[List[ClientCredentialsConfig]] = Field(default_factory=list)
-    federated_credentials: Optional[List[FederatedCredentialsConfig]] = Field(default_factory=list)
-    owners: Optional[List[str]] = Field(default_factory=list)
+    display_name: str | None = None
+    client_credentials: list[ClientCredentialsConfig] | None = Field(default_factory=list)
+    federated_credentials: list[FederatedCredentialsConfig] | None = Field(default_factory=list)
+    owners: list[str] | None = Field(default_factory=list)
     authentication: EntraAppAuthentication = EntraAppAuthentication()
 
-    entra_roles: Optional[List[str]] = Field(default_factory=list)
+    entra_roles: list[str] | None = Field(default_factory=list)
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -153,7 +154,7 @@ class EntraApp(ComponentResource):
         stack: AzureStack,
         entra: EntraStack,
         config: EntraAppConfig,
-        opts: Optional[pulumi.ResourceOptions] = None,
+        opts: pulumi.ResourceOptions | None = None,
     ):
         self.stack: AzureStack = stack
         self.entra: EntraStack = entra
@@ -285,13 +286,13 @@ class EntraApp(ComponentResource):
             azuread.DirectoryRoleAssignment(
                 resource_name=f"entrarole-{fmt_name(role)}-{fmt_name(self.config.name)}-{self.stack.env}",
                 args=azuread.DirectoryRoleAssignmentArgs(
-                    principal_object_id=self.service_principal.id,
+                    principal_object_id=self.service_principal.object_id,
                     role_id=get_entra_role_id_by_name(role_name=role),
                 ),
                 opts=self._opts,
             )
 
-    def azure_permissions(self, assignments: List[IamAssignmentConfig]) -> Self:
+    def azure_permissions(self, assignments: list[IamAssignmentConfig]) -> Self:
         for perm in assignments:
             iam_assignment(
                 stack=self.stack,

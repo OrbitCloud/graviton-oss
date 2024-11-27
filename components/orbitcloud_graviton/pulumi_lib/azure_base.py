@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Any, Dict, Optional, Type
+from typing import Any
 from uuid import UUID
 
 import pulumi
@@ -17,7 +17,7 @@ class EntraEscApp(BaseModel):
     name: str
     app_client_id: UUID
     app_object_id: UUID
-    service_principal_id: UUID
+    service_principal_id: str
     service_principal_object_id: UUID
 
 
@@ -39,18 +39,18 @@ class AzureStack(PulumiConfig):
         title="Workload Name",
         description="The name of the workload, used for naming resources",
     )
-    tags: Optional[Dict[str, str]] = None
+    tags: dict[str, str] | None = None
 
     azure_environment: AzureEnvironmentPulumiConfig | None = None
 
-    skip_exports: Optional[bool] = False
-    exports_prefix: Optional[str] = None
+    skip_exports: bool | None = False
+    exports_prefix: str | None = None
 
-    resource_group_name: Optional[str] = None
-    resource_group_id: Optional[str] = None
-    _resource_group: Optional[resources.ResourceGroup] = None
+    resource_group_name: str | None = None
+    resource_group_id: str | None = None
+    _resource_group: resources.ResourceGroup | None = None
 
-    _providers: Optional[Dict[str, pulumi.ResourceOptions]] = None
+    _providers: dict[str, pulumi.ResourceOptions] | None = None
 
     @property
     def resource_group(self) -> resources.ResourceGroup:
@@ -60,7 +60,7 @@ class AzureStack(PulumiConfig):
         self._resource_group = resource_group(stack=self)
         return self._resource_group
 
-    def name_for(self, resource_type: Type, workload_name: Optional[str] = None) -> str:
+    def name_for(self, resource_type: type, workload_name: str | None = None) -> str:
         return resource_namer(
             resource_type=resource_type,
             workload_name=workload_name or self.workload_name,
@@ -69,7 +69,7 @@ class AzureStack(PulumiConfig):
         )
 
     def subscription_provider(
-        self, subscription_id: UUID, merge_opts: Optional[pulumi.ResourceOptions] = None
+        self, subscription_id: UUID, merge_opts: pulumi.ResourceOptions | None = None
     ) -> pulumi.ResourceOptions:
         if not self._providers:
             self._providers = {}
@@ -91,7 +91,7 @@ class AzureStack(PulumiConfig):
 
         return provider
 
-    def export(self, exports: Dict[str, Any], prefix=None) -> None:
+    def export(self, exports: dict[str, Any], prefix=None) -> None:
         if not self.skip_exports:
             pre: str | None = prefix or self.exports_prefix
             for k, v in exports.items():

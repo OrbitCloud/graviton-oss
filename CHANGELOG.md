@@ -1,3 +1,11 @@
+## v0.73.1 (2024-11-27)
+
+### Fix
+
+- **EntraApp**: Update stack outputs with service principal id and object_id
+- **EntraApp**: Use service principal object_id for entra role assignments
+- **EventHub**: Only create network rule set when some subnets or ips are configured
+
 ## v0.73.0 (2024-11-27)
 
 ### Feat

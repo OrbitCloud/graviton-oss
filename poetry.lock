@@ -1934,13 +1934,13 @@ semver = ">=2.8.1"
 
 [[package]]
 name = "pulumiverse-acme"
-version = "0.6.0"
+version = "0.6.1"
 description = "A Pulumi package for creating and managing ACME cloud resources."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pulumiverse_acme-0.6.0-py3-none-any.whl", hash = "sha256:e2b81aefe44b6808805e652545db36205f4315766161ec72f0acb24a308855d7"},
-    {file = "pulumiverse_acme-0.6.0.tar.gz", hash = "sha256:86f6fb9565570b7d2195705537b76ee2f9869cd0f41297c3819a521143fda2b5"},
+    {file = "pulumiverse_acme-0.6.1-py3-none-any.whl", hash = "sha256:817de0fe1b5a19433a764a3c454e67737b0e05bc480eed3bca88775a280a675d"},
+    {file = "pulumiverse_acme-0.6.1.tar.gz", hash = "sha256:cd0b92ea713a5d89c9ee524e448120e0762d5319dc18b05c74f833450cd321a0"},
 ]
 
 [package.dependencies]

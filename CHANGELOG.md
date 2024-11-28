@@ -1,3 +1,9 @@
+## v0.74.0 (2024-11-28)
+
+### Feat
+
+- **az_acr**: Support image retention policy configurations
+
 ## v0.73.1 (2024-11-27)
 
 ### Fix

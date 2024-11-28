@@ -25,6 +25,7 @@ class ContainerRegistryConfig(BaseModel):
         description="The SKU of the Container Registry. Default is Premium.",
         examples=["Standard", "Premium"],
     )
+    retention_policy_days: int | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -38,25 +39,37 @@ def container_registry(
 
     cr = containerregistry.Registry(
         resource_name=config.name if config.name else stack.name_for(containerregistry.Registry),
-        registry_name=config.name if config.name else stack.name_for(containerregistry.Registry),
-        admin_user_enabled=config.admin_user_enabled,
-        location=stack.location,
-        resource_group_name=stack.resource_group.name,
-        network_rule_set=containerregistry.NetworkRuleSetArgs(
-            default_action="Deny",
-            # For all ip_allow_list, add ip address to network rules
-            ip_rules=[
-                containerregistry.IPRuleArgs(
-                    action="Allow",
-                    i_p_address_or_range=str(ip),
+        args=containerregistry.RegistryArgs(
+            registry_name=config.name
+            if config.name
+            else stack.name_for(containerregistry.Registry),
+            admin_user_enabled=config.admin_user_enabled,
+            location=stack.location,
+            resource_group_name=stack.resource_group.name,
+            network_rule_set=containerregistry.NetworkRuleSetArgs(
+                default_action="Deny",
+                # For all ip_allow_list, add ip address to network rules
+                ip_rules=[
+                    containerregistry.IPRuleArgs(
+                        action="Allow",
+                        i_p_address_or_range=str(ip),
+                    )
+                    for ip in config.ip_allow_list
+                ],
+            )
+            if config.ip_allow_list
+            else None,
+            sku=containerregistry.SkuArgs(
+                name=config.sku if config.sku else "Premium",
+            ),
+            policies=containerregistry.PoliciesArgs(
+                retention_policy=containerregistry.RetentionPolicyArgs(
+                    days=config.retention_policy_days,
+                    status=containerregistry.PolicyStatus.ENABLED,
                 )
-                for ip in config.ip_allow_list
-            ],
-        )
-        if config.ip_allow_list
-        else None,
-        sku=containerregistry.SkuArgs(
-            name=config.sku if config.sku else "Premium",
+            )
+            if config.retention_policy_days
+            else None,
         ),
         opts=opts,
     )

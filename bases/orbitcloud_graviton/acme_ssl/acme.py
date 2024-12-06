@@ -1,3 +1,5 @@
+import os
+
 import pulumi
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -30,10 +32,7 @@ from orbitcloud_graviton.pulumi_lib.types import email_random_plus
 
 
 class AcmeSslConfig(BaseModel):
-    dns_zone_id: AzureIdRef
-    dns_zone_resource_group_name: str | None = None
     dns_zone_name: str
-
     acme_account_email: EmailStr
     keyvault_id: AzureIdRef | None = None
 
@@ -78,14 +77,24 @@ class AcmeSsl(ComponentResource):
 
         self._outputs()
 
-    def _dns_challenge_args(self) -> dict:
-        return {
+    def _dns_challenge_args(self) -> dict[str, str | Output[str]]:
+        _args: dict[str, str | Output[str]] = {
             "AZURE_TENANT_ID": str(self.stack.tenant_id),
             "AZURE_SUBSCRIPTION_ID": str(self.stack.subscription_id),
             "AZURE_ZONE_NAME": self.config.dns_zone_name,
-            "AZURE_RESOURCE_GROUP": self.config.dns_zone_resource_group_name
-            or self.stack.resource_group.name,
         }
+
+        # When Pulumi ESC OIDC is being used, we need to pass the OIDC token and client ID
+        if os.getenv(key="ARM_USE_OIDC"):
+            _oidc_token: str | None = os.getenv(key="ARM_OIDC_TOKEN")
+            _client_id: str | None = os.getenv(key="ARM_CLIENT_ID")
+
+            if _oidc_token and _client_id:
+                _args["AZURE_CLIENT_ID"] = _client_id
+                _args["AZURE_OIDC_TOKEN"] = _oidc_token
+                _args["AZURE_AUTH_METHOD"] = "oidc"
+
+        return _args
 
     def _pfx_pass(self) -> pulumi.Output[str]:
         return RandomPassword(

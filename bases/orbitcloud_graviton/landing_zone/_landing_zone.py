@@ -77,7 +77,7 @@ def deploy_landing_zone() -> None:
     #   Dns Zone
     ##########################################
     if config.dns_zone:
-        dns = DnsZone(
+        DnsZone(
             stack=stack,
             config=config.dns_zone,
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
@@ -87,7 +87,6 @@ def deploy_landing_zone() -> None:
             AcmeSsl(
                 stack=stack,
                 config=AcmeSslConfig(
-                    dns_zone_id=dns.zone.id,
                     dns_zone_name=config.dns_zone.name,
                     keyvault_id=kv.vault.id if kv else None,
                     acme_account_email="admin@orbit.is",

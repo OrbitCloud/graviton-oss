@@ -1,3 +1,13 @@
+## v0.75.0 (2024-12-11)
+
+### Feat
+
+- **AcmeSsl**: Support OIDC token auth for Azure DNS challenge
+
+### Fix
+
+- **StorageAccount**: Default hierarchial namespace parameter to None
+
 ## v0.74.0 (2024-11-28)
 
 ### Feat

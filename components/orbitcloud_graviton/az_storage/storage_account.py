@@ -73,10 +73,10 @@ class StorageAccountConfig(BaseModel):
     smb_secure_defaults: bool | None = True
     nfs_v3: bool | None = False
     large_file_shares: storage.LargeFileSharesState | None = storage.LargeFileSharesState.ENABLED
-    hierarchical_namespace: bool | None = False
+    hierarchical_namespace: bool | None = None
 
     # SFTP options
-    sftp_enabled: bool | None = False
+    sftp_enabled: bool | None = None
     sftp_users: list[SftpUserConfig] | None = None
 
     # Networking

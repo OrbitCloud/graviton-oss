@@ -296,7 +296,7 @@ class VirtualNetworkGateway(ComponentResource):
     def _vnet_gateway(self) -> network.VirtualNetworkGateway:
         ip_configurations = [
             network.VirtualNetworkGatewayIPConfigurationArgs(
-                name=f"ipconfig{i+1}",
+                name=f"ipconfig{i + 1}",
                 public_ip_address=network.SubResourceArgs(id=public_ip.id),
                 subnet=network.SubResourceArgs(id=self.config.subnet),
             )

@@ -1,3 +1,9 @@
+## v0.76.0 (2025-01-29)
+
+### Feat
+
+- **EntraApp**: Add possibility to configure custom oauth2 scopes (#42)
+
 ## v0.75.0 (2024-12-11)
 
 ### Feat

@@ -109,6 +109,37 @@ class EntraAppGraphApiPermissions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
+class OAuth2Scope(BaseModel):
+    name: str
+    user_consent_description: str | None = None
+    user_consent_display_name: str | None = None
+    admin_consent_display_name: str
+    admin_consent_description: str
+    consent: Literal["User", "Admin"] = "User"
+    enabled: bool = True
+
+    def _args(
+        self, opts: pulumi.ResourceOptions | None = None
+    ) -> azuread.ApplicationApiOauth2PermissionScopeArgs:
+        return azuread.ApplicationApiOauth2PermissionScopeArgs(
+            id=RandomUuid(
+                resource_name=f"app-scope-{fmt_name(self.name)}",
+                args=RandomUuidArgs(
+                    keepers={"name": self.name},
+                ),
+                opts=opts,
+            ).result,
+            value=self.name,
+            admin_consent_display_name=self.admin_consent_display_name,
+            admin_consent_description=self.admin_consent_description,
+            user_consent_display_name=self.user_consent_display_name,
+            user_consent_description=self.user_consent_description,
+            enabled=self.enabled,
+        )
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
 class EntraAppAuthentication(BaseModel):
     audience: (
         Literal[
@@ -129,6 +160,8 @@ class EntraAppAuthentication(BaseModel):
     ) = None
     app_roles: list[EntraAppAppRole] | None = None
     assignment_required: bool = False
+    access_token_version: int = 2
+    oauth2_scopes: list[OAuth2Scope] | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -222,6 +255,14 @@ class EntraApp(ComponentResource):
                     for role in self.config.authentication.app_roles or []
                 ],
                 group_membership_claims=self.config.authentication.group_membership_claims,
+                api=azuread.ApplicationApiArgs(
+                    requested_access_token_version=self.config.authentication.access_token_version,
+                    oauth2_permission_scopes=[
+                        scope._args() for scope in self.config.authentication.oauth2_scopes
+                    ]
+                    if self.config.authentication.oauth2_scopes
+                    else None,
+                ),
             ),
             opts=self._opts,
         )

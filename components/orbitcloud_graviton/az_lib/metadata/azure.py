@@ -327,6 +327,31 @@ _storage: dict[str, Any] = {
 }
 
 """
+Azure SQL
+"""
+_sql: dict[str, Any] = {
+    "Database": {
+        "naming": {
+            "prefix": "sqldb",
+        },
+        "namespace": "Microsoft.Sql/servers/databases",
+        "resource_type": "servers/databases",
+        "private_dns_zone": "privatelink.database.windows.net",
+        "public_dns_zone": "database.windows.net",
+    },
+    "Server": {
+        "naming": {
+            "prefix": "sql",
+        },
+        "namespace": "Microsoft.Sql/servers",
+        "sub_resource_name": "sqlServer",
+        "private_dns_zone": "privatelink.database.windows.net",
+        "public_dns_zone": "database.windows.net",
+    },
+}
+
+
+"""
 Azure App Service
 """
 _web: dict[str, Any] = {
@@ -391,7 +416,10 @@ _azure_resource_meta: dict[str, Any] = {
             "namespace": "Microsoft.Resources",
             "resources": _resources,
         },
-        "sql": {},
+        "sql": {
+            "namespace": "Microsoft.Sql",
+            "resources": _sql,
+        },
         "search": {
             "namespace": "Microsoft.Search",
             "resources": _search,

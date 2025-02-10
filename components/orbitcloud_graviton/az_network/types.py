@@ -43,6 +43,21 @@ PublicIPv4Network = Annotated[
 ]
 
 
+class PublicIpv4FirewallRule(BaseModel):
+    name: str
+    cidr: PublicIPv4Network
+
+    @property
+    def first_ip(self) -> str:
+        return str(self.cidr[0])
+
+    @property
+    def last_ip(self) -> str:
+        return str(self.cidr[-1])
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
 class ARecord(BaseModel):
     relative_name: str = Field(..., pattern=r"^[a-zA-Z0-9-*]+(\.[a-zA-Z0-9-*]+)?$")
     ttl: int = Field(default=300, ge=60)

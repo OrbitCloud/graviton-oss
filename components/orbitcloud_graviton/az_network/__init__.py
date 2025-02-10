@@ -7,7 +7,7 @@ from .private_dns_resolver import PrivateDnsResolver, PrivateDnsResolverConfig
 from .private_dns_zone import PrivateDnsZone, PrivateDNSZoneConfig
 from .private_endpoint import PrivateEndpoint, PrivateEndpointConfig
 from .public_ip import PublicIp, PublicIpConfig
-from .types import PrivateIPv4Network, PublicIPv4Network
+from .types import PrivateIPv4Network, PublicIpv4FirewallRule, PublicIPv4Network
 from .vnet import SubnetConfig, Vnet, VnetConfig
 from .vpn import VirtualNetworkGateway, VirtualNetworkGatewayConfig
 from .vwan import VirtualWan, VirtualWanConfig
@@ -44,4 +44,5 @@ __all__ = [
     "PrivateDnsResolver",
     "PublicIpConfig",
     "PublicIp",
+    "PublicIpv4FirewallRule",
 ]

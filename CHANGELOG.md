@@ -1,3 +1,12 @@
+## v0.77.0 (2025-02-10)
+
+### Feat
+
+- **azuresql**: Add base for deploying Azure SQL workloads
+- **az_sql**: Add Azure SQL servers, databases & elastic pools
+- **az_iam**: Support creation of user assigned identities
+- **az_network**: Add PublicIpv4FirewallRule datatype
+
 ## v0.76.0 (2025-01-29)
 
 ### Feat

@@ -67,7 +67,7 @@
         aiohttp                  = "^3.11"
         azure-mgmt-authorization = "^4.0.0"
         azure-mgmt-network       = "^28.0"
-        cryptography             = "^44.0.0"
+        cryptography             = "^44.0.1"
         jinja2                   = "^3.1.4"
         pulumi                   = "^3.138"
         pulumi-azure-native      = "^2.71"

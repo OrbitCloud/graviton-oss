@@ -17,18 +17,37 @@ class CustomDomainConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
+class AdditionalTcpIngress(BaseModel):
+    target_port: int
+    exposed_port: int | None = None
+    external: bool = False
+
+    def args(self) -> app.IngressPortMappingArgs:
+        return app.IngressPortMappingArgs(
+            target_port=self.target_port,
+            exposed_port=self.exposed_port,
+            external=self.external,
+        )
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
 class HttpIngressConfig(BaseModel):
     protocol: Literal["http"]
     client_certificate_mode: app.IngressClientCertificateMode = (
         app.IngressClientCertificateMode.IGNORE
     )
-    https_only: bool | None = True
-    external: bool | None = False
-    custom_domains: list[CustomDomainConfig] | None = None
-    ip_allow_list: list[PrivateIPv4Network | PublicIPv4Network | StrRef] | None = None
+
     target_port: int
-    sticky_sessions: app.Affinity | None = app.Affinity.NONE
+    external: bool | None = False
+    ip_allow_list: list[PrivateIPv4Network | PublicIPv4Network | StrRef] | None = None
+
+    additional_tcp_ingress: list[AdditionalTcpIngress] | None = None
+
+    custom_domains: list[CustomDomainConfig] | None = None
+    https_only: bool | None = True
     cors: AppCorsConfig | None = None
+    sticky_sessions: app.Affinity | None = app.Affinity.NONE
 
     def args(self) -> app.IngressArgs:
         return app.IngressArgs(
@@ -61,6 +80,9 @@ class HttpIngressConfig(BaseModel):
                 for ip in self.ip_allow_list or []
             ],
             cors_policy=self.cors.cors_policy_args() if self.cors else None,
+            additional_port_mappings=[
+                port_mapping.args() for port_mapping in self.additional_tcp_ingress or []
+            ],
         )
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
@@ -71,6 +93,7 @@ class TcpIngressConfig(BaseModel):
     target_port: int
     exposed_port: int | None = None
     external: bool | None = False
+    additional_tcp_ingress: list[AdditionalTcpIngress] | None = None
     custom_domains: list[CustomDomainConfig] | None = None
     ip_allow_list: list[PrivateIPv4Network | PublicIPv4Network | StrRef] | None = Field(
         default_factory=list
@@ -97,6 +120,9 @@ class TcpIngressConfig(BaseModel):
                     ip_address_range=str(object=ip),
                 )
                 for ip in self.ip_allow_list or []
+            ],
+            additional_port_mappings=[
+                port_mapping.args() for port_mapping in self.additional_tcp_ingress or []
             ],
         )
 

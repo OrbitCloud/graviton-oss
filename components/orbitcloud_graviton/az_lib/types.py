@@ -126,6 +126,9 @@ known_stacks: dict[str, pulumi.StackReference] = {}
 
 
 def get_stack_output(ref):
+    if isinstance(ref, pulumi.Output):
+        return ref if ref.is_known() else ref.apply(lambda x: x)
+
     if not ref.startswith("stack://"):
         raise ValueError(f"{ref} is not a valid stack reference")
 

@@ -395,9 +395,7 @@ class StorageAccount(pulumi.ComponentResource):
                     users.append(sftp_user)
         return users
 
-    def get_endpoints(
-        self, suffix: str | None = None
-    ) -> pulumi.Output[dict[str, Any]] | dict[str, pulumi.Output[Any]]:
+    def get_endpoints(self, suffix: str | None = None) -> dict[str, pulumi.Output[Any]]:
         if (
             self.config.routing.routing_preference is storage.RoutingChoice.MICROSOFT_ROUTING
             and self.config.routing.publish_microsoft_endpoints

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import pulumi
@@ -8,25 +9,27 @@ from pulumi_azure_native.app.v20231102preview import (
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_acr.outputs import AdminUserEnabledRegistryOutput
-from orbitcloud_graviton.az_app.scaling import ContainerAppScaleConfig
-from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
+from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.pulumi_lib import AzureStack
 
-from ._app_schema import (
-    ContainerResourcesConfig,
-)
+from ._app_schema import ContainerResourcesConfig
 from .ingress import HttpIngressConfig, TcpIngressConfig
 from .job_triggers import JobEventTrigger, JobManualTrigger, JobScheduledTrigger
 from .outputs import ContainerAppEnvOutput
 from .probes import ContainerProbeConfig
 from .resiliency import AppResiliencyConfig, app_resiliency
+from .scaling import ContainerAppScaleConfig
+from .secrets import FileSecret, InlineSecret, Secret
 
 
 class ContainerConfig(BaseModel):
     name: str
     image: str
     from_public_registry: bool | None = False
+
+    command: list[str] | None = None
+    args: list[str] | None = None
 
     probes: list[ContainerProbeConfig] | None = None
     resources: ContainerResourcesConfig = ContainerResourcesConfig()
@@ -42,7 +45,8 @@ class ContainerAppBaseConfig(BaseModel):
     environment_output_ref: DictRef
     workload_profile_name: str
     containers: list[ContainerConfig]
-    secrets: dict[str, StrRef | str] | None = None
+    secret_mount_path: Path = Path("/secrets")
+    secrets: list[Secret] | None = None
     scaling: ContainerAppScaleConfig | None = ContainerAppScaleConfig()
     resiliency: AppResiliencyConfig | None = None
     log_workspace_id: AzureIdRef | None = None
@@ -96,7 +100,7 @@ class ContainerApp(pulumi.ComponentResource):
             resource_type=app.ContainerApp, workload_name=self.config.name
         )
 
-        self.secrets: dict[str, StrRef | str] = self.config.secrets or {}
+        self.secrets: list[Secret] = self.config.secrets or []
         self.registry: AdminUserEnabledRegistryOutput | None = self._get_registry()
         self.environment: ContainerAppEnvOutput = self._get_environment()
 
@@ -125,7 +129,12 @@ class ContainerApp(pulumi.ComponentResource):
         registry_output: AdminUserEnabledRegistryOutput = (
             AdminUserEnabledRegistryOutput.model_validate(self.config.registry_output_ref)
         )
-        self.secrets["registry-secret"] = registry_output.admin_credentials["password"]
+        self.secrets.append(
+            InlineSecret(
+                key="registry-secret",
+                value=registry_output.admin_credentials["password"],
+            )
+        )
         return registry_output
 
     def _container_app(self) -> app.ContainerApp:
@@ -178,7 +187,15 @@ class ContainerApp(pulumi.ComponentResource):
                     cpu=container.resources.cpu,
                     memory=str(container.resources.memory_gb) + "Gi",
                 ),
+                command=container.command,
+                args=container.args,
                 probes=[probe.args() for probe in container.probes] if container.probes else None,
+                volume_mounts=[
+                    app.VolumeMountArgs(
+                        volume_name="secrets",
+                        mount_path=self.config.secret_mount_path.as_posix(),
+                    )
+                ],
             )
             for container in self.config.containers
         ]
@@ -187,6 +204,22 @@ class ContainerApp(pulumi.ComponentResource):
         return app.TemplateArgs(
             containers=self._containers(),
             scale=self.config.scaling.args() if self.config.scaling else None,
+            volumes=[
+                app.VolumeArgs(
+                    name="secrets",
+                    storage_type=app.StorageType.SECRET,
+                    secrets=[
+                        app.SecretVolumeItemArgs(
+                            secret_ref=secret.key,
+                            path=secret.filename if secret.filename else None,
+                        )
+                        for secret in self.secrets
+                        if isinstance(secret, FileSecret)
+                    ],
+                )
+            ]
+            if self.secrets
+            else None,
         )
 
     def _job_template(self) -> app.JobTemplateArgs:
@@ -212,7 +245,7 @@ class ContainerApp(pulumi.ComponentResource):
                 if self.registry
                 else None
             ),
-            secrets=self._app_secrets(),
+            secrets=[secret.args() for secret in self.secrets],
         )
 
     def _job_configuration_args(self) -> app.JobConfigurationArgs:
@@ -243,17 +276,8 @@ class ContainerApp(pulumi.ComponentResource):
                 if self.registry
                 else None
             ),
-            secrets=self._app_secrets(),
+            secrets=[secret.args() for secret in self.secrets],
         )
-
-    def _app_secrets(self) -> list[app.SecretArgs]:
-        return [
-            app.SecretArgs(
-                name=key,
-                value=val,
-            )
-            for key, val in self.secrets.items()
-        ]
 
     def _container_env_vars(self, container) -> list[app.EnvironmentVarArgs]:
         env_args: list[app.EnvironmentVarArgs] = []

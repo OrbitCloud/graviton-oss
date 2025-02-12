@@ -10,6 +10,7 @@ from orbitcloud_graviton.az_app import (
     ContainerAppConfig,
     ContainerAppJobConfig,
 )
+from orbitcloud_graviton.az_app.secrets import InlineSecret, Secret
 from orbitcloud_graviton.az_appconfig import AppConfiguration, AppConfigurationConfig
 from orbitcloud_graviton.az_iam import IamAssignmentConfig
 from orbitcloud_graviton.az_storage import StorageAccount, StorageAccountConfig
@@ -63,7 +64,7 @@ def deploy() -> None:
     opts = pulumi.ResourceOptions(parent=rg)
 
     # Secrets from dependencies to register in Container App
-    app_secrets: dict[str, str | (pulumi.Output[str] | None)] = {}
+    app_secrets: list[Secret] = []
     app_perms: list[IamAssignmentConfig] = []
     app_deps = []
 
@@ -76,7 +77,12 @@ def deploy() -> None:
             config=st,
             opts=opts,
         )
-        app_secrets.update(_st.get_endpoints(suffix="endpoint"))
+        app_secrets.extend(
+            [
+                InlineSecret(key=key, value=val)
+                for key, val in _st.get_endpoints(suffix="endpoint").items()
+            ]
+        )
 
         if st.app_permissions:
             app_perms.extend(
@@ -112,7 +118,13 @@ def deploy() -> None:
             config=config.app_config,
             opts=pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(depends_on=app_deps)),
         )
-        app_secrets["appconfig-endpoint"] = appcs.app_config.endpoint
+        app_secrets.append(
+            InlineSecret(
+                key="appconfig-endpoint",
+                value=appcs.app_config.endpoint,
+            )
+        )
+
         app_perms.extend(
             [
                 IamAssignmentConfig(
@@ -132,7 +144,7 @@ def deploy() -> None:
     ##########################################
     for container_app in config.apps or []:
         if container_app.secrets:
-            app_secrets.update(container_app.secrets)
+            app_secrets.extend(container_app.secrets)
 
         perms: list[IamAssignmentConfig] = container_app.azure_permissions or []
         perms.extend(app_perms)
@@ -151,7 +163,7 @@ def deploy() -> None:
 
     for job in config.jobs or []:
         if job.secrets:
-            app_secrets.update(job.secrets)
+            app_secrets.extend(job.secrets)
 
         perms: list[IamAssignmentConfig] = job.azure_permissions or []
         perms.extend(app_perms)

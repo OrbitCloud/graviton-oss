@@ -7,6 +7,7 @@ from .containerapp_env import (
     ContainerAppEnv,
     ContainerAppEnvConfig,
 )
+from .secrets import FileSecret, InlineSecret, KeyVaultSecret, Secret
 
 __all__ = [
     "ContainerAppEnv",
@@ -14,4 +15,8 @@ __all__ = [
     "ContainerApp",
     "ContainerAppConfig",
     "ContainerAppJobConfig",
+    "Secret",
+    "FileSecret",
+    "KeyVaultSecret",
+    "InlineSecret",
 ]

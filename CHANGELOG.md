@@ -1,3 +1,14 @@
+## v0.78.0 (2025-02-12)
+
+### Feat
+
+- **ContainerApp**: Support key vault referenced and volume mounted secrets
+- **ContainerApp**: Allow additional TCP ingress ports
+
+### Fix
+
+- **az_lib**: Support outputs passed to StrRef
+
 ## v0.77.0 (2025-02-10)
 
 ### Feat

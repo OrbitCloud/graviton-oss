@@ -1,4 +1,3 @@
-from ipaddress import IPv4Address
 from typing import Literal
 
 import pulumi
@@ -8,8 +7,8 @@ from pulumi_azure_native import insights
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
-from orbitcloud_graviton.az_monitor.az_diagnosticsetting import diagnostic_setting
-from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpoint, PrivateEndpointConfig
+from orbitcloud_graviton.az_monitor import diagnostic_setting
+from orbitcloud_graviton.az_network import PrivateEndpoint, PrivateEndpointConfig, PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureStack
 
 
@@ -39,7 +38,7 @@ class NamespaceConfig(BaseModel):
     hubs: list[EventHubConfig] | None = None
     scaling: NamespaceScaling = NamespaceScaling()
 
-    allowed_public_ips: list[IPv4Address] | None = None
+    allowed_public_ips: list[PublicIPv4Network] | None = None
     allowed_subnet_ids: list[AzureIdRef] | None = None
     allow_azure_services: bool | None = True
 

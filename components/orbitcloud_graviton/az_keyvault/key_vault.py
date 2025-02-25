@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
 from orbitcloud_graviton.az_monitor.az_diagnosticsetting import diagnostic_setting
+from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpoint, PrivateEndpointConfig
 from orbitcloud_graviton.az_network.types import PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureStack
 
@@ -42,6 +43,7 @@ class KeyVaultConfig(BaseModel):
         title="Allow Azure Services",
         description="Allow traffic from trusted Azure services",
     )
+    private_endpoints: list[PrivateEndpointConfig] | None = None
 
     enable_purge_protection: bool | None = True
 
@@ -74,10 +76,15 @@ class KeyVault(ComponentResource):
         super().__init__(
             "Graviton:az_keyvault:KeyVault", name=f"kv-{stack.workload_name}", props=None, opts=opts
         )
+        self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
+            opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
+        )
 
         self.vault: keyvault.Vault = self._vault()
         self._diagnostic_settings()
         self._outputs()
+
+        self.private_endpoints: list[PrivateEndpoint] | None = self._private_endpoints()
 
     def _vault(self) -> keyvault.Vault:
         return keyvault.Vault(
@@ -120,6 +127,18 @@ class KeyVault(ComponentResource):
                 else [],
             )
         return None
+
+    def _private_endpoints(self) -> list[PrivateEndpoint] | None:
+        if self.config.private_endpoints:
+            return [
+                PrivateEndpoint(
+                    stack=self.stack,
+                    config=endpoint,
+                    target_resource=self.vault,
+                    opts=self._opts,
+                )
+                for endpoint in self.config.private_endpoints
+            ]
 
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:

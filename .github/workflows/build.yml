@@ -73,7 +73,7 @@ jobs:
     name: Release
     environment: release
     steps:
-      - uses: actions/create-github-app-token@v1.11.2
+      - uses: actions/create-github-app-token@v1.11.5
         id: bot-token
         with:
           app-id: ${{ vars.GRAVITON_BOT_CLIENT_ID }}

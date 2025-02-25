@@ -1,3 +1,10 @@
+## v0.79.0 (2025-02-25)
+
+### Feat
+
+- **EventHub**: Allow CIDR format for firewall IP rules
+- **KeyVault**: Add support for private endpoints
+
 ## v0.78.0 (2025-02-12)
 
 ### Feat

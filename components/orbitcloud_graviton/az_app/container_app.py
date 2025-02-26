@@ -27,6 +27,7 @@ class ContainerConfig(BaseModel):
     name: str
     image: str
     from_public_registry: bool | None = False
+    ignore_image_tag_updates: bool | None = False
 
     command: list[str] | None = None
     args: list[str] | None = None
@@ -96,6 +97,8 @@ class ContainerApp(pulumi.ComponentResource):
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
 
+        self._ignores: list[str] = []
+
         self.app_name: str = self.stack.name_for(
             resource_type=app.ContainerApp, workload_name=self.config.name
         )
@@ -153,7 +156,12 @@ class ContainerApp(pulumi.ComponentResource):
                 template=self._app_template(),
                 configuration=self._app_configuration_args(),
             ),
-            opts=self._opts,
+            opts=pulumi.ResourceOptions.merge(
+                self._opts,
+                pulumi.ResourceOptions(
+                    ignore_changes=self._ignores,
+                ),
+            ),
         )
 
     def _job(self) -> app.Job:
@@ -176,29 +184,45 @@ class ContainerApp(pulumi.ComponentResource):
         )
 
     def _containers(self) -> list[app.ContainerArgs]:
-        return [
-            app.ContainerArgs(
-                name=container.name,
-                image=pulumi.Output.concat(self.registry.login_server, "/", container.image)
+        container_args: list[app.ContainerArgs] = []
+
+        for idx, container in enumerate(self.config.containers):
+            image: pulumi.Output[str] | str = (
+                pulumi.Output.concat(self.registry.login_server, "/", container.image)
                 if self.registry and not container.from_public_registry
-                else container.image,
-                env=self._container_env_vars(container=container),
-                resources=app.ContainerResourcesArgs(
-                    cpu=container.resources.cpu,
-                    memory=str(container.resources.memory_gb) + "Gi",
-                ),
-                command=container.command,
-                args=container.args,
-                probes=[probe.args() for probe in container.probes] if container.probes else None,
-                volume_mounts=[
-                    app.VolumeMountArgs(
-                        volume_name="secrets",
-                        mount_path=self.config.secret_mount_path.as_posix(),
-                    )
-                ],
+                else container.image
             )
-            for container in self.config.containers
-        ]
+
+            if container.ignore_image_tag_updates:
+                # Add the template.containers[].image path to ignores using index
+                self._ignores.append(f"template.containers[{idx}].image")
+
+            container_args.append(
+                app.ContainerArgs(
+                    name=container.name,
+                    image=image,
+                    env=self._container_env_vars(container=container),
+                    resources=app.ContainerResourcesArgs(
+                        cpu=container.resources.cpu,
+                        memory=str(container.resources.memory_gb) + "Gi",
+                    ),
+                    command=container.command,
+                    args=container.args,
+                    probes=[probe.args() for probe in container.probes]
+                    if container.probes
+                    else None,
+                    volume_mounts=[
+                        app.VolumeMountArgs(
+                            volume_name="secrets",
+                            mount_path=self.config.secret_mount_path.as_posix(),
+                        )
+                    ]
+                    if self.secrets
+                    else None,
+                )
+            )
+
+        return container_args
 
     def _app_template(self) -> app.TemplateArgs:
         return app.TemplateArgs(

@@ -1,3 +1,14 @@
+## v0.80.0 (2025-02-26)
+
+### Feat
+
+- **ContainerApp**: Add support for Azure tags
+- **ContainerApp**: Ability to ignore image tag updates, f.x. done by CICD
+
+### Refactor
+
+- **ContainerApp**: Only provide additional port mappings when present
+
 ## v0.79.0 (2025-02-25)
 
 ### Feat

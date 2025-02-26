@@ -20,7 +20,7 @@ from .outputs import ContainerAppEnvOutput
 from .probes import ContainerProbeConfig
 from .resiliency import AppResiliencyConfig, app_resiliency
 from .scaling import ContainerAppScaleConfig
-from .secrets import FileSecret, InlineSecret, Secret
+from .secrets import InlineSecret, Secret
 
 
 class ContainerConfig(BaseModel):
@@ -54,6 +54,8 @@ class ContainerAppBaseConfig(BaseModel):
     registry_output_ref: DictRef | None = None
 
     azure_permissions: list[IamAssignmentConfig] | None = None
+
+    tags: dict[str, StrRef | str] | None = None
 
     @model_validator(mode="after")
     def validate_resources(m: "ContainerAppBaseConfig") -> "ContainerAppBaseConfig":
@@ -155,6 +157,7 @@ class ContainerApp(pulumi.ComponentResource):
                 workload_profile_name=self.config.workload_profile_name,
                 template=self._app_template(),
                 configuration=self._app_configuration_args(),
+                tags=self.config.tags,
             ),
             opts=pulumi.ResourceOptions.merge(
                 self._opts,
@@ -217,7 +220,7 @@ class ContainerApp(pulumi.ComponentResource):
                             mount_path=self.config.secret_mount_path.as_posix(),
                         )
                     ]
-                    if self.secrets
+                    if any(s.filename for s in (self.secrets or []))
                     else None,
                 )
             )
@@ -238,11 +241,10 @@ class ContainerApp(pulumi.ComponentResource):
                             path=secret.filename if secret.filename else None,
                         )
                         for secret in self.secrets
-                        if isinstance(secret, FileSecret)
                     ],
                 )
             ]
-            if self.secrets
+            if any(s.filename for s in (self.secrets or []))
             else None,
         )
 

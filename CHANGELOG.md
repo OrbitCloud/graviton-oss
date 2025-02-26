@@ -1,3 +1,9 @@
+## v0.81.0 (2025-02-26)
+
+### Feat
+
+- **SearchService**: Add diagnostic settings to AI Search component
+
 ## v0.80.0 (2025-02-26)
 
 ### Feat

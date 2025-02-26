@@ -81,8 +81,10 @@ class HttpIngressConfig(BaseModel):
             ],
             cors_policy=self.cors.cors_policy_args() if self.cors else None,
             additional_port_mappings=[
-                port_mapping.args() for port_mapping in self.additional_tcp_ingress or []
-            ],
+                port_mapping.args() for port_mapping in self.additional_tcp_ingress
+            ]
+            if self.additional_tcp_ingress
+            else None,
         )
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")

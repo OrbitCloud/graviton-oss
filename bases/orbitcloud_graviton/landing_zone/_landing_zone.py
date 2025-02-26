@@ -131,7 +131,7 @@ def deploy_landing_zone() -> None:
     if config.search_service:
         SearchService(
             stack=stack,
-            config=config.search_service,
+            config=config.search_service.model_copy(update={"log_workspace_id": logs.id}),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )
 

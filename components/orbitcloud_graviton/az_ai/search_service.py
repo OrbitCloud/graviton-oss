@@ -1,7 +1,9 @@
 import pulumi
-from pulumi_azure_native import search
+from pulumi_azure_native import insights, search
 from pydantic import BaseModel, ConfigDict
 
+from orbitcloud_graviton.az_lib.types import AzureIdRef
+from orbitcloud_graviton.az_monitor.az_diagnosticsetting import diagnostic_setting
 from orbitcloud_graviton.az_network.private_endpoint import PrivateEndpoint, PrivateEndpointConfig
 from orbitcloud_graviton.az_network.types import PublicIPv4Network
 from orbitcloud_graviton.pulumi_lib import AzureStack
@@ -15,6 +17,8 @@ class SearchServiceConfig(BaseModel):
     public_network_access: search.PublicNetworkAccess | None = search.PublicNetworkAccess.DISABLED
     allowed_public_ips: list[PublicIPv4Network] | None = None
     private_endpoints: list[PrivateEndpointConfig] | None = None
+
+    log_workspace_id: AzureIdRef | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -42,7 +46,7 @@ class SearchService(pulumi.ComponentResource):
 
         self.service: search.Service = self._service()
         self.private_endpoints: list[PrivateEndpoint] | None = self._private_endpoint()
-
+        self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
         self._outputs()
 
     def _service(self) -> search.Service:
@@ -74,6 +78,16 @@ class SearchService(pulumi.ComponentResource):
                 )
                 for pe in self.config.private_endpoints
             ]
+
+    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+        if self.config.log_workspace_id:
+            return diagnostic_setting(
+                resource=self.service,
+                log_workspace_id=self.config.log_workspace_id,
+                metric_categories=["AllMetrics"],
+                log_categories=["OperationLogs"],
+                opts=self._opts,
+            )
 
     def _outputs(self) -> None:
         self.register_outputs(

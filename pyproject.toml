@@ -81,7 +81,7 @@
         pulumiverse-acme         = "^0.8"
         pulumiverse-time         = "^0.1"
         pydantic                 = { extras = ["email"], version = "^2.10" }
-        pydantic-settings        = "^2.4"
+        pydantic-settings        = "^2.8"
         python                   = "^3.12"
 
     [tool.poetry.group.dev.dependencies]

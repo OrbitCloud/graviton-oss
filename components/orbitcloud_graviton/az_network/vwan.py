@@ -72,13 +72,14 @@ class VirtualWan(ComponentResource):
             virtual_wan=network.SubResourceArgs(
                 id=self.vwan.id.apply(lambda id: f"{id}"),
             ),
-            opts=self._opts._merge_instance(
-                pulumi.ResourceOptions(
+            opts=pulumi.ResourceOptions.merge(
+                opts1=self._opts,
+                opts2=pulumi.ResourceOptions(
                     ignore_changes=[
                         "virtual_router_ips",
                         "p2_s_vpn_gateway",
                     ]
-                )
+                ),
             ),
         )
         return virtual_hub
@@ -125,7 +126,10 @@ class VirtualWan(ComponentResource):
                     #         ).id,
                     #     )],
                     # },
-                    opts=self._opts._merge_instance(pulumi.ResourceOptions(parent=self.vhub)),
+                    opts=pulumi.ResourceOptions.merge(
+                        opts1=self._opts,
+                        opts2=pulumi.ResourceOptions(parent=self.vhub),
+                    ),
                 )
             )
         return vnet_connections

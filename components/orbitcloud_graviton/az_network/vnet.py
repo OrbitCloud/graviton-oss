@@ -127,8 +127,11 @@ class Vnet(ComponentResource):
                     address_prefixes=[str(x) for x in self.config.address_space],
                 ),
             ),
-            opts=self._opts._merge_instance(
-                pulumi.ResourceOptions(ignore_changes=["subnets", "virtual_network_peerings"])
+            opts=pulumi.ResourceOptions.merge(
+                opts1=self._opts,
+                opts2=pulumi.ResourceOptions(
+                    ignore_changes=["subnets", "virtual_network_peerings"]
+                ),
             ),
         )
 

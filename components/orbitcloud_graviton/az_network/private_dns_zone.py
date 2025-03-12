@@ -92,7 +92,7 @@ class PrivateDnsZone(ComponentResource):
             record_type=record.record_type,
             ttl=record.ttl,
             **record_args,
-            opts=self._opts._merge_instance(pulumi.ResourceOptions(parent=self.zone)),
+            opts=pulumi.ResourceOptions.merge(self._opts, pulumi.ResourceOptions(parent=self.zone)),
         )
 
     def _record_args(self, record: Record) -> dict[str, Any]:

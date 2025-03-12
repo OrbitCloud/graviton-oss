@@ -243,8 +243,9 @@ class StorageAccount(pulumi.ComponentResource):
                             account_name=self.storage_account.name,
                             resource_group_name=self.stack.resource_group.name,
                         ),
-                        opts=self._opts._merge_instance(
-                            opts=pulumi.ResourceOptions(parent=self.storage_account)
+                        opts=pulumi.ResourceOptions.merge(
+                            opts1=self._opts,
+                            opts2=pulumi.ResourceOptions(parent=self.storage_account),
                         ),
                     )
                     for container in self.config.storage_containers
@@ -266,8 +267,9 @@ class StorageAccount(pulumi.ComponentResource):
                         account_name=self.storage_account.name,
                         resource_group_name=self.stack.resource_group.name,
                         signed_identifiers=[],
-                        opts=self._opts._merge_instance(
-                            opts=pulumi.ResourceOptions(parent=self.storage_account)
+                        opts=pulumi.ResourceOptions.merge(
+                            opts1=self._opts,
+                            opts2=pulumi.ResourceOptions(parent=self.storage_account),
                         ),
                     )
                     for table in self.config.storage_tables
@@ -288,8 +290,9 @@ class StorageAccount(pulumi.ComponentResource):
                         queue_name=queue,
                         account_name=self.storage_account.name,
                         resource_group_name=self.stack.resource_group.name,
-                        opts=self._opts._merge_instance(
-                            opts=pulumi.ResourceOptions(parent=self.storage_account)
+                        opts=pulumi.ResourceOptions.merge(
+                            opts1=self._opts,
+                            opts2=pulumi.ResourceOptions(parent=self.storage_account),
                         ),
                     )
                 )
@@ -316,8 +319,9 @@ class StorageAccount(pulumi.ComponentResource):
                     resource_group_name=self.stack.resource_group.name,
                     share_quota=share.share_quota,
                 ),
-                opts=self._opts._merge_instance(
-                    opts=pulumi.ResourceOptions(parent=self.storage_account)
+                opts=pulumi.ResourceOptions.merge(
+                    opts1=self._opts,
+                    opts2=pulumi.ResourceOptions(parent=self.storage_account),
                 ),
             )
         return _shares
@@ -386,10 +390,11 @@ class StorageAccount(pulumi.ComponentResource):
                                 for key in user.ssh_keys or []
                             ],
                         ),
-                        opts=self._opts._merge_instance(
-                            opts=pulumi.ResourceOptions(
+                        opts=pulumi.ResourceOptions.merge(
+                            opts1=self._opts,
+                            opts2=pulumi.ResourceOptions(
                                 parent=self.storage_account, depends_on=self.storage_container
-                            )
+                            ),
                         ),
                     )
                     users.append(sftp_user)

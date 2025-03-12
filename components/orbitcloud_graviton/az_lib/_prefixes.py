@@ -99,6 +99,7 @@ RESOURCE_PREFIXES: dict[str, Any] = {
     "pulumi_azure_native.eventgrid.domain_topic": {"prefix": "evgt"},
     "pulumi_azure_native.network.private_endpoint": {"prefix": "pep"},
     "pulumi_azure_native.search.service": {"prefix": "srch"},
+    "pulumi_azure_native.cognitiveservices.account": {"prefix": "oai"},
     "pulumi_azure_native.dbforpostgresql.server": {"prefix": "psql"},
     "pulumi_azure_native.dbforpostgresql.administrator": {"prefix": "psql-admin"},
     "pulumi_azure_native.dbforpostgresql.configuration": {"prefix": "psql-conf"},

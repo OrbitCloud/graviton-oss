@@ -1,3 +1,13 @@
+## v0.82.0 (2025-03-12)
+
+### Feat
+
+- **AzureOpenAi**: Add Azure OpenAi component
+
+### Refactor
+
+- **ResourceOptions**: Use .merge instead of deprecated (and private) ._merge_instances
+
 ## v0.81.0 (2025-02-26)
 
 ### Feat

@@ -1,3 +1,10 @@
+## v0.83.0 (2025-03-13)
+
+### Feat
+
+- **app_zone**: Add possibility to optionally deploy Service Bus
+- **ServiceBus**: Add component for provisioning Azure Service Bus
+
 ## v0.82.0 (2025-03-12)
 
 ### Feat

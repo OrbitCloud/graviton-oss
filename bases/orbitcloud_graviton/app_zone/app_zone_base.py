@@ -13,6 +13,7 @@ from orbitcloud_graviton.az_monitor import (
     app_insights,
     log_workspace,
 )
+from orbitcloud_graviton.az_servicebus import ServiceBus, ServiceBusNamespaceConfig
 from orbitcloud_graviton.az_storage import StorageAccountConfig, storage_account
 from orbitcloud_graviton.entra.entra_app import EntraApp, EntraAppConfig
 from orbitcloud_graviton.entra.oidc_providers import WorkloadIdentityConfig
@@ -30,6 +31,7 @@ class AppZoneBaseConfig(PulumiConfig):
         default=KeyVaultConfig(), title="Key Vault Config", description="Key Vault Configuration"
     )
     event_hub: NamespaceConfig | None = None
+    servicebus: ServiceBusNamespaceConfig | None = None
 
     has_container_registry: bool | None = False
     container_registry: ContainerRegistryConfig | None = ContainerRegistryConfig()
@@ -111,6 +113,18 @@ def deploy() -> None:
             stack=stack,
             config=config.event_hub.model_copy(
                 update={"log_workspace_id": stack.resource_group.name}
+            ),
+            opts=pulumi.ResourceOptions(parent=stack.resource_group),
+        )
+
+    ##########################################
+    # Service Bus
+    ##########################################
+    if config.servicebus:
+        ServiceBus(
+            stack=stack,
+            config=config.servicebus.model_copy(
+                update={"log_workspace_id": logs.id},
             ),
             opts=pulumi.ResourceOptions(parent=stack.resource_group),
         )

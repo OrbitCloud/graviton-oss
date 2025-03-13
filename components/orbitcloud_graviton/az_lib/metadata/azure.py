@@ -276,6 +276,20 @@ _search: dict[str, Any] = {
 }
 
 """
+Service Bus
+"""
+_servicebus: dict[str, Any] = {
+    "Namespace": {
+        "naming": {
+            "prefix": "sbns",
+        },
+        "namespace": "Microsoft.ServiceBus/namespaces",
+        "sub_resource_name": "namespace",
+        "private_dns_zone": "privatelink.servicebus.windows.net",
+    },
+}
+
+"""
 Storage
 """
 _storage: dict[str, Any] = {
@@ -415,6 +429,10 @@ _azure_resource_meta: dict[str, Any] = {
         "resources": {
             "namespace": "Microsoft.Resources",
             "resources": _resources,
+        },
+        "servicebus": {
+            "namespace": "Microsoft.ServiceBus",
+            "resources": _servicebus,
         },
         "sql": {
             "namespace": "Microsoft.Sql",

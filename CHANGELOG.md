@@ -1,3 +1,9 @@
+## v0.84.0 (2025-03-14)
+
+### Feat
+
+- **ContainerApp**: Support auto issued managed SSL certificates
+
 ## v0.83.0 (2025-03-13)
 
 ### Feat

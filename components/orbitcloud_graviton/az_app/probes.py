@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pulumi_azure_native.app import v20240301 as app
+from pulumi_azure_native.app import v20241002preview as app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 

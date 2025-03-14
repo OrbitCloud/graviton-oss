@@ -1,7 +1,7 @@
 from typing import Literal
 
 import pulumi
-from pulumi_azure_native.app.v20231102preview import (
+from pulumi_azure_native.app.v20241002preview import (
     AppResiliency,
     AppResiliencyArgs,
     CircuitBreakerPolicyArgs,

@@ -2,10 +2,7 @@ from pathlib import Path
 from typing import Any
 
 import pulumi
-from pulumi_azure_native.app import v20240301 as app
-from pulumi_azure_native.app.v20231102preview import (
-    AppResiliency,
-)
+from pulumi_azure_native.app import v20241002preview as app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_acr.outputs import AdminUserEnabledRegistryOutput
@@ -14,6 +11,7 @@ from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.pulumi_lib import AzureStack
 
 from ._app_schema import ContainerResourcesConfig
+from .certificate import managed_certificate
 from .ingress import HttpIngressConfig, TcpIngressConfig
 from .job_triggers import JobEventTrigger, JobManualTrigger, JobScheduledTrigger
 from .outputs import ContainerAppEnvOutput
@@ -113,12 +111,23 @@ class ContainerApp(pulumi.ComponentResource):
             self._job() if isinstance(self.config, ContainerAppJobConfig) else self._container_app()
         )
 
-        self.resiliency: AppResiliency | None = app_resiliency(
+        self.resiliency: app.AppResiliency | None = app_resiliency(
             app_name=self.app_name,
             stack=self.stack,
             config=self.config.resiliency,
             opts=pulumi.ResourceOptions(parent=self.app),
         )
+
+        if isinstance(self.config, ContainerAppConfig) and self.config.ingress.custom_domains:
+            for domain in (
+                d for d in self.config.ingress.custom_domains if d.ssl == app.BindingType.AUTO
+            ):
+                managed_certificate(
+                    stack=self.stack,
+                    custom_domain=domain.name,
+                    environment=self.environment,
+                    opts=pulumi.ResourceOptions(parent=self.app),
+                )
 
         self._azure_permissions()
 

@@ -1,7 +1,7 @@
 from typing import Literal
 
 import pulumi
-from pulumi_azure_native.app import v20240301 as app
+from pulumi_azure_native.app import v20241002preview as app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
@@ -13,7 +13,7 @@ from .cors import AppCorsConfig
 class CustomDomainConfig(BaseModel):
     name: str
     certificate_id: AzureIdRef | None = None
-    binding_type: app.BindingType | None = app.BindingType.SNI_ENABLED
+    ssl: app.BindingType | None = app.BindingType.SNI_ENABLED
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -58,7 +58,7 @@ class HttpIngressConfig(BaseModel):
                 app.CustomDomainArgs(
                     name=domain.name,
                     certificate_id=domain.certificate_id,
-                    binding_type=domain.binding_type,
+                    binding_type=domain.ssl,
                 )
                 for domain in self.custom_domains
             ]
@@ -110,7 +110,7 @@ class TcpIngressConfig(BaseModel):
                 app.CustomDomainArgs(
                     name=domain.name,
                     certificate_id=domain.certificate_id,
-                    binding_type=domain.binding_type,
+                    binding_type=domain.ssl,
                 )
                 for domain in (self.custom_domains or [])
             ],

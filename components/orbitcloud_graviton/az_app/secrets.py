@@ -22,7 +22,7 @@ class KeyVaultSecret(SecretBase):
     def args(self) -> app.SecretArgs:
         return app.SecretArgs(
             name=self.key,
-            identity="SystemAssigned",
+            identity="System",
             key_vault_url=self.key_vault_url,
         )
 

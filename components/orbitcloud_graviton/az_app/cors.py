@@ -11,7 +11,7 @@ class AppCorsConfig(BaseModel):
 
     def cors_policy_args(self) -> app.CorsPolicyArgs:
         return app.CorsPolicyArgs(
-            allowed_origins=[str(url) for url in self.allowed_origins],
+            allowed_origins=[str(url).removesuffix("/") for url in self.allowed_origins],
             allowed_methods=self.allowed_methods,
             allowed_headers=self.allowed_headers,
             expose_headers=self.expose_headers,

@@ -1,3 +1,10 @@
+## v0.84.1 (2025-03-20)
+
+### Fix
+
+- **ContainerApp**: KeyVault secret references using system assigned identities fixed
+- **ContainerApp**: Remove trailing slash from CORS origins
+
 ## v0.84.0 (2025-03-14)
 
 ### Feat

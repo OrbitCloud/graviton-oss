@@ -78,6 +78,7 @@ RESOURCE_PREFIXES: dict[str, Any] = {
     "pulumi_azure_native.keyvault.secret": {"prefix": "kvs"},
     "pulumi_azure_native.app.container_app": {"prefix": "app"},
     "pulumi_azure_native.app.managed_certificate": {"prefix": "cert"},
+    "pulumi_azure_native.app.certificate": {"prefix": "caecert-"},
     "pulumi_azure_native.app.app_resiliency": {"prefix": "appres"},
     "pulumi_azure_native.insights.component": {"prefix": "appi"},
     "pulumi_azure_native.network.zone": {"prefix": "dns"},

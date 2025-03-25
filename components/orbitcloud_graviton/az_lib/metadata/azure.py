@@ -54,6 +54,19 @@ _authorization: dict[str, Any] = {
 }
 
 """
+Cognitive Services
+"""
+_cognitiveservices: dict[str, Any] = {
+    "Account": {
+        "naming": {
+            "prefix": "oai",
+        },
+        "sub_resource_name": "account",
+        "private_dns_zone": "privatelink.openai.azure.com",
+    },
+}
+
+"""
 Container Registry
 """
 _containerregistry: dict[str, Any] = {
@@ -394,6 +407,10 @@ _azure_resource_meta: dict[str, Any] = {
         "authorization": {
             "namespace": "Microsoft.Authorization",
             "resources": _authorization,
+        },
+        "cognitiveservices": {
+            "namespace": "Microsoft.CognitiveServices",
+            "resources": _cognitiveservices,
         },
         "containerregistry": {
             "namespace": "Micrsoft.ContainerRegistry",

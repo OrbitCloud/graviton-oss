@@ -35,6 +35,7 @@ class NetworkBaseConfig(PulumiConfig):
     p2s_vpn: VwanP2sVpnGwConfig | None = None
     s2s_vpn: VwanS2sVpnGatewayConfig | None = None
     dns_zone: DnsZoneConfig | None = None
+    dns_zones: list[DnsZoneConfig] | None = None
     private_dns_zones: list[PrivateDNSZoneConfig] | None = None
     private_dns_resolver: PrivateDnsResolverConfig | None = None
     vpn: VirtualNetworkGatewayConfig | None = None
@@ -129,6 +130,14 @@ def deploy_hub_spoke():
             config=config.dns_zone,
             opts=pulumi.ResourceOptions(parent=rg),
         )
+
+    if config.dns_zones:
+        for zone in config.dns_zones:
+            DnsZone(
+                stack=stack,
+                config=zone,
+                opts=pulumi.ResourceOptions(parent=rg),
+            )
 
     ##########################################
     # Private DNS Resolver

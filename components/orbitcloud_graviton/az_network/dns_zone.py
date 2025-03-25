@@ -138,7 +138,7 @@ class DnsZone(pulumi.ComponentResource):
                     opts,
                     pulumi.ResourceOptions(
                         provider=Provider(
-                            resource_name="parent-zone-provider",
+                            resource_name=f"prov-parent-dnszone-{self.config.name}",
                             subscription_id=str(parent_zone.subscription_id),
                         )
                     ),

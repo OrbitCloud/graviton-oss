@@ -7,14 +7,16 @@ from pulumi_azure_native import insights
 from pulumi_azure_native.cognitiveservices import v20241001 as ai
 from pydantic import BaseModel, ConfigDict
 
-from orbitcloud_graviton.az_lib.types import AzureIdRef
+from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
+from orbitcloud_graviton.az_network import PrivateEndpoint, PrivateEndpointConfig
 from orbitcloud_graviton.pulumi_lib import AzureStack, EntraStack
 
 
 class AzureOpenAiConfig(BaseModel):
-    allowed_public_ips: list[IPv4Address] | None = None
+    allowed_public_ips: list[IPv4Address | StrRef] | None = None
     custom_domain_prefix: str | None = None
+    private_endpoints: list[PrivateEndpointConfig] | None = None
 
     log_workspace_id: AzureIdRef | None = None
 
@@ -45,6 +47,7 @@ class AzureOpenAi(pulumi.ComponentResource):
         )
 
         self.account: ai.Account = self._account()
+        self.private_endpoints: list[PrivateEndpoint] | None = self._private_endpoints()
         self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
 
         self._outputs()
@@ -78,6 +81,18 @@ class AzureOpenAi(pulumi.ComponentResource):
             opts=self._opts,
         )
 
+    def _private_endpoints(self) -> list[PrivateEndpoint] | None:
+        if self.config.private_endpoints:
+            return [
+                PrivateEndpoint(
+                    stack=self.stack,
+                    config=endpoint,
+                    target_resource=self.account,
+                    opts=pulumi.ResourceOptions(parent=self.account),
+                )
+                for endpoint in self.config.private_endpoints
+            ]
+
     def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
@@ -95,7 +110,10 @@ class AzureOpenAi(pulumi.ComponentResource):
 
     def _outputs(self) -> None:
         self.register_outputs(
-            {"cognitiveaccount": self.account},
+            {
+                "cognitiveaccount": self.account,
+                "private_endpoints": self.private_endpoints,
+            }
         )
 
         self.stack.export(

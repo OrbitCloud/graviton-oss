@@ -1,3 +1,10 @@
+## v0.85.0 (2025-03-25)
+
+### Feat
+
+- **AzureOpenAi**: Add Private Endpoint configuration option
+- **hubspoke**: Support provisioning multiple DNS zones
+
 ## v0.84.2 (2025-03-20)
 
 ### Fix

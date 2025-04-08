@@ -124,20 +124,32 @@ def deploy_hub_spoke():
     ##########################################
     # DNS Zones
     ##########################################
+    dns_zones: dict[str, DnsZone] = {}
     if config.dns_zone:
-        DnsZone(
+        dns_zones[config.dns_zone.name] = DnsZone(
             stack=stack,
-            config=config.dns_zone,
+            config=config.dns_zone.model_copy(update={"skip_exports": True}),
             opts=pulumi.ResourceOptions(parent=rg),
         )
 
     if config.dns_zones:
         for zone in config.dns_zones:
-            DnsZone(
+            dns_zones[zone.name] = DnsZone(
                 stack=stack,
-                config=zone,
+                config=zone.model_copy(update={"skip_exports": True}),
                 opts=pulumi.ResourceOptions(parent=rg),
             )
+
+    stack.export(
+        exports={
+            "dns_zones": {
+                fmt_name(v=zone_name): {
+                    "id": zone.zone.id,
+                }
+                for zone_name, zone in dns_zones.items()
+            }
+        }
+    )
 
     ##########################################
     # Private DNS Resolver

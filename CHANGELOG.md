@@ -1,3 +1,9 @@
+## v0.85.1 (2025-04-08)
+
+### Fix
+
+- **hubspoke**: Outputs fixed when multiple dns zones are configured
+
 ## v0.85.0 (2025-03-25)
 
 ### Feat

@@ -70,7 +70,7 @@ class CnameRecord(BaseModel):
     relative_name: str = Field(..., pattern=r"^[a-zA-Z0-9-*]+$")
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["CNAME"] = "CNAME"
-    value: DomainName
+    value: pulumi.Output[str] | DomainName
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 

@@ -48,7 +48,7 @@ class DnsZone(pulumi.ComponentResource):
         self.dns_zone_id: str | pulumi.Output[str] | None = dns_zone_id
         self.zone: network.Zone = self._zone()
         self.records: list[network.RecordSet] = self._records()
-        self.parent_zone_ns_records = self._parent_zone_ns_records()
+        self.parent_zone_ns_records: list[network.RecordSet] | None = self._parent_zone_ns_records()
 
         self._outputs()
 
@@ -95,9 +95,7 @@ class DnsZone(pulumi.ComponentResource):
             record_type=record.record_type,
             ttl=record.ttl,
             **record_args,
-            opts=pulumi.ResourceOptions.merge(
-                opts1=self._opts, opts2=pulumi.ResourceOptions(parent=self.zone)
-            ),
+            opts=self._opts,
         )
 
     def _record_args(self, record: Record) -> dict[str, Any]:
@@ -181,3 +179,10 @@ class DnsZone(pulumi.ComponentResource):
                 }
             }
         )
+
+
+class DnsZoneStack(BaseModel):
+    id: AzureResourceId
+    name: DomainName
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")

@@ -4,16 +4,22 @@ import pulumi
 from pulumi_azure_native.app import v20241002preview as app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
-from orbitcloud_graviton.az_network.types import PrivateIPv4Network, PublicIPv4Network
+from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
+from orbitcloud_graviton.az_network.types import (
+    PrivateIPv4Network,
+    PublicIPv4Network,
+)
+from orbitcloud_graviton.pulumi_lib import DomainName
 
 from .cors import AppCorsConfig
 
 
 class CustomDomainConfig(BaseModel):
-    name: str
+    name: DomainName
     certificate_id: AzureIdRef | None = None
     ssl: app.BindingType | None = app.BindingType.SNI_ENABLED
+    dns_zone_stack: DictRef | None = None
+
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 

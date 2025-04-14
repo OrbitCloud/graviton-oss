@@ -8,11 +8,17 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from orbitcloud_graviton.az_acr.outputs import AdminUserEnabledRegistryOutput
 from orbitcloud_graviton.az_iam import IamAssignmentConfig, iam_assignment
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
+from orbitcloud_graviton.az_network import DnsZone, DnsZoneConfig
+from orbitcloud_graviton.az_network.dns_zone import DnsZoneStack
+from orbitcloud_graviton.az_network.types import (
+    CnameRecord,
+    TxtRecord,
+)
 from orbitcloud_graviton.pulumi_lib import AzureStack
 
 from ._app_schema import ContainerResourcesConfig
 from .certificate import managed_certificate
-from .ingress import HttpIngressConfig, TcpIngressConfig
+from .ingress import CustomDomainConfig, HttpIngressConfig, TcpIngressConfig
 from .job_triggers import JobEventTrigger, JobManualTrigger, JobScheduledTrigger
 from .outputs import ContainerAppEnvOutput
 from .probes import ContainerProbeConfig
@@ -119,15 +125,56 @@ class ContainerApp(pulumi.ComponentResource):
         )
 
         if isinstance(self.config, ContainerAppConfig) and self.config.ingress.custom_domains:
-            for domain in (
-                d for d in self.config.ingress.custom_domains if d.ssl == app.BindingType.AUTO
-            ):
-                managed_certificate(
-                    stack=self.stack,
-                    custom_domain=domain.name,
-                    environment=self.environment,
-                    opts=pulumi.ResourceOptions(parent=self.app),
+            for domain in self.config.ingress.custom_domains:
+                self._setup_custom_domain(domain)
+
+    def _setup_custom_domain(self, domain: CustomDomainConfig) -> None:
+        zone = None
+        if domain.dns_zone_stack and isinstance(self.app, app.ContainerApp):
+            dns_stack = DnsZoneStack.model_validate(obj=domain.dns_zone_stack)
+
+            if not domain.name.endswith(f".{dns_stack.name}"):
+                raise ValueError(
+                    f"Mismatch between domain name and DNS zone name: {domain.name} is not a subdomain of {dns_stack.name}"
                 )
+
+            relative_name = domain.name.removesuffix(f".{dns_stack.name}")
+
+            zone = DnsZone(
+                dns_zone_id=str(dns_stack.id),
+                config=DnsZoneConfig(
+                    name=dns_stack.name,
+                    records=[
+                        CnameRecord(
+                            relative_name=relative_name,
+                            value=self.app.configuration.ingress.fqdn,
+                        ),
+                        TxtRecord(
+                            relative_name=f"asuid.{relative_name}",
+                            values=[self.app.custom_domain_verification_id],
+                        ),
+                    ],
+                ),
+                stack=AzureStack(
+                    subscription_id=dns_stack.id.subscription_id,
+                    resource_group_name=dns_stack.id.resource_group_name,
+                    location=self.stack.location,
+                    tenant_id=self.stack.tenant_id,
+                    env=self.stack.env,
+                    workload_name=self.stack.workload_name,
+                ),
+                opts=pulumi.ResourceOptions(parent=self.app),
+            )
+
+        if domain.ssl == app.BindingType.AUTO:
+            managed_certificate(
+                stack=self.stack,
+                custom_domain=domain.name,
+                environment=self.environment,
+                opts=pulumi.ResourceOptions(
+                    parent=self.app, depends_on=zone.records if zone else None
+                ),
+            )
 
         self._azure_permissions()
 

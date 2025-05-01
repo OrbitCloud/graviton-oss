@@ -61,7 +61,7 @@ jobs:
       - run: poetry run make test
 
       - name: Pytest coverage comment
-        uses: MishaKav/pytest-coverage-comment@v1.1.53
+        uses: MishaKav/pytest-coverage-comment@v1.1.54
         if: github.event_name == 'pull_request'
         with:
           pytest-coverage-path: ./pytest-coverage.txt

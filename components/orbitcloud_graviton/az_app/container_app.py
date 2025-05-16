@@ -126,22 +126,26 @@ class ContainerApp(pulumi.ComponentResource):
 
         if isinstance(self.config, ContainerAppConfig) and self.config.ingress.custom_domains:
             for domain in self.config.ingress.custom_domains:
-                self._setup_custom_domain(domain)
+                self._setup_custom_domain(domain=domain)
+
+        self._azure_permissions()
+
+        self._outputs()
 
     def _setup_custom_domain(self, domain: CustomDomainConfig) -> None:
         zone = None
         if domain.dns_zone_stack and isinstance(self.app, app.ContainerApp):
-            dns_stack = DnsZoneStack.model_validate(obj=domain.dns_zone_stack)
+            dns_stack: DnsZoneStack = DnsZoneStack.model_validate(obj=domain.dns_zone_stack)
 
             if not domain.name.endswith(f".{dns_stack.name}"):
                 raise ValueError(
                     f"Mismatch between domain name and DNS zone name: {domain.name} is not a subdomain of {dns_stack.name}"
                 )
 
-            relative_name = domain.name.removesuffix(f".{dns_stack.name}")
+            relative_name: str = domain.name.removesuffix(f".{dns_stack.name}")
 
             zone = DnsZone(
-                dns_zone_id=str(dns_stack.id),
+                dns_zone_id=str(object=dns_stack.id),
                 config=DnsZoneConfig(
                     name=dns_stack.name,
                     records=[
@@ -175,10 +179,6 @@ class ContainerApp(pulumi.ComponentResource):
                     parent=self.app, depends_on=zone.records if zone else None
                 ),
             )
-
-        self._azure_permissions()
-
-        self._outputs()
 
     def _get_environment(self) -> ContainerAppEnvOutput:
         return ContainerAppEnvOutput.model_validate(self.config.environment_output_ref)

@@ -14,6 +14,7 @@ from pulumi_azure_native.sql.v20240501preview import (
     JobTargetType,
     SkuArgs,
 )
+from pulumi_random import RandomPassword, RandomPasswordArgs
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_iam import user_assigned_id
@@ -33,6 +34,30 @@ class SqlServerEntraAdmin(BaseModel):
     login_name: str
 
 
+class SqlServerAdmin(BaseModel):
+    admin_name: str = "azuresa"
+    admin_password: str | None = None
+
+    def password(
+        self,
+        parent: pulumi.ComponentResource | None = None,
+    ) -> pulumi.Output[str] | str:
+        if self.admin_password is None:
+            return RandomPassword(
+                resource_name=f"sql-admin-password-{self.admin_name}",
+                args=RandomPasswordArgs(
+                    length=32,
+                    special=True,
+                    upper=True,
+                    lower=True,
+                    numeric=True,
+                ),
+                opts=pulumi.ResourceOptions(parent=parent),
+            ).result
+
+        return self.admin_password
+
+
 class SqlServerElasticPool(BaseModel):
     enabled: bool | None = False
     max_size_gb: int = 32
@@ -43,7 +68,8 @@ class SqlServerConfig(BaseModel):
     name: str | None = None
 
     azure_ad_only_authentication: bool = True
-    administrator: SqlServerEntraAdmin
+    entra_admin: SqlServerEntraAdmin
+    administrator: SqlServerAdmin = SqlServerAdmin()
     elastic_pool: SqlServerElasticPool | None = None
 
     job_agent_enabled: bool | None = False
@@ -111,11 +137,17 @@ class SqlServer(pulumi.ComponentResource):
                 administrators=sql.ServerExternalAdministratorArgs(
                     azure_ad_only_authentication=self.config.azure_ad_only_authentication,
                     administrator_type=sql.AdministratorType.ACTIVE_DIRECTORY,
-                    login=self.config.administrator.login_name,
+                    login=self.config.entra_admin.login_name,
                     tenant_id=str(self.stack.tenant_id),
-                    principal_type=self.config.administrator.principal_type,
-                    sid=str(self.config.administrator.sid),
+                    principal_type=self.config.entra_admin.principal_type,
+                    sid=str(self.config.entra_admin.sid),
                 ),
+                administrator_login=self.config.administrator.admin_name
+                if not self.config.azure_ad_only_authentication
+                else None,
+                administrator_login_password=self.config.administrator.password(parent=self)
+                if not self.config.azure_ad_only_authentication
+                else None,
             ),
             opts=self._opts,
         )
@@ -221,7 +253,9 @@ class SqlServer(pulumi.ComponentResource):
                     stack=self.stack,
                     config=endpoint,
                     target_resource=self.server,
-                    opts=self._opts,
+                    opts=pulumi.ResourceOptions.merge(
+                        self._opts, pulumi.ResourceOptions(parent=self.server)
+                    ),
                 )
                 for endpoint in self.config.private_endpoints
             ]

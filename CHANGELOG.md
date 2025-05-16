@@ -1,3 +1,15 @@
+## v0.86.0 (2025-05-16)
+
+### Feat
+
+- **PostgresFlexibleServer**: Allow configuring server IOPS
+- **SqlServer**: Support configuring non-entra administrators
+- **ContainerApp**: Support for creating custom domain DNS records automatically
+
+### Fix
+
+- **ContainerApp**: App Permissions and outputs accidentally missing for non-custom domain apps
+
 ## v0.85.1 (2025-04-08)
 
 ### Fix

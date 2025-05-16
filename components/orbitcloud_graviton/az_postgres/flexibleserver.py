@@ -168,7 +168,7 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
                 auto_grow=self.config.storage.auto_growth,
                 storage_size_gb=self.config.storage.storage_size_gb,
                 tier=self.config.storage.tier,
-                # iops=self.config.storage.iops,
+                iops=self.config.storage.iops,
                 # throughput=self.config.storage.throughput,
             ),
             # Authentication

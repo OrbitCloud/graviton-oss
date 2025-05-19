@@ -1,7 +1,7 @@
 from typing import Literal
 
 import pulumi
-from pulumi_azure_native.azureactivedirectory import v20230517preview as entra
+from pulumi_azure_native import azureactivedirectory as entra
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.pulumi_lib import AzureStack, EntraStack

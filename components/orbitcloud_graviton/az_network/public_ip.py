@@ -1,7 +1,7 @@
 from typing import Literal
 
 import pulumi
-from pulumi_azure_native.network import v20230901 as network
+from pulumi_azure_native import network
 from pydantic import BaseModel, ConfigDict, model_validator
 
 from orbitcloud_graviton.pulumi_lib import AzureStack

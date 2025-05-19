@@ -1,6 +1,6 @@
 import pulumi
-from pulumi_azure_native import insights
-from pulumi_azure_native.servicebus import v20240101 as sb
+from pulumi_azure_native import monitor
+from pulumi_azure_native import servicebus as sb
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
@@ -81,7 +81,7 @@ class ServiceBus(pulumi.ComponentResource):
         self.namespace: sb.Namespace = self._servicebus()
         self.queues: dict[str, sb.Queue] = self._queues()
         self.private_endpoints: list[PrivateEndpoint] | None = self._private_endpoints()
-        self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
+        self.diagnostic_settings: monitor.DiagnosticSetting | None = self._diagnostic_settings()
         self.ip_filter_rules: sb.NamespaceNetworkRuleSet | None = self._ip_filter_rules()
 
         self._outputs()
@@ -148,7 +148,7 @@ class ServiceBus(pulumi.ComponentResource):
             for endpoint_config in self.config.private_endpoints or []
         ]
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.namespace,

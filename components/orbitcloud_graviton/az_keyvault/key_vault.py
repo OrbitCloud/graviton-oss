@@ -1,6 +1,6 @@
 import pulumi
 from pulumi import ComponentResource
-from pulumi_azure_native import insights, keyvault
+from pulumi_azure_native import keyvault, monitor
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
@@ -140,7 +140,7 @@ class KeyVault(ComponentResource):
                 for endpoint in self.config.private_endpoints
             ]
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.vault,

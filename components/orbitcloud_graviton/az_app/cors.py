@@ -1,4 +1,4 @@
-from pulumi_azure_native.app import v20241002preview as app
+from pulumi_azure_native import app
 from pydantic import AnyUrl, BaseModel, ConfigDict
 
 

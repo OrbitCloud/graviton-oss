@@ -1,7 +1,7 @@
 from typing import Literal
 
 import pulumi
-from pulumi_azure_native import insights, sql
+from pulumi_azure_native import monitor, sql
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
@@ -60,7 +60,7 @@ class SqlDatabase(pulumi.ComponentResource):
 
         self.server_name: StrRef = server_name
         self.database: sql.Database = self._database()
-        self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
+        self.diagnostic_settings: monitor.DiagnosticSetting | None = self._diagnostic_settings()
 
         self._outputs()
 
@@ -95,7 +95,7 @@ class SqlDatabase(pulumi.ComponentResource):
             opts=self._opts,
         )
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.database,

@@ -3,7 +3,7 @@ from typing import Literal
 import pulumi
 from pulumi import ComponentResource
 from pulumi_azure_native import eventhub as pul_eventhub
-from pulumi_azure_native import insights
+from pulumi_azure_native import monitor
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
@@ -166,7 +166,7 @@ class EventHub(ComponentResource):
                 for endpoint in self.config.private_endpoints
             ]
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.namespace,

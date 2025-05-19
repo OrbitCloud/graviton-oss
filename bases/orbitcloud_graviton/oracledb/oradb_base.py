@@ -1,5 +1,5 @@
 import pulumi
-from pulumi_azure_native.storage import v20230501 as storage
+from pulumi_azure_native import storage
 from pulumi_cloudinit import Config
 from pydantic import BaseModel, Field
 

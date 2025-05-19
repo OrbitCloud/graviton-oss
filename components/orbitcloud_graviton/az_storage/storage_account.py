@@ -2,7 +2,7 @@ from ipaddress import IPv4Address
 from typing import Any, Literal
 
 import pulumi
-from pulumi_azure_native.storage import v20230501 as storage
+from pulumi_azure_native import storage
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef

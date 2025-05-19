@@ -1,7 +1,7 @@
 import base64
 
 import pulumi
-from pulumi_azure_native.compute import v20230701 as compute
+from pulumi_azure_native import compute
 from pydantic import Base64Str, BaseModel, ConfigDict, model_validator
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef

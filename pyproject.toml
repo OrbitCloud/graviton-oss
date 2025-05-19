@@ -23,7 +23,6 @@
         { include = "orbitcloud_graviton/az_monitor", from = "components" },
         { include = "orbitcloud_graviton/az_network", from = "components" },
         { include = "orbitcloud_graviton/az_postgres", from = "components" },
-        { include = "orbitcloud_graviton/az_providerhub", from = "components" },
         { include = "orbitcloud_graviton/az_resources", from = "components" },
         { include = "orbitcloud_graviton/az_servicebus", from = "components" },
         { include = "orbitcloud_graviton/az_sql", from = "components" },
@@ -72,7 +71,7 @@
         cryptography             = "^44.0.0"
         jinja2                   = "^3.1.4"
         pulumi                   = "^3.138"
-        pulumi-azure-native      = "^2.71"
+        pulumi-azure-native      = "^3.4"
         pulumi-azuread           = "^6.0.1"
         pulumi-cloudinit         = "^1.4.7"
         pulumi-command           = "^1.0.1"

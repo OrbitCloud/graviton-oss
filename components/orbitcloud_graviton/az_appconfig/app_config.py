@@ -1,6 +1,6 @@
 import pulumi
 from pulumi_azure_native import appconfiguration as pam_appconfig
-from pulumi_azure_native import insights
+from pulumi_azure_native import monitor
 from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
@@ -81,7 +81,7 @@ class AppConfiguration(pulumi.ComponentResource):
                     ),
                 )
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.app_config,

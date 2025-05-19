@@ -1,7 +1,7 @@
 from ipaddress import IPv4Network
 
 import pulumi
-from pulumi_azure_native.network import v20230901 as network
+from pulumi_azure_native import network
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.pulumi_lib import AzureStack

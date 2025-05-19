@@ -3,7 +3,7 @@ from ipaddress import IPv4Address
 from typing import Any
 
 import pulumi
-from pulumi_azure_native import Provider, network
+from pulumi_azure_native import Provider, dns
 from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, AzureResourceId
@@ -46,15 +46,15 @@ class DnsZone(pulumi.ComponentResource):
         )
 
         self.dns_zone_id: str | pulumi.Output[str] | None = dns_zone_id
-        self.zone: network.Zone = self._zone()
-        self.records: list[network.RecordSet] = self._records()
-        self.parent_zone_ns_records: list[network.RecordSet] | None = self._parent_zone_ns_records()
+        self.zone: dns.Zone = self._zone()
+        self.records: list[dns.RecordSet] = self._records()
+        self.parent_zone_ns_records: list[dns.RecordSet] | None = self._parent_zone_ns_records()
 
         self._outputs()
 
-    def _zone(self) -> network.Zone:
+    def _zone(self) -> dns.Zone:
         if self.dns_zone_id:
-            zone = network.Zone.get(
+            zone = dns.Zone.get(
                 resource_name="dns-zone-reference",
                 id=self.dns_zone_id,
                 opts=self._opts,
@@ -65,9 +65,9 @@ class DnsZone(pulumi.ComponentResource):
         if not isinstance(self.config.name, str):
             raise ValueError("DNS zone name must be a string")
 
-        return network.Zone(
+        return dns.Zone(
             resource_name=self.stack.name_for(
-                resource_type=network.Zone, workload_name=self.config.name.replace(".", "-")
+                resource_type=dns.Zone, workload_name=self.config.name.replace(".", "-")
             ),
             zone_name=self.config.name,
             resource_group_name=self.stack.resource_group.name,
@@ -75,16 +75,16 @@ class DnsZone(pulumi.ComponentResource):
             opts=self._opts,
         )
 
-    def _records(self) -> list[network.RecordSet]:
+    def _records(self) -> list[dns.RecordSet]:
         if self.config.records:
             return [self.record(record) for record in self.config.records]
         return []
 
-    def record(self, record: Record) -> network.RecordSet:
+    def record(self, record: Record) -> dns.RecordSet:
         record_args = self._record_args(record)
-        return network.RecordSet(
+        return dns.RecordSet(
             resource_name=self.stack.name_for(
-                resource_type=network.RecordSet,
+                resource_type=dns.RecordSet,
                 workload_name=f"{record.record_type}-{record.relative_name}-{self.config.name}".replace(
                     ".", "-"
                 ).lower(),
@@ -103,26 +103,26 @@ class DnsZone(pulumi.ComponentResource):
             records = []
             for ip in record.ip_addresses:
                 ip = str(ip) if isinstance(ip, IPv4Address) else ip
-                records.append(network.ARecordArgs(ipv4_address=ip))
+                records.append(dns.ARecordArgs(ipv4_address=ip))
             return {
                 "a_records": records,
             }
         if isinstance(record, CnameRecord):
-            return {"cname_record": network.CnameRecordArgs(cname=record.value)}
+            return {"cname_record": dns.CnameRecordArgs(cname=record.value)}
         if isinstance(record, NsRecord):
-            return {"ns_records": [network.NsRecordArgs(nsdname=ns) for ns in record.ns_records]}
+            return {"ns_records": [dns.NsRecordArgs(nsdname=ns) for ns in record.ns_records]}
         if isinstance(record, MxRecord):
             return {
                 "mx_records": [
-                    network.MxRecordArgs(preference=record.preference, exchange=record.exchange)
+                    dns.MxRecordArgs(preference=record.preference, exchange=record.exchange)
                 ]
             }
         if isinstance(record, TxtRecord):
-            return {"txt_records": [network.TxtRecordArgs(value=record.values)]}
+            return {"txt_records": [dns.TxtRecordArgs(value=record.values)]}
 
         raise NotImplementedError(f"Record type {record.record_type} not implemented")
 
-    def _parent_zone_ns_records(self) -> list[network.RecordSet] | None:
+    def _parent_zone_ns_records(self) -> list[dns.RecordSet] | None:
         if self.config.parent_zone_id:
             parent_zone = AzureResourceId(str(self.config.parent_zone_id))
             if not parent_zone.resource_name:
@@ -143,9 +143,9 @@ class DnsZone(pulumi.ComponentResource):
                 )
 
             ns_servers: pulumi.Output[Sequence[str]] = self.zone.name_servers
-            network.RecordSet(
+            dns.RecordSet(
                 resource_name=self.stack.name_for(
-                    resource_type=network.RecordSet,
+                    resource_type=dns.RecordSet,
                     workload_name=f"parent-ns-{self.config.name}".replace(".", "-"),
                 ),
                 resource_group_name=parent_zone.resource_group_name,
@@ -155,10 +155,10 @@ class DnsZone(pulumi.ComponentResource):
                 ).strip("."),
                 record_type="NS",
                 ns_records=[
-                    network.NsRecordArgs(nsdname=ns_servers[0]),
-                    network.NsRecordArgs(nsdname=ns_servers[1]),
-                    network.NsRecordArgs(nsdname=ns_servers[2]),
-                    network.NsRecordArgs(nsdname=ns_servers[3]),
+                    dns.NsRecordArgs(nsdname=ns_servers[0]),
+                    dns.NsRecordArgs(nsdname=ns_servers[1]),
+                    dns.NsRecordArgs(nsdname=ns_servers[2]),
+                    dns.NsRecordArgs(nsdname=ns_servers[3]),
                 ],
                 ttl=3600,
                 opts=opts,

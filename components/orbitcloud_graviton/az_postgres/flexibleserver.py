@@ -1,10 +1,8 @@
 from uuid import UUID
 
 import pulumi
-from pulumi_azure_native import insights
-from pulumi_azure_native.dbforpostgresql import (
-    v20231201preview as postgres,  # Required for storage disk configurations
-)
+from pulumi_azure_native import dbforpostgresql as postgres
+from pulumi_azure_native import monitor
 from pulumi_random import RandomPassword, RandomPasswordArgs
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -275,7 +273,7 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
             else None
         )
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.server,

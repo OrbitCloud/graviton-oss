@@ -1,5 +1,5 @@
 import pulumi
-from pulumi_azure_native import eventgrid, insights
+from pulumi_azure_native import eventgrid, monitor
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_iam.assignment import IamAssignmentConfig, iam_assignment
@@ -57,7 +57,7 @@ class EventGridDomain(pulumi.ComponentResource):
         self.eventgrid_domain: eventgrid.Domain = self._eventgrid_domain()
         self.topics: dict[str, eventgrid.DomainTopic] = self._eventgrid_topics()
         self._azure_permissions()
-        self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
+        self.diagnostic_settings: monitor.DiagnosticSetting | None = self._diagnostic_settings()
 
         self._outputs()
 
@@ -137,7 +137,7 @@ class EventGridDomain(pulumi.ComponentResource):
                     ),
                 )
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.eventgrid_domain,

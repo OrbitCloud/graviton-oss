@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 import pulumi
-from pulumi_azure_native import insights, operationalinsights, resources, web
+from pulumi_azure_native import monitor, operationalinsights, resources, web
 
 from orbitcloud_graviton.az_lib import resource_namer
 from orbitcloud_graviton.az_monitor import diagnostic_setting
@@ -146,7 +146,7 @@ def az_appservice_plan_from_config(
 def _az_appservice_plan_diagnostic(
     resource: web.AppServicePlan,
     log_workspace: operationalinsights.Workspace,
-) -> insights.DiagnosticSetting:
+) -> monitor.DiagnosticSetting:
     settings = diagnostic_setting(
         resource=resource,
         log_workspace_id=log_workspace.id,

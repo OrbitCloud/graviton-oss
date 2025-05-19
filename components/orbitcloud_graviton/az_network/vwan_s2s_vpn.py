@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 import pulumi
 from pulumi import ComponentResource
-from pulumi_azure_native.network import v20230901 as network
+from pulumi_azure_native import network
 from pydantic import BaseModel, Field, SecretStr, model_validator
 
 from orbitcloud_graviton.pulumi_lib import AzureStack

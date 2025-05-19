@@ -1,10 +1,8 @@
 from typing import Any
 
-from pulumi_azure_native import resources
-
 # PrivateDNSZoneGroup & PrivateZone are from different API versions so we need to import them separately for now
-from pulumi_azure_native.network import v20230901 as network
-from pulumi_azure_native.network.v20200601 import (
+from pulumi_azure_native import network, resources
+from pulumi_azure_native.privatedns import (
     AwaitableGetPrivateZoneResult,
     PrivateZone,
 )

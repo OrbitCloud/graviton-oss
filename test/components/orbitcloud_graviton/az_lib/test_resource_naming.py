@@ -1,6 +1,5 @@
 import pytest
 from pulumi_azure_native import containerregistry, keyvault, resources, storage
-from pulumi_azure_native.resources.v20220901 import ResourceGroup as VersionedResourceGroup
 
 from orbitcloud_graviton.az_lib.helpers import location_abbr
 from orbitcloud_graviton.az_lib.meta import resource_meta
@@ -21,10 +20,6 @@ def test_location_abbr_undefined() -> None:
 
 def test_resource_names(stack: AzureStack) -> None:
     assert resource_meta(resources.ResourceGroup).autoname(stack=stack) == "rg-workload-test-neu-01"
-
-
-def test_versioned_resource_names(stack: AzureStack) -> None:
-    assert resource_meta(VersionedResourceGroup).autoname(stack) == "rg-workload-test-neu-01"
 
 
 def test_alphanumeric_resource_names(stack: AzureStack) -> None:

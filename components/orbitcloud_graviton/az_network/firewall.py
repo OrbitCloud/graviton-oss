@@ -3,8 +3,8 @@ from typing import Annotated, Any, ClassVar, Literal
 
 import pulumi
 from pulumi import ComponentResource
-from pulumi_azure_native import insights
-from pulumi_azure_native.network.v20230901 import (
+from pulumi_azure_native import monitor
+from pulumi_azure_native.network import (
     ApplicationRuleArgs,
     AzureFirewall,
     AzureFirewallIPConfigurationArgs,
@@ -318,7 +318,7 @@ class Firewall(ComponentResource):
 
         self.policy: FirewallPolicy = self._firewall_policy()
         self.firewall: AzureFirewall = self._firewall()
-        self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
+        self.diagnostic_settings: monitor.DiagnosticSetting | None = self._diagnostic_settings()
 
         if self.config.rule_collection_groups:
             self._rule_collection_groups(self.config.rule_collection_groups)
@@ -595,7 +595,7 @@ class Firewall(ComponentResource):
             return constructed_rules
         return None
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.firewall,

@@ -65,25 +65,26 @@
         enabled = false
 
     [tool.poetry.dependencies]
-        aiohttp                  = "^3.11"
-        azure-mgmt-authorization = "^4.0.0"
-        azure-mgmt-network       = "^28.0"
-        cryptography             = "^44.0.0"
-        jinja2                   = "^3.1.4"
-        pulumi                   = "^3.138"
-        pulumi-azure-native      = "^3.4"
-        pulumi-azuread           = "^6.0.1"
-        pulumi-cloudinit         = "^1.4.7"
-        pulumi-command           = "^1.0.1"
-        pulumi-postgresql        = "^3.12.0"
-        pulumi-random            = "^4.16"
-        pulumi-std               = "^2.1.0"
-        pulumi-tls               = "^5.0.1"
-        pulumiverse-acme         = "^0.10"
-        pulumiverse-time         = "^0.1"
-        pydantic                 = { extras = ["email"], version = "^2.10" }
-        pydantic-settings        = "^2.4"
-        python                   = "^3.12"
+        azure-mgmt-authorization                 = "^4.0.0"
+        azure-mgmt-network                       = "^28.0"
+        cryptography                             = "^44.0.0"
+        jinja2                                   = "^3.1.4"
+        pulumi                                   = "^3.138"
+        pulumi-azure-native                      = "^3.4"
+        pulumi-azure-native-app-v20241002preview = { path = "sdk/pulumi_azure_native_app_v20241002preview/python" }
+        pulumi-azure-native-app-v20250101        = { path = "sdk/pulumi_azure_native_app_v20250101/python" }
+        pulumi-azuread                           = "^6.0.1"
+        pulumi-cloudinit                         = "^1.4.7"
+        pulumi-command                           = "^1.0.1"
+        pulumi-postgresql                        = "^3.12.0"
+        pulumi-random                            = "^4.16"
+        pulumi-std                               = "^2.1.0"
+        pulumi-tls                               = "^5.0.1"
+        pulumiverse-acme                         = "^0.10"
+        pulumiverse-time                         = "^0.1"
+        pydantic                                 = { extras = ["email"], version = "^2.10" }
+        pydantic-settings                        = "^2.4"
+        python                                   = "^3.12"
 
     [tool.poetry.group.dev.dependencies]
         commitizen   = "^4.0"
@@ -128,14 +129,22 @@
     source   = ["bases/orbitcloud_graviton", "components/orbitcloud_graviton"]
 
 [tool.coverage.report]
-    ignore_errors              = true
+    ignore_errors = true
     include_namespace_packages = true
-    omit                       = ["**/__init__.py", "**/venv/*", ".venv/*", "development/*", "test/*"]
-    skip_empty                 = true
+    omit = [
+        "**/__init__.py",
+        "**/venv/*",
+        ".venv/*",
+        "development/*",
+        "sdk/*",
+        "test/*",
+    ]
+    skip_empty = true
 
 [tool.ruff]
     extend-exclude = [
         # "development/*",
+        "sdk/*",
         "tests/*",
     ]
     line-length = 100

@@ -2,7 +2,8 @@ from pathlib import Path
 from typing import Any
 
 import pulumi
-from pulumi_azure_native import app
+from pulumi_azure_native.app import AppResiliency
+from pulumi_azure_native_app_v20241002preview import app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_acr.outputs import AdminUserEnabledRegistryOutput
@@ -117,7 +118,7 @@ class ContainerApp(pulumi.ComponentResource):
             self._job() if isinstance(self.config, ContainerAppJobConfig) else self._container_app()
         )
 
-        self.resiliency: app.AppResiliency | None = app_resiliency(
+        self.resiliency: AppResiliency | None = app_resiliency(
             app_name=self.app_name,
             stack=self.stack,
             config=self.config.resiliency,

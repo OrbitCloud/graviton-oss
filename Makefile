@@ -7,6 +7,7 @@ default: help
 
 .PHONY: install
 install: ##@ Install Poetry dependencies
+	pulumi package gen-sdk --local --out sdk/pulumi_azure_native_app_v20241002preview --language python azure-native app 2024-10-02-preview
 	poetry install
 
 .PHONY: install-precommit
@@ -19,9 +20,6 @@ install-poly: ##@ Install polylith plugins
 	poetry self add poetry-polylith-plugin
 
 
-.PHONY: install-lego
-install-lego: ##@ Install lego acme cli
-	brew install lego
 
 
 ##@

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pulumi_azure_native import app
+from pulumi_azure_native_app_v20241002preview import app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .scalers.app_rules import AzureQueueScaleRule, HttpScaleRule, TcpScaleRule

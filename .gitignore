@@ -118,3 +118,6 @@ msbuild.wrn
 bjarni-m1.code-workspace
 components/orbitcloud_graviton/ora_queue/_bjarni_tmp/**
 projects/**
+
+# Pulumi
+sdk/

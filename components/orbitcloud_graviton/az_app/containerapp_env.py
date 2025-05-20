@@ -1,7 +1,8 @@
 from typing import Any
 
 import pulumi
-from pulumi_azure_native import app, dns, monitor
+from pulumi_azure_native import dns, monitor
+from pulumi_azure_native_app_v20241002preview import app
 from pydantic import (
     BaseModel,
     ConfigDict,

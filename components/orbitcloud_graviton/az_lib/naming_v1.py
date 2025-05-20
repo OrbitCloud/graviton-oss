@@ -9,11 +9,21 @@ from .helpers import location_abbr
 
 def get_prefix(resource_type) -> dict[str, Any]:
     """Return a resource prefix for a given resource type"""
-    # Extract the base module path without the version
-    base_module_path: str = re.sub(r"\.v\d{8}(preview)?", "", resource_type.__module__)
 
-    # Try to get the options using the base module path
-    opts: Any | None = RESOURCE_PREFIXES.get(base_module_path)
+    # pulumi_azure_native_app_v20241002preview.app.container_app.ContainerApp -> pulumi_azure_native.app.container_app.ContainerApp
+    # pulumi_azure_native.app.container_app.ContainerApp
+    # pulumi_kubernetes_v1.apps.v1.Deployment -> pulumi_kubernetes.apps.v1.Deployment
+    module_path = resource_type.__module__
+
+    if module_path.startswith("pulumi_azure_native_"):
+        # Convert pulumi_azure_native_<name> to pulumi_azure_native.<name>
+        module_path = re.sub(r"^pulumi_azure_native_([^\.]+)", r"pulumi_azure_native", module_path)
+
+    # Remove version suffixes: _vYYYYMMDD[preview] and .vYYYYMMDD
+    module_path = re.sub(r"(_v\d{8}(preview)?)|(\.v\d{8})", "", module_path)
+
+    # Try to get the options using the normalized module path
+    opts: Any | None = RESOURCE_PREFIXES.get(module_path)
 
     if not opts:
         raise ValueError(f"Resource type has not been defined: {resource_type}")

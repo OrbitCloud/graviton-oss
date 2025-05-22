@@ -292,7 +292,7 @@ class EntraApp(ComponentResource):
                 args=azuread.ApplicationPasswordInitArgs(
                     display_name=cred.display_name,
                     application_id=self.app.id,
-                    end_date_relative=cred.expires_after,
+                    end_date=rotation.rotation_rfc3339,
                     rotate_when_changed={
                         "rotation": rotation.id.apply(lambda id: id),
                     },
@@ -387,7 +387,6 @@ class EntraApp(ComponentResource):
                             "display_name": cred.display_name,
                             "secret": cred.value,
                             "expires": cred.end_date,
-                            "expires_after": cred.end_date_relative,
                         }
                         for cred_name, cred in self.client_credentials.items()
                     }

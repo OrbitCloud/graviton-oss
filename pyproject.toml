@@ -72,7 +72,6 @@
         pulumi                                   = "^3.138"
         pulumi-azure-native                      = "^3.4"
         pulumi-azure-native-app-v20241002preview = { path = "sdk/pulumi_azure_native_app_v20241002preview/python" }
-        pulumi-azure-native-app-v20250101        = { path = "sdk/pulumi_azure_native_app_v20250101/python" }
         pulumi-azuread                           = "^6.0.1"
         pulumi-cloudinit                         = "^1.4.7"
         pulumi-command                           = "^1.0.1"

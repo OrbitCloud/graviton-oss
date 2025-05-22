@@ -414,13 +414,13 @@ class ContainerApp(pulumi.ComponentResource):
             "name": self.app.name,
         }
 
-        if isinstance(self.config, ContainerAppConfig):
+        if isinstance(self.app, app.ContainerApp) and isinstance(self.config, ContainerAppConfig):
             app_exports["endpoints"] = {
-                "default": self.app.configuration.ingress.fqdn.apply(
-                    lambda x: f"https://{x}",
-                )
-                if self.config.ingress.protocol == "http"
-                else self.app.configuration.ingress.fqdn,
+                "default": self.app.configuration.apply(
+                    lambda x: f"https://{x.ingress.fqdn}"
+                    if x and x.ingress and x.ingress.fqdn
+                    else None,
+                ),
                 "port": self.config.ingress.exposed_port
                 if (
                     isinstance(self.config.ingress, TcpIngressConfig)
@@ -428,8 +428,10 @@ class ContainerApp(pulumi.ComponentResource):
                 )
                 else self.config.ingress.target_port,
                 "custom_domains": (
-                    self.app.configuration.ingress.custom_domains.apply(
-                        lambda x: [f"https://{d.name}" for d in x] if x else []
+                    self.app.configuration.apply(
+                        lambda x: [f"https://{d.name}" for d in x.ingress.custom_domains]
+                        if x and x.ingress and x.ingress.custom_domains
+                        else []
                     )
                 ),
                 "revision": {

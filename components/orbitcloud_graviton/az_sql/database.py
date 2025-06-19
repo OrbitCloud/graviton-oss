@@ -76,9 +76,7 @@ class SqlDatabase(pulumi.ComponentResource):
                 resource_group_name=self.stack.resource_group.name,
                 server_name=self.server_name,
                 elastic_pool_id=self.config.elastic_pool_id,
-                database_name=self.stack.name_for(
-                    resource_type=sql.Database, workload_name=self.config.name
-                ),
+                database_name=self.config.name,
                 create_mode=self.config.create_mode,
                 source_database_id=self.config.source_database_id,
                 zone_redundant=self.config.zone_redundant,

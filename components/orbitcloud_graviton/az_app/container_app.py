@@ -55,7 +55,7 @@ class ContainerAppBaseConfig(BaseModel):
     scaling: ContainerAppScaleConfig | None = ContainerAppScaleConfig()
     resiliency: AppResiliencyConfig | None = None
     log_workspace_id: AzureIdRef | None = None
-    registry_output_ref: DictRef | None = None
+    registry_output_ref: AdminUserEnabledRegistryOutput | DictRef | None = None
 
     azure_permissions: list[IamAssignmentConfig] | None = None
 

@@ -1,3 +1,22 @@
+## v0.87.0 (2025-06-19)
+
+### BREAKING CHANGE
+
+- This might cause replacement on databases – please set name explicitly to current name to escape that
+
+### Feat
+
+- **ContainerApp**: Allow setting registry reference manually
+- **SqlDatabase**: Do not prefix/suffix database names
+
+### Fix
+
+- **StorageAccount**: Endpoints for tables, queues & files not being exposed
+
+### Refactor
+
+- **EntraApp**: Migrate from deprecated end_date_relative to end_date for application passwords
+
 ## v0.86.0 (2025-05-16)
 
 ### Feat

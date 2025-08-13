@@ -80,11 +80,11 @@
         pulumi-random            = "^4.16"
         pulumi-std               = "^2.1.0"
         pulumi-tls               = "^5.0.1"
-        pulumiverse-acme         = "^0.10"
+        pulumiverse-acme         = "^0.13"
         pulumiverse-time         = "^0.1"
         pydantic                 = { extras = ["email"], version = "^2.10" }
         pydantic-settings        = "^2.4"
-        python                   = "^3.12"
+        python                   = ">=3.12,<4.0"
 
     [tool.poetry.group.dev.dependencies]
         commitizen   = "^4.0"

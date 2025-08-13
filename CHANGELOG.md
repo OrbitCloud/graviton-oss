@@ -1,3 +1,9 @@
+## v0.87.1 (2025-08-13)
+
+### Fix
+
+- **ContainerApp**: Reduce managed cert name length to fit within Azure naming restrictions
+
 ## v0.87.0 (2025-06-19)
 
 ### BREAKING CHANGE

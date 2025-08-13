@@ -12,7 +12,7 @@ jobs:
     name: Test & lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         with:
@@ -73,13 +73,13 @@ jobs:
     name: Release
     environment: release
     steps:
-      - uses: actions/create-github-app-token@v2.0.5
+      - uses: actions/create-github-app-token@v2.1.1
         id: bot-token
         with:
           app-id: ${{ vars.GRAVITON_BOT_CLIENT_ID }}
           private-key: ${{ secrets.GRAVITON_BOT_PRIVATE_KEY }}
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ steps.bot-token.outputs.token }}

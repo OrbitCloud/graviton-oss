@@ -418,15 +418,16 @@ class StorageAccount(pulumi.ComponentResource):
         if endpoints.blob:
             active_endpoints.update({f"blob{'-' + suffix if suffix else ''}": endpoints.blob})
 
-        if self.config.sku.startswith("STANDARD") and endpoints.file:
+        if self.config.sku.value.startswith("Standard") and endpoints.table:
             active_endpoints.update({f"tables{'-' + suffix if suffix else ''}": endpoints.table})
 
         if (
-            self.config.sku.startswith("STANDARD") or self.config.kind == storage.Kind.FILE_STORAGE
+            self.config.sku.value.startswith("Standard")
+            or self.config.kind == storage.Kind.FILE_STORAGE
         ) and endpoints.file:
             active_endpoints.update({f"file{'-' + suffix if suffix else ''}": endpoints.file})
 
-        if self.config.sku.startswith("STANDARD") and endpoints.queue:
+        if self.config.sku.value.startswith("Standard") and endpoints.queue:
             active_endpoints.update({f"queue{'-' + suffix if suffix else ''}": endpoints.queue})
 
         return active_endpoints

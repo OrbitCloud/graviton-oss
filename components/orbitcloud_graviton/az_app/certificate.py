@@ -51,9 +51,7 @@ def managed_certificate(
         args=app.ManagedCertificateArgs(
             resource_group_name=environment.resource_group_name,
             environment_name=environment.name,
-            managed_certificate_name=stack.name_for(
-                resource_type=app.ManagedCertificate, workload_name=fmt_name(custom_domain)
-            ),
+            managed_certificate_name=f"cert-{custom_domain.replace('.', '-')}",
             properties=app.ManagedCertificatePropertiesArgs(
                 domain_control_validation=app.ManagedCertificateDomainControlValidation.HTTP,
                 subject_name=custom_domain,

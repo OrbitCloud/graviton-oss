@@ -9,5 +9,12 @@ yum_repos:
     gpgcheck: true
     gpgkey: https://packages.microsoft.com/keys/microsoft.asc
 
+  azure_vm_tools:
+    baseurl: https://download.copr.fedorainfracloud.org/results/cjp256/azure-vm-utils/epel-9-x86_64/
+    enabled: true
+    gpgcheck: true
+    gpgkey: https://download.copr.fedorainfracloud.org/results/cjp256/azure-vm-utils/pubkey.gpg
+
 packages:
   - azure-cli
+  - azure-vm-utils

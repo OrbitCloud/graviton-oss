@@ -118,7 +118,9 @@ class DnsZone(pulumi.ComponentResource):
                 ]
             }
         if isinstance(record, TxtRecord):
-            return {"txt_records": [network.TxtRecordArgs(value=record.values)]}
+            return {
+                "txt_records": [network.TxtRecordArgs(value=[value]) for value in record.values]
+            }
 
         raise NotImplementedError(f"Record type {record.record_type} not implemented")
 

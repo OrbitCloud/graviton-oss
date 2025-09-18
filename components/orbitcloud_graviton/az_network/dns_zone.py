@@ -15,6 +15,7 @@ from .types import ARecord, CnameRecord, MxRecord, NsRecord, Record, TxtRecord
 
 class DnsZoneConfig(BaseModel):
     name: DomainName
+    enable_dnssec: bool | None = False
     records: list[Record] | None = None
 
     parent_zone_id: AzureIdRef | None = Field(
@@ -49,6 +50,7 @@ class DnsZone(pulumi.ComponentResource):
         self.zone: network.Zone = self._zone()
         self.records: list[network.RecordSet] = self._records()
         self.parent_zone_ns_records: list[network.RecordSet] | None = self._parent_zone_ns_records()
+        self.dnssec: network.DnssecConfig | None = self._dnssec()
 
         self._outputs()
 
@@ -164,6 +166,20 @@ class DnsZone(pulumi.ComponentResource):
                 ],
                 ttl=3600,
                 opts=opts,
+            )
+
+    def _dnssec(self) -> network.DnssecConfig | None:
+        if self.config.enable_dnssec:
+            return network.DnssecConfig(
+                resource_name=self.stack.name_for(
+                    resource_type=network.DnssecConfig,
+                    workload_name=self.config.name.replace(".", "-"),
+                ),
+                args=network.DnssecConfigArgs(
+                    zone_name=self.zone.name,
+                    resource_group_name=self.stack.resource_group.name,
+                ),
+                opts=self._opts,
             )
 
     def _outputs(self) -> None:

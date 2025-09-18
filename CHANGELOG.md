@@ -1,3 +1,16 @@
+## v0.88.0 (2025-09-18)
+
+### Feat
+
+- **OracleDatabase**: Add repo and install azure-vm-tools
+- **DnsZone**: Loosen validation on relative names for MX, DKIM & DMARC records
+- **DnsZone**: Add ability to enable DNSSEC
+- **VirtualMachine**: Allow data disks to reside in different zone from VM
+
+### Fix
+
+- **DnsZone**: Provide multiple TXT record values correctly
+
 ## v0.87.1 (2025-08-13)
 
 ### Fix

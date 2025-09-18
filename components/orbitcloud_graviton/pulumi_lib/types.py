@@ -19,7 +19,7 @@ from pydantic_core import core_schema
 def domain_validator(domain: str) -> str:
     # See pattern https://regexr.com/3gcrp
     if re.fullmatch(
-        r"([a-z0-9A-Z]\.)*[a-z0-9-]+\.([a-z0-9]{2,24})+(\.co\.([a-z0-9]{2,24})|\.([a-z0-9]{2,24}))*",
+        r"([a-z0-9A-Z_\-]\.)*[a-z0-9_\-]+\.([a-z0-9_\-]{2,64})+(\.co\.([a-z0-9]{2,24})|\.([a-z0-9]{2,24}))*",
         domain,
     ):
         return domain

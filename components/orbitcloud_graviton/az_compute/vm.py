@@ -203,7 +203,9 @@ class VirtualMachine(pulumi.ComponentResource):
         for disk in self.config.storage or []:
             _disk = VirtualMachineDisk(
                 stack=self.stack,
-                config=disk.model_copy(update={"zone": self.config.zone}),
+                config=disk.model_copy(
+                    update={"zone": self.config.zone} if not disk.zone else None
+                ),
                 opts=self._opts,
             )
             datadisks.append(

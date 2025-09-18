@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version-file: 'pyproject.toml'
 
@@ -61,7 +61,7 @@ jobs:
       - run: poetry run make test
 
       - name: Pytest coverage comment
-        uses: MishaKav/pytest-coverage-comment@v1.1.54
+        uses: MishaKav/pytest-coverage-comment@v1.1.57
         if: github.event_name == 'pull_request'
         with:
           pytest-coverage-path: ./pytest-coverage.txt
@@ -73,7 +73,7 @@ jobs:
     name: Release
     environment: release
     steps:
-      - uses: actions/create-github-app-token@v2.1.1
+      - uses: actions/create-github-app-token@v2.1.4
         id: bot-token
         with:
           app-id: ${{ vars.GRAVITON_BOT_CLIENT_ID }}

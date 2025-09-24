@@ -80,7 +80,7 @@
         pulumi-random            = "^4.16"
         pulumi-std               = "^2.1.0"
         pulumi-tls               = "^5.0.1"
-        pulumiverse-acme         = "^0.13"
+        pulumiverse-acme         = "^0.14"
         pulumiverse-time         = "^0.1"
         pydantic                 = { extras = ["email"], version = "^2.10" }
         pydantic-settings        = "^2.4"

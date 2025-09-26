@@ -15,6 +15,7 @@ from .types import ARecord, CnameRecord, MxRecord, NsRecord, Record, TxtRecord
 
 class DnsZoneConfig(BaseModel):
     name: DomainName
+    enable_dnssec: bool | None = False
     records: list[Record] | None = None
 
     parent_zone_id: AzureIdRef | None = Field(
@@ -49,6 +50,7 @@ class DnsZone(pulumi.ComponentResource):
         self.zone: dns.Zone = self._zone()
         self.records: list[dns.RecordSet] = self._records()
         self.parent_zone_ns_records: list[dns.RecordSet] | None = self._parent_zone_ns_records()
+        self.dnssec: dns.DnssecConfig | None = self._dnssec()
 
         self._outputs()
 
@@ -118,7 +120,7 @@ class DnsZone(pulumi.ComponentResource):
                 ]
             }
         if isinstance(record, TxtRecord):
-            return {"txt_records": [dns.TxtRecordArgs(value=record.values)]}
+            return {"txt_records": [dns.TxtRecordArgs(value=[value]) for value in record.values]}
 
         raise NotImplementedError(f"Record type {record.record_type} not implemented")
 
@@ -162,6 +164,20 @@ class DnsZone(pulumi.ComponentResource):
                 ],
                 ttl=3600,
                 opts=opts,
+            )
+
+    def _dnssec(self) -> dns.DnssecConfig | None:
+        if self.config.enable_dnssec:
+            return dns.DnssecConfig(
+                resource_name=self.stack.name_for(
+                    resource_type=dns.DnssecConfig,
+                    workload_name=self.config.name.replace(".", "-"),
+                ),
+                args=dns.DnssecConfigArgs(
+                    zone_name=self.zone.name,
+                    resource_group_name=self.stack.resource_group.name,
+                ),
+                opts=self._opts,
             )
 
     def _outputs(self) -> None:

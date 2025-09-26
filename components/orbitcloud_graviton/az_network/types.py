@@ -59,7 +59,7 @@ class PublicIpv4FirewallRule(BaseModel):
 
 
 class ARecord(BaseModel):
-    relative_name: str = Field(..., pattern=r"^[a-zA-Z0-9-*]+(\.[a-zA-Z0-9-*]+)?$")
+    relative_name: str = Field(..., pattern=r"^(@|[a-zA-Z0-9-*]+(\.[a-zA-Z0-9-*]+)?)$")
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["A"] = "A"
     ip_addresses: list[IPv4Address] | list[pulumi.Output[str]]
@@ -67,10 +67,12 @@ class ARecord(BaseModel):
 
 
 class CnameRecord(BaseModel):
-    relative_name: str = Field(..., pattern=r"^[a-zA-Z0-9-*]+$")
+    relative_name: str = Field(
+        ..., pattern=r"^(@|_[a-zA-Z0-9-*._]+|[a-zA-Z0-9-*._]+(\.[a-zA-Z0-9-*._]+)?)$"
+    )
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["CNAME"] = "CNAME"
-    value: pulumi.Output[str] | DomainName
+    value: str | pulumi.Output[str]
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -83,7 +85,7 @@ class NsRecord(BaseModel):
 
 
 class MxRecord(BaseModel):
-    relative_name: str = Field(..., pattern="^[a-zA-Z0-9-]+$")
+    relative_name: str = Field(..., pattern="^(@|[a-zA-Z0-9-]+)$")
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["MX"] = "MX"
     preference: int
@@ -92,7 +94,9 @@ class MxRecord(BaseModel):
 
 
 class TxtRecord(BaseModel):
-    relative_name: str = Field(..., pattern=r"^[a-zA-Z0-9-*]+(\.[a-zA-Z0-9-*]+)?$")
+    relative_name: str = Field(
+        ..., pattern=r"^(@|_[a-zA-Z0-9-*]+|[a-zA-Z0-9-*]+(\.[a-zA-Z0-9-*]+)?)$"
+    )
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["TXT"] = "TXT"
     values: list[str | pulumi.Output[str]]

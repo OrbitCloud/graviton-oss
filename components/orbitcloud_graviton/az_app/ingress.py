@@ -1,7 +1,7 @@
 from typing import Literal
 
 import pulumi
-from pulumi_azure_native_app_v20241002preview import app
+from pulumi_azure_native import app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef

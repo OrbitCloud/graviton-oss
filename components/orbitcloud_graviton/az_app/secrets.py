@@ -1,6 +1,6 @@
 from typing import Annotated, Literal
 
-from pulumi_azure_native_app_v20241002preview import app
+from pulumi_azure_native import app
 from pydantic import BaseModel, ConfigDict, Field, FilePath
 
 from orbitcloud_graviton.az_lib.types import StrRef

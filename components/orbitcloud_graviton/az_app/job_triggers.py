@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pulumi_azure_native_app_v20241002preview import app
+from pulumi_azure_native import app
 from pydantic import BaseModel, ConfigDict, Field
 
 from .scaling import CustomRuleTypes

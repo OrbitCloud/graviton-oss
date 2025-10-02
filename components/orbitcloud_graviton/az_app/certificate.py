@@ -1,5 +1,5 @@
 import pulumi
-from pulumi_azure_native_app_v20241002preview import app
+from pulumi_azure_native import app
 from pydantic import BaseModel, Field, SecretStr
 
 from orbitcloud_graviton.pulumi_lib import AzureStack
@@ -58,8 +58,10 @@ def managed_certificate(
             ),
             location=stack.location,
         ),
-        opts=opts,
-        # pulumi.ResourceOptions.merge(
-        #     pulumi.ResourceOptions(custom_timeouts=pulumi.CustomTimeouts(create="1m")), opts
-        # ),
+        opts=pulumi.ResourceOptions.merge(
+            opts1=opts,
+            opts2=pulumi.ResourceOptions(
+                delete_before_replace=True,
+            ),
+        ),
     )

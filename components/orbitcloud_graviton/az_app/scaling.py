@@ -1,15 +1,12 @@
 from typing import Annotated
 
-from pulumi_azure_native.app import v20241002preview as app
+from pulumi_azure_native import app
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .scalers.app_rules import AzureQueueScaleRule, HttpScaleRule, TcpScaleRule
-from .scalers.custom import CustomScaleRule
-
-## Custom scalers
-# isort: off
 from .scalers.azure_blob import AzureBlobRule
 from .scalers.azure_queue import AzureQueueRule
+from .scalers.custom import CustomScaleRule
 
 # Add custom rule types to the list of rule types
 CustomRuleTypes = Annotated[AzureBlobRule | AzureQueueRule, Field(discriminator="rule_type")]

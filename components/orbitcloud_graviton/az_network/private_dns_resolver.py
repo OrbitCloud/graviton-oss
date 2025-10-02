@@ -3,7 +3,7 @@ from typing import Literal
 
 import pulumi
 from pulumi import ComponentResource
-from pulumi_azure_native.network import v20220701 as network
+from pulumi_azure_native import dnsresolver
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, AzureResourceId
@@ -134,36 +134,36 @@ class PrivateDnsResolver(ComponentResource):
         self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
-        self.resolver: network.DnsResolver = self._resolver()
+        self.resolver: dnsresolver.DnsResolver = self._resolver()
         self._outputs()
 
-    def _resolver(self) -> network.DnsResolver:
+    def _resolver(self) -> dnsresolver.DnsResolver:
         vnet = AzureResourceId(str(self.config.virtual_network))
-        resolver = network.DnsResolver(
-            resource_name=self.stack.name_for(resource_type=network.DnsResolver),
-            dns_resolver_name=self.stack.name_for(resource_type=network.DnsResolver),
+        resolver = dnsresolver.DnsResolver(
+            resource_name=self.stack.name_for(resource_type=dnsresolver.DnsResolver),
+            dns_resolver_name=self.stack.name_for(resource_type=dnsresolver.DnsResolver),
             location=self.stack.location,
             resource_group_name=self.stack.resource_group.name,
-            virtual_network=network.SubResourceArgs(id=vnet.id),
+            virtual_network=dnsresolver.SubResourceArgs(id=vnet.id),
             opts=self._opts,
         )
 
         if self.config.inbound_endpoint:
-            network.InboundEndpoint(
+            dnsresolver.InboundEndpoint(
                 resource_name=self.stack.name_for(
-                    resource_type=network.InboundEndpoint,
+                    resource_type=dnsresolver.InboundEndpoint,
                 ),
                 inbound_endpoint_name=self.stack.name_for(
-                    resource_type=network.InboundEndpoint,
+                    resource_type=dnsresolver.InboundEndpoint,
                 ),
                 dns_resolver_name=resolver.name,
                 location=self.stack.location,
                 ip_configurations=[
-                    network.InboundEndpointIPConfigurationArgs(
+                    dnsresolver.IpConfigurationArgs(
                         private_ip_allocation_method="Static"
                         if self.config.inbound_endpoint.private_ip_address
                         else "Dynamic",
-                        subnet=network.SubResourceArgs(
+                        subnet=dnsresolver.SubResourceArgs(
                             id=AzureResourceId(str(self.config.inbound_endpoint.subnet_id)).id
                         ),
                         private_ip_address=str(self.config.inbound_endpoint.private_ip_address)
@@ -176,42 +176,42 @@ class PrivateDnsResolver(ComponentResource):
             )
 
         if self.config.outbound_endpoint:
-            outboundEndpoint = network.OutboundEndpoint(
+            outboundEndpoint = dnsresolver.OutboundEndpoint(
                 resource_name=self.stack.name_for(
-                    resource_type=network.OutboundEndpoint,
+                    resource_type=dnsresolver.OutboundEndpoint,
                 ),
                 outbound_endpoint_name=self.stack.name_for(
-                    resource_type=network.OutboundEndpoint,
+                    resource_type=dnsresolver.OutboundEndpoint,
                 ),
                 dns_resolver_name=resolver.name,
                 location=self.stack.location,
                 resource_group_name=self.stack.resource_group.name,
-                subnet=network.SubResourceArgs(
+                subnet=dnsresolver.SubResourceArgs(
                     id=AzureResourceId(str(self.config.outbound_endpoint.subnet_id)).id
                 ),
                 opts=self._opts,
             )
             if self.config.outbound_endpoint.rules:
-                ruleset = network.DnsForwardingRuleset(
+                ruleset = dnsresolver.DnsForwardingRuleset(
                     resource_name=self.stack.name_for(
-                        resource_type=network.DnsForwardingRuleset,
+                        resource_type=dnsresolver.DnsForwardingRuleset,
                     ),
                     dns_forwarding_ruleset_name=self.stack.name_for(
-                        resource_type=network.DnsForwardingRuleset,
+                        resource_type=dnsresolver.DnsForwardingRuleset,
                     ),
                     dns_resolver_outbound_endpoints=[
-                        network.SubResourceArgs(id=outboundEndpoint.id)
+                        dnsresolver.SubResourceArgs(id=outboundEndpoint.id)
                     ],
                     location=self.stack.location,
                     resource_group_name=self.stack.resource_group.name,
                     opts=self._opts,
                 )
                 for rule in self.config.outbound_endpoint.rules:
-                    targets: list[network.TargetDnsServerArgsDict] = [
-                        network.TargetDnsServerArgsDict({"ip_address": str(ip)})
+                    targets: list[dnsresolver.TargetDnsServerArgsDict] = [
+                        dnsresolver.TargetDnsServerArgsDict({"ip_address": str(ip)})
                         for ip in rule.target_dns_servers
                     ]
-                    network.ForwardingRule(
+                    dnsresolver.ForwardingRule(
                         resource_name=fmt_name(rule.domain_name),
                         forwarding_rule_name=fmt_name(rule.domain_name),
                         resource_group_name=self.stack.resource_group.name,
@@ -224,12 +224,12 @@ class PrivateDnsResolver(ComponentResource):
                 if self.config.outbound_endpoint.linked_vnets:
                     for vnet in self.config.outbound_endpoint.linked_vnets:
                         v = AzureResourceId(str(vnet))
-                        network.PrivateResolverVirtualNetworkLink(
+                        dnsresolver.PrivateResolverVirtualNetworkLink(
                             resource_name=f"{v.resource_name}-link",  # type: ignore
                             virtual_network_link_name=f"{v.resource_name}-link",
                             dns_forwarding_ruleset_name=ruleset.name,
                             resource_group_name=self.stack.resource_group.name,
-                            virtual_network=network.SubResourceArgs(id=v.id),
+                            virtual_network=dnsresolver.SubResourceArgs(id=v.id),
                             opts=self._opts,
                         )
 

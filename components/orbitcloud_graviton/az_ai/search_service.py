@@ -1,5 +1,5 @@
 import pulumi
-from pulumi_azure_native import insights, search
+from pulumi_azure_native import monitor, search
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
@@ -46,7 +46,7 @@ class SearchService(pulumi.ComponentResource):
 
         self.service: search.Service = self._service()
         self.private_endpoints: list[PrivateEndpoint] | None = self._private_endpoint()
-        self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
+        self.diagnostic_settings: monitor.DiagnosticSetting | None = self._diagnostic_settings()
         self._outputs()
 
     def _service(self) -> search.Service:
@@ -79,7 +79,7 @@ class SearchService(pulumi.ComponentResource):
                 for pe in self.config.private_endpoints
             ]
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.service,

@@ -1,6 +1,6 @@
 import pulumi
 from pulumi import ComponentResource
-from pulumi_azure_native.network import v20230901 as network
+from pulumi_azure_native import network
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from orbitcloud_graviton.pulumi_lib import AzureStack
@@ -63,26 +63,30 @@ class VwanP2sVpnGw(ComponentResource):
 
         return network.VpnServerConfiguration(
             resource_name=self.stack.name_for(network.VpnServerConfiguration),
-            vpn_server_configuration_name=self.stack.name_for(network.VpnServerConfiguration),
-            location=self.stack.location,
-            resource_group_name=self.stack.resource_group.name,
-            aad_authentication_parameters=network.AadAuthenticationParametersArgs(
-                aad_tenant=f"https://login.microsoftonline.com/{self.stack.tenant_id}",
-                aad_issuer=f"https://sts.windows.net/{self.stack.tenant_id}/",
-                aad_audience="41b23e61-6c1e-4545-b367-cd054e0ed4b4",
-            )
-            if self.config.entra_auth
-            else None,
-            vpn_authentication_types=auth_types,
-            vpn_protocols=auth_protocols,
-            vpn_client_root_certificates=[
-                network.VpnServerConfigVpnClientRootCertificateArgs(
-                    name="p2s-vpngw-client-root-cert",
-                    public_cert_data=self.config.cert_auth_root_cert,
-                )
-            ]
-            if self.config.cert_auth_root_cert
-            else None,
+            args=network.VpnServerConfigurationArgs(
+                vpn_server_configuration_name=self.stack.name_for(network.VpnServerConfiguration),
+                location=self.stack.location,
+                resource_group_name=self.stack.resource_group.name,
+                properties=network.VpnServerConfigurationPropertiesArgs(
+                    aad_authentication_parameters=network.AadAuthenticationParametersArgs(
+                        aad_tenant=f"https://login.microsoftonline.com/{self.stack.tenant_id}",
+                        aad_issuer=f"https://sts.windows.net/{self.stack.tenant_id}/",
+                        aad_audience="41b23e61-6c1e-4545-b367-cd054e0ed4b4",
+                    )
+                    if self.config.entra_auth
+                    else None,
+                    vpn_authentication_types=auth_types,
+                    vpn_protocols=auth_protocols,
+                    vpn_client_root_certificates=[
+                        network.VpnServerConfigVpnClientRootCertificateArgs(
+                            name="p2s-vpngw-client-root-cert",
+                            public_cert_data=self.config.cert_auth_root_cert,
+                        )
+                    ]
+                    if self.config.cert_auth_root_cert
+                    else None,
+                ),
+            ),
             opts=self._opts,
         )
 

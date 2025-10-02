@@ -32,7 +32,6 @@ def log_workspace(
     stack: AzureStack,
     opts: pulumi.ResourceOptions | None = None,
 ) -> operationalinsights.Workspace:
-    pulumi.debug(config.sku)
     log = operationalinsights.Workspace(
         resource_name=stack.name_for(operationalinsights.Workspace),
         resource_group_name=stack.resource_group.name,

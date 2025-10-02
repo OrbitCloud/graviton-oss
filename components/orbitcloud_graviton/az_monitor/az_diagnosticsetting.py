@@ -1,5 +1,5 @@
 import pulumi
-from pulumi_azure_native import insights
+from pulumi_azure_native import monitor
 
 
 def diagnostic_setting(
@@ -8,19 +8,19 @@ def diagnostic_setting(
     log_categories: list[str] | None = None,
     metric_categories: list[str] | None = None,
     opts=None,
-) -> insights.DiagnosticSetting:
+) -> monitor.DiagnosticSetting:
     # Have a look at the supported logs and metrics here:
     # https://learn.microsoft.com/en-us/azure/azure-monitor/reference/supported-logs/logs-index
 
     metric_categories = metric_categories or ["AllMetrics"]
     diag_name: str = "diag-" + resource._name
 
-    settings = insights.DiagnosticSetting(
+    settings = monitor.DiagnosticSetting(
         resource_name=diag_name,
         resource_uri=resource.id,
         workspace_id=log_workspace_id,
         metrics=[
-            insights.MetricSettingsArgs(
+            monitor.MetricSettingsArgs(
                 category=category,
                 enabled=True,
             )
@@ -29,7 +29,7 @@ def diagnostic_setting(
         if metric_categories
         else None,
         logs=[
-            insights.LogSettingsArgs(
+            monitor.LogSettingsArgs(
                 category=category,
                 enabled=True,
             )

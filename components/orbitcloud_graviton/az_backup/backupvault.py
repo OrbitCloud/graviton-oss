@@ -1,10 +1,5 @@
 import pulumi
-
-# from pulumi_azure_native import
-# from pulumi_azure_native.recoveryservices import v20240401 as recoveryservices
-from pulumi_azure_native.recoveryservices import v20240201 as recoveryservices
-
-# from pulumi_azure_native import recoveryservices
+from pulumi_azure_native import recoveryservices
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.pulumi_lib import AzureStack, EntraStack

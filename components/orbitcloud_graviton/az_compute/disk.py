@@ -1,8 +1,7 @@
 from typing import Literal
 
 import pulumi
-from pulumi_azure_native.compute import v20240302 as compute
-from pulumi_azure_native.compute.v20230701 import CachingTypes
+from pulumi_azure_native import compute
 from pydantic import BaseModel, ConfigDict, model_validator
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
@@ -13,7 +12,7 @@ class VirtualMachineDiskConfig(BaseModel):
     size_gb: int
     create_mode: compute.DiskCreateOption = compute.DiskCreateOption.EMPTY
     sku: compute.DiskStorageAccountTypes | None = compute.DiskStorageAccountTypes.PREMIUM_V2_LRS
-    caching: CachingTypes | None = None
+    caching: compute.CachingTypes | None = None
     source_disk_id: AzureIdRef | None = None
     source_image_id: AzureIdRef | None = None
     zone: str | None = None

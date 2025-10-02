@@ -1,7 +1,7 @@
 from typing import Any, Literal
 
 import pulumi
-from pulumi_azure_native.containerregistry import v20231101preview as containerregistry
+from pulumi_azure_native import containerregistry
 from pydantic import BaseModel, ConfigDict, Field
 
 from orbitcloud_graviton.az_lib.types import StrRef

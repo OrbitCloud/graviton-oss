@@ -3,7 +3,7 @@ from typing import Any
 
 import pulumi
 from pulumi import ComponentResource
-from pulumi_azure_native.network import v20200601 as network
+from pulumi_azure_native import privatedns
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, AzureResourceId
@@ -39,15 +39,15 @@ class PrivateDnsZone(ComponentResource):
         self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)
         )
-        self.zone: network.PrivateZone = self._zone()
-        self.records: list[network.PrivateRecordSet] = self._records()
+        self.zone: privatedns.PrivateZone = self._zone()
+        self.records: list[privatedns.PrivateRecordSet] = self._records()
         self._outputs()
 
-    def _zone(self) -> network.PrivateZone:
+    def _zone(self) -> privatedns.PrivateZone:
         if not isinstance(self.config.name, str):
             raise ValueError("DNS zone name must be a string")
 
-        zone = network.PrivateZone(
+        zone = privatedns.PrivateZone(
             resource_name=self.config.name,
             private_zone_name=self.config.name,
             resource_group_name=self.stack.resource_group.name,
@@ -58,13 +58,13 @@ class PrivateDnsZone(ComponentResource):
         if self.config.linked_vnets:
             for vnet in self.config.linked_vnets:
                 v = AzureResourceId(str(vnet))
-                network.VirtualNetworkLink(
+                privatedns.VirtualNetworkLink(
                     resource_name=f"{v.resource_name}_{self.config.name}",  # type: ignore
                     virtual_network_link_name=v.resource_name,
                     resource_group_name=self.stack.resource_group.name,
                     location="Global",
                     private_zone_name=zone.name,
-                    virtual_network=network.SubResourceArgs(id=v.id),
+                    virtual_network=privatedns.SubResourceArgs(id=v.id),
                     registration_enabled=False,
                     opts=pulumi.ResourceOptions.merge(
                         self._opts, pulumi.ResourceOptions(delete_before_replace=True)
@@ -72,16 +72,16 @@ class PrivateDnsZone(ComponentResource):
                 )
         return zone
 
-    def _records(self) -> list[network.PrivateRecordSet]:
+    def _records(self) -> list[privatedns.PrivateRecordSet]:
         if self.config.records:
             return [self.record(record) for record in self.config.records]
         return []
 
-    def record(self, record: Record) -> network.PrivateRecordSet:
+    def record(self, record: Record) -> privatedns.PrivateRecordSet:
         record_args = self._record_args(record)
-        return network.PrivateRecordSet(
+        return privatedns.PrivateRecordSet(
             resource_name=self.stack.name_for(
-                resource_type=network.PrivateRecordSet,
+                resource_type=privatedns.PrivateRecordSet,
                 workload_name=f"{record.record_type}-{record.relative_name}-{self.config.name}".replace(
                     ".", "-"
                 ).lower(),
@@ -100,20 +100,20 @@ class PrivateDnsZone(ComponentResource):
             records = []
             for ip in record.ip_addresses:
                 ip = str(ip) if isinstance(ip, IPv4Address) else ip
-                records.append(network.ARecordArgs(ipv4_address=ip))
+                records.append(privatedns.ARecordArgs(ipv4_address=ip))
             return {
                 "a_records": records,
             }
         if isinstance(record, CnameRecord):
-            return {"cname_record": network.CnameRecordArgs(cname=record.value)}
+            return {"cname_record": privatedns.CnameRecordArgs(cname=record.value)}
         if isinstance(record, MxRecord):
             return {
                 "mx_records": [
-                    network.MxRecordArgs(preference=record.preference, exchange=record.exchange)
+                    privatedns.MxRecordArgs(preference=record.preference, exchange=record.exchange)
                 ]
             }
         if isinstance(record, TxtRecord):
-            return {"txt_records": [network.TxtRecordArgs(value=record.values)]}
+            return {"txt_records": [privatedns.TxtRecordArgs(value=record.values)]}
 
         raise NotImplementedError(f"Record type {record.record_type} not implemented")
 

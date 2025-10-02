@@ -1,5 +1,5 @@
 import pulumi
-from pulumi_azure_native import insights, operationalinsights
+from pulumi_azure_native import applicationinsights, operationalinsights
 from pydantic import Field
 
 from orbitcloud_graviton.az_acr.registry import ContainerRegistryConfig, container_registry
@@ -61,7 +61,7 @@ def deploy() -> None:
     ##########################################
     # Application Insights
     ##########################################
-    appi: insights.Component = app_insights(
+    appi: applicationinsights.Component = app_insights(
         stack=stack,
         config=AppInsightsConfig(log_workspace_id=logs.id).model_copy(
             update=config.app_insights.model_dump() if config.app_insights else {}

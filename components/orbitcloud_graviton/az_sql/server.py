@@ -1,9 +1,9 @@
 from uuid import UUID
 
 import pulumi
-from pulumi_azure_native import insights, sql
+from pulumi_azure_native import monitor, sql
 from pulumi_azure_native.managedidentity import UserAssignedIdentity
-from pulumi_azure_native.sql.v20240501preview import (
+from pulumi_azure_native.sql import (
     JobAgent,
     JobAgentArgs,
     JobAgentIdentityArgs,
@@ -116,7 +116,7 @@ class SqlServer(pulumi.ComponentResource):
         self.dns_alias: sql.ServerDnsAlias | None = self._dns_alias()
         self.elastic_pool: sql.ElasticPool | None = self._elastic_pool()
         self.private_endpoints: list[PrivateEndpoint] | None = self._private_endpoints()
-        self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
+        self.diagnostic_settings: monitor.DiagnosticSetting | None = self._diagnostic_settings()
         self.elastic_job_agent: JobAgent | None = self._elastic_job_agent()
 
         self._outputs()
@@ -321,7 +321,7 @@ class SqlServer(pulumi.ComponentResource):
 
             return ja
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id and self.elastic_pool:
             return diagnostic_setting(
                 resource=self.elastic_pool,

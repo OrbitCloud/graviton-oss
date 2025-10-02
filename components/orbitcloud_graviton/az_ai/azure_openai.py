@@ -1,10 +1,10 @@
 from ipaddress import IPv4Address
 
 import pulumi
-from pulumi_azure_native import insights
 
 # from pulumi_azure_native import
-from pulumi_azure_native.cognitiveservices import v20241001 as ai
+from pulumi_azure_native import cognitiveservices as ai
+from pulumi_azure_native import monitor
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
@@ -48,7 +48,7 @@ class AzureOpenAi(pulumi.ComponentResource):
 
         self.account: ai.Account = self._account()
         self.private_endpoints: list[PrivateEndpoint] | None = self._private_endpoints()
-        self.diagnostic_settings: insights.DiagnosticSetting | None = self._diagnostic_settings()
+        self.diagnostic_settings: monitor.DiagnosticSetting | None = self._diagnostic_settings()
 
         self._outputs()
 
@@ -93,7 +93,7 @@ class AzureOpenAi(pulumi.ComponentResource):
                 for endpoint in self.config.private_endpoints
             ]
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.account,

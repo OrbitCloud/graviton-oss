@@ -72,7 +72,6 @@
   "python.testing.pytestPath": ".venv/bin/pytest",
   "python.testing.unittestEnabled": false,
   "ruff.enable": true,
-  "ruff.lint.run": "onType",
   "ruff.path": [".venv/bin/ruff"],
   "pythonIndent.trimLinesWithOnlyWhitespace": true,
   "yaml.hover": true

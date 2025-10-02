@@ -1,8 +1,7 @@
 from typing import Any
 
 import pulumi
-from pulumi_azure_native import insights, network
-from pulumi_azure_native.app import v20241002preview as app
+from pulumi_azure_native import app, dns, monitor
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -95,7 +94,7 @@ class ContainerAppEnv(pulumi.ComponentResource):
         )
 
         self.environment: app.ManagedEnvironment = self._environment()
-        self.dns_records: list[network.RecordSet] | None = self._dns_records()
+        self.dns_records: list[dns.RecordSet] | None = self._dns_records()
         self.certificates: dict[str, app.Certificate] = self._certificates()
         self._diagnostic_settings()
 
@@ -128,7 +127,7 @@ class ContainerAppEnv(pulumi.ComponentResource):
 
         return environment
 
-    def _dns_records(self) -> list[network.RecordSet] | None:
+    def _dns_records(self) -> list[dns.RecordSet] | None:
         if self.config.custom_domain and self.config.custom_domain.dns_zone_id:
             stack: AzureStack | None = None
             if self.config.custom_domain.dns_zone_stack and isinstance(
@@ -202,7 +201,7 @@ class ContainerAppEnv(pulumi.ComponentResource):
                 dns_suffix=self.config.custom_domain.name,
             )
 
-    def _diagnostic_settings(self) -> insights.DiagnosticSetting | None:
+    def _diagnostic_settings(self) -> monitor.DiagnosticSetting | None:
         if self.config.log_workspace_id:
             return diagnostic_setting(
                 resource=self.environment,

@@ -1,7 +1,7 @@
 """Azure Application Insights Module"""
 
 import pulumi
-from pulumi_azure_native import insights
+from pulumi_azure_native import applicationinsights
 from pydantic import BaseModel, ConfigDict
 
 from orbitcloud_graviton.az_lib.types import AzureIdRef
@@ -19,17 +19,17 @@ def app_insights(
     stack: AzureStack,
     config: AppInsightsConfig,
     opts: pulumi.ResourceOptions | None = None,
-) -> insights.Component:
+) -> applicationinsights.Component:
     """
     Create an Application Insights component
     """
 
-    appi = insights.Component(
-        resource_name=stack.name_for(insights.Component),
+    appi = applicationinsights.Component(
+        resource_name=stack.name_for(applicationinsights.Component),
         location=stack.location,
         resource_group_name=stack.resource_group.name,
         kind="web",
-        application_type=insights.ApplicationType.WEB,
+        application_type=applicationinsights.ApplicationType.WEB,
         retention_in_days=config.retention_in_days,
         workspace_resource_id=config.log_workspace_id,
         opts=pulumi.ResourceOptions.merge(

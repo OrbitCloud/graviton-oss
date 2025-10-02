@@ -62,7 +62,7 @@ class ARecord(BaseModel):
     relative_name: str = Field(..., pattern=r"^(@|[a-zA-Z0-9-*]+(\.[a-zA-Z0-9-*]+)?)$")
     ttl: int = Field(default=300, ge=60)
     record_type: Literal["A"] = "A"
-    ip_addresses: list[IPv4Address] | list[pulumi.Output[str]]
+    ip_addresses: list[pulumi.Output[str]] | list[IPv4Address]
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 

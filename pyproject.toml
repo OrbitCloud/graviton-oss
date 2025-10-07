@@ -65,7 +65,7 @@
         enabled = false
 
     [tool.poetry.dependencies]
-        aiohttp                  = "^3.11"
+        aiohttp                  = "^3.13"
         azure-mgmt-authorization = "^4.0.0"
         azure-mgmt-network       = "^29.0"
         cryptography             = "^46.0.0"

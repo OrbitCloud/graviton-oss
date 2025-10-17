@@ -95,7 +95,7 @@
         pytest       = "^8.0.2"
         pytest-cov   = "^7.0.0"
         pytest-sugar = "^1.0.0"
-        ruff         = "^0.13"
+        ruff         = "^0.14"
 
 [tool.pyright]
     include = ["bases", "components", "development", "test"]

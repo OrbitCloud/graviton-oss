@@ -19,6 +19,7 @@ class CustomDomainConfig(BaseModel):
     certificate_id: AzureIdRef | None = None
     ssl: app.BindingType | None = app.BindingType.SNI_ENABLED
     dns_zone_stack: DictRef | None = None
+    managed_certificate_name: str | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 

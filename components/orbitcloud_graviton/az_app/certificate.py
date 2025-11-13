@@ -42,16 +42,24 @@ def managed_certificate(
     stack: AzureStack,
     custom_domain: str,
     environment: ContainerAppEnvOutput,
+    managed_certificate_name: str | None = None,
     opts: pulumi.ResourceOptions | None = None,
 ) -> app.ManagedCertificate | None:
-    app.ManagedCertificate(
+    # Use provided name or default to autonaming for backward compatibility
+    certificate_name = (
+        managed_certificate_name
+        if managed_certificate_name is not None
+        else f"cert-{custom_domain.replace('.', '-')}"
+    )
+
+    return app.ManagedCertificate(
         resource_name=stack.name_for(
             resource_type=app.ManagedCertificate, workload_name=fmt_name(custom_domain)
         ),
         args=app.ManagedCertificateArgs(
             resource_group_name=environment.resource_group_name,
             environment_name=environment.name,
-            managed_certificate_name=f"cert-{custom_domain.replace('.', '-')}",
+            managed_certificate_name=certificate_name,
             properties=app.ManagedCertificatePropertiesArgs(
                 domain_control_validation=app.ManagedCertificateDomainControlValidation.HTTP,
                 subject_name=custom_domain,

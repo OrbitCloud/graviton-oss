@@ -175,6 +175,7 @@ class ContainerApp(pulumi.ComponentResource):
                 stack=self.stack,
                 custom_domain=domain.name,
                 environment=self.environment,
+                managed_certificate_name=domain.managed_certificate_name,
                 opts=pulumi.ResourceOptions(
                     parent=self.app, depends_on=zone.records if zone else None
                 ),

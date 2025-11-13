@@ -67,7 +67,7 @@
     [tool.poetry.dependencies]
         aiohttp                  = "^3.11"
         azure-mgmt-authorization = "^4.0.0"
-        azure-mgmt-network       = "^29.0"
+        azure-mgmt-network       = "^30.0"
         cryptography             = "^46.0.0"
         jinja2                   = "^3.1.4"
         pulumi                   = "^3.138"
@@ -89,13 +89,13 @@
         commitizen   = "^4.0"
         copier       = "^9.1.1"
         debugpy      = "^1.8.6"
-        ipykernel    = "^6.29.3"
+        ipykernel    = "^7.1.0"
         pre-commit   = "^4.0"
         pyright      = "^1.1"
-        pytest       = "^8.0.2"
+        pytest       = "^9.0.1"
         pytest-cov   = "^7.0.0"
         pytest-sugar = "^1.0.0"
-        ruff         = "^0.13"
+        ruff         = "^0.14"
 
 [tool.pyright]
     include = ["bases", "components", "development", "test"]

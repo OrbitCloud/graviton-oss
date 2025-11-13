@@ -1,3 +1,9 @@
+## v0.88.1 (2025-11-13)
+
+### Fix
+
+- **ContainerApp**: Allow explicit naming on managed cert name
+
 ## v0.88.0 (2025-09-18)
 
 ### Feat

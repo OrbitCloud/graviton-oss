@@ -1,3 +1,9 @@
+## v0.88.2 (2025-11-20)
+
+### Fix
+
+- **AzureStack**: Validation failures after Pydantic update fixed
+
 ## v0.88.1 (2025-11-13)
 
 ### Fix

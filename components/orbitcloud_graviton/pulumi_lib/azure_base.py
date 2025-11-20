@@ -98,7 +98,11 @@ class AzureStack(PulumiConfig):
                 key: str = f"{pre}_{k}" if pre else k
                 pulumi.export(name=key, value=v)
 
-    model_config = SettingsConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+    model_config = SettingsConfigDict(
+        arbitrary_types_allowed=True,
+        validate_by_name=True,
+        validate_by_alias=True,
+    )
 
 
 @lru_cache

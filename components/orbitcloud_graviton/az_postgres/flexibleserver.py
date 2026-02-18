@@ -208,7 +208,7 @@ class PostgresFlexibleServer(pulumi.ComponentResource):
             create_mode=self.config.create_mode.mode,
             source_server_resource_id=self.config.create_mode.source_server_id,
             data_encryption=postgres.DataEncryptionArgs(
-                type=postgres.ArmServerKeyType.SYSTEM_MANAGED,
+                type=postgres.DataEncryptionType.SYSTEM_ASSIGNED,
             ),
             replication_role=postgres.ReplicationRole.PRIMARY,
         )

@@ -194,16 +194,18 @@ class AcmeSsl(ComponentResource):
         x509_pkcs8_pem: Output[str] = pulumi.Output.all(
             cert=self.certificate.certificate_pem, key=self.certificate.private_key_pem
         ).apply(
-            lambda args: args["cert"]
-            + serialization.load_pem_private_key(
-                args["key"].encode(), password=None, backend=default_backend()
+            lambda args: (
+                args["cert"]
+                + serialization.load_pem_private_key(
+                    args["key"].encode(), password=None, backend=default_backend()
+                )
+                .private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.PKCS8,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+                .decode()
             )
-            .private_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PrivateFormat.PKCS8,
-                encryption_algorithm=serialization.NoEncryption(),
-            )
-            .decode()
         )
 
         self.stack.export(

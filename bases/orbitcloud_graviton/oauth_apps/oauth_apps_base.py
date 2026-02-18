@@ -50,17 +50,19 @@ def deploy() -> None:
                     else None,
                     "redirect_uris": app.app.web.redirect_uris,
                     "app_roles": app.app.app_roles.apply(
-                        func=lambda roles: [
-                            {
-                                "id": role.id,
-                                "display_name": role.display_name,
-                                "value": role.value,
-                                "description": role.description,
-                            }
-                            for role in roles
-                        ]
-                        if roles
-                        else None
+                        func=lambda roles: (
+                            [
+                                {
+                                    "id": role.id,
+                                    "display_name": role.display_name,
+                                    "value": role.value,
+                                    "description": role.description,
+                                }
+                                for role in roles
+                            ]
+                            if roles
+                            else None
+                        )
                     ),
                 }
                 for app_name, app in apps.items()

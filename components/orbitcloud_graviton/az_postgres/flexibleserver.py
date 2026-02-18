@@ -15,15 +15,15 @@ class PostgresAuthConfig(BaseModel):
     admin_username: str = "cloudsa"
     admin_password: str | None = None
 
-    entra_auth: postgres.ActiveDirectoryAuthEnum = postgres.ActiveDirectoryAuthEnum.ENABLED
+    entra_auth: postgres.ActiveDirectoryAuth = postgres.ActiveDirectoryAuth.ENABLED
     entra_admins: list[UUID] | None = None
-    postgres_auth: postgres.PasswordAuthEnum = postgres.PasswordAuthEnum.ENABLED
+    postgres_auth: postgres.PasswordAuth = postgres.PasswordAuth.ENABLED
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class PostgresBackupConfig(BaseModel):
-    geo_redundant: postgres.GeoRedundantBackupEnum = postgres.GeoRedundantBackupEnum.DISABLED
+    geo_redundant: postgres.GeoRedundantBackup = postgres.GeoRedundantBackup.DISABLED
     retention_days: int = 7
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
@@ -69,7 +69,7 @@ class PostgresMaintenanceConfig(BaseModel):
 class PostgresStorageConfig(BaseModel):
     auto_growth: postgres.StorageAutoGrow | None = postgres.StorageAutoGrow.ENABLED
     storage_size_gb: int | None = Field(default=32, ge=32, le=65536)
-    tier: postgres.AzureManagedDiskPerformanceTiers | None = None
+    tier: postgres.AzureManagedDiskPerformanceTier | None = None
     storage_type: postgres.StorageType = postgres.StorageType.PREMIUM_LRS
     iops: int | None = None
     throughput: int | None = Field(default=None, ge=125, le=750)
@@ -94,7 +94,9 @@ class PostgresNetworkConfig(BaseModel):
 
 class PostgresFlexibleServerConfig(BaseModel):
     server_name: str | None = None
-    server_version: postgres.ServerVersion = postgres.ServerVersion.SERVER_VERSION_16
+    server_version: postgres.PostgresMajorVersion = (
+        postgres.PostgresMajorVersion.POSTGRES_MAJOR_VERSION_18
+    )
     authentication: PostgresAuthConfig = PostgresAuthConfig()
     network: PostgresNetworkConfig | None = None
     sku: PostgresSku = PostgresSku()
@@ -105,7 +107,9 @@ class PostgresFlexibleServerConfig(BaseModel):
     maintenance: PostgresMaintenanceConfig | None = None
     zone: str | None = None
 
-    high_availability: postgres.HighAvailabilityMode = postgres.HighAvailabilityMode.DISABLED
+    high_availability: postgres.PostgreSqlFlexibleServerHighAvailabilityMode = (
+        postgres.PostgreSqlFlexibleServerHighAvailabilityMode.DISABLED
+    )
 
     log_workspace_id: AzureIdRef | None = None
 

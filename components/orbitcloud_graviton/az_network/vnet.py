@@ -1,3 +1,5 @@
+# vnet.py
+
 from typing import Any
 
 import pulumi
@@ -11,6 +13,7 @@ from orbitcloud_graviton.pulumi_lib import AzureStack, get_provider
 from ._enums import NON_NSG_SUBNETS, SPECIAL_SUBNETS, SubnetServiceEndpoints
 from .ip_group import IpGroupConfig, ip_group
 from .nsg import DEFAULT_DENY_RULE, NsgRuleConfig
+from .route import RouteTable, RouteTableConfig
 from .types import PrivateIPv4Network
 
 
@@ -25,6 +28,7 @@ class SubnetConfig(BaseModel):
     virtual_network_name: str | pulumi.Output[str] | None = None
     service_endpoints: list[SubnetServiceEndpoints] | None = None
     network_rules: list[NsgRuleConfig] | None = None
+    route_table_name: str | None = None
 
     @model_validator(mode="after")
     def validate_network_rules(m: "SubnetConfig") -> "SubnetConfig":
@@ -51,6 +55,7 @@ class VnetConfig(BaseModel):
     peered_vnets: list[VnetPeeringConfig] | None = None
     create_default_nsgs: bool | None = False
     create_ip_groups: bool | None = False
+    route_tables: list[RouteTableConfig] | None = None
 
     # Validate that subnets are unique, don't overlap and are within the vnet address space
     @model_validator(mode="after")
@@ -111,6 +116,7 @@ class Vnet(ComponentResource):
 
         self.vnet: network.VirtualNetwork = self._vnet()
         self.nsgs: dict[str, network.NetworkSecurityGroup] = self._nsgs()
+        self.route_tables: dict[str, RouteTable] = self._route_tables()
         self.subnets: dict[str, network.Subnet] = self._subnets()
         self.ip_groups: dict[str, network.IpGroup] | None = self._ip_groups()
         self.vnet_peering = self._vnet_peerings()
@@ -120,12 +126,11 @@ class Vnet(ComponentResource):
     def _vnet(self) -> network.VirtualNetwork:
         return network.VirtualNetwork(
             resource_name=self.stack.name_for(network.VirtualNetwork),
-            args=network.VirtualNetworkArgs(
-                resource_group_name=self.stack.resource_group.name,
-                location=self.stack.location,
-                address_space=network.AddressSpaceArgs(
-                    address_prefixes=[str(x) for x in self.config.address_space],
-                ),
+            virtual_network_name=self.stack.name_for(network.VirtualNetwork),
+            resource_group_name=self.stack.resource_group.name,
+            location=self.stack.location,
+            address_space=network.AddressSpaceArgs(
+                address_prefixes=[str(x) for x in self.config.address_space],
             ),
             opts=pulumi.ResourceOptions.merge(
                 opts1=self._opts,
@@ -134,6 +139,17 @@ class Vnet(ComponentResource):
                 ),
             ),
         )
+
+    def _route_tables(self) -> dict[str, RouteTable]:
+        route_tables = {}
+        for rt_config in self.config.route_tables or []:
+            rt = RouteTable(
+                stack=self.stack,
+                config=rt_config,
+                opts=pulumi.ResourceOptions(parent=self),
+            )
+            route_tables[rt_config.name] = rt
+        return route_tables
 
     def _nsgs(self) -> dict[str, network.NetworkSecurityGroup]:
         nsgs = {}
@@ -212,6 +228,11 @@ class Vnet(ComponentResource):
                         id=self.nsgs[subnet.name].id
                     )
                     if self.nsgs.get(subnet.name)
+                    else None,
+                    route_table=network.RouteTableArgs(
+                        id=self.route_tables[subnet.route_table_name].route_table.id
+                    )
+                    if subnet.route_table_name
                     else None,
                 ),
                 opts=pulumi.ResourceOptions(

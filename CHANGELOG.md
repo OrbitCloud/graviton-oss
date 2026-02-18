@@ -1,3 +1,14 @@
+## v0.89.0 (2026-02-18)
+
+### Feat
+
+- **PostgresFlexibleServer**: Bump default major version to 18
+- **VirtualNetwork**: Add support for route tables
+
+### Refactor
+
+- **AppServicePlan**: Implement enum.StrEnum
+
 ## v0.88.2 (2025-11-20)
 
 ### Fix

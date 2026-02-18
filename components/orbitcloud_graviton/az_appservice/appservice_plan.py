@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 import pulumi
 from pulumi_azure_native import monitor, operationalinsights, resources, web
@@ -8,7 +8,7 @@ from orbitcloud_graviton.az_lib import resource_namer
 from orbitcloud_graviton.az_monitor import diagnostic_setting
 
 
-class PlanSkuTiers(str, Enum):
+class PlanSkuTiers(StrEnum):
     P = "PremiumV3"
     E = "ElasticPremium"
     S = "Standard"
@@ -16,7 +16,7 @@ class PlanSkuTiers(str, Enum):
     F = "Free"
 
 
-class PlanSkuNames(str, Enum):
+class PlanSkuNames(StrEnum):
     P0V3 = "P0V3"
     P1V3 = "P1V3"
     P2V3 = "P2V3"

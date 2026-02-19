@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make fmt)",
+      "Bash(make lint)",
+      "Bash(make test)",
+      "Bash(make pyright)",
+      "Bash(git checkout -b *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git merge-base *)",
+      "Bash(git status)"
+    ]
+  }
+}

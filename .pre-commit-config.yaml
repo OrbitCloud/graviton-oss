@@ -26,7 +26,7 @@ repos:
 
       - id: pyright
         name: pyright
-        entry: poetry run pyright -p .
+        entry: uv run pyright -p .
         language: system
         pass_filenames: false
         types: [python]

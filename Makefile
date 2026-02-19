@@ -6,20 +6,12 @@ default: help
 ##@
 
 .PHONY: install
-install: ##@ Install Poetry dependencies
-	pulumi package gen-sdk --local --out sdk/pulumi_azure_native_app_v20241002preview --language python azure-native app 2024-10-02-preview
-	poetry install
+install: ##@ Install dependencies with uv
+	uv sync
 
 .PHONY: install-precommit
 install-precommit: ##@ Install pre-commit hooks
 	pre-commit install
-
-.PHONY: install-poly
-install-poly: ##@ Install polylith plugins
-	poetry self add poetry-multiproject-plugin
-	poetry self add poetry-polylith-plugin
-
-
 
 
 ##@
@@ -32,21 +24,21 @@ stacks: ##@ Check for changes in stacks
 
 .PHONY: test
 test: ##@ Run tests
-	poetry run pytest --cov --cov-report=term-missing:skip-covered --junitxml=pytest.xml | tee pytest-coverage.txt
+	uv run pytest --cov --cov-report=term-missing:skip-covered --junitxml=pytest.xml | tee pytest-coverage.txt
 
 .PHONY: fmt
 fmt: ##@ Ruff formatter and linter (autofix)
-	poetry run ruff check --fix .
-	poetry run ruff format .
+	uv run ruff check --fix .
+	uv run ruff format .
 
 .PHONY: lint
 lint: ##@ Ruff formatter and linter (check mode)
-	poetry run ruff check --no-fix .
-	poetry run ruff format --check .
+	uv run ruff check --no-fix .
+	uv run ruff format --check .
 
 .PHONY: pyright
 pyright: ##@ Run Pyright type checker
-	poetry run pyright -p .
+	uv run pyright -p .
 
 ##@
 ##@ Scaffolding
@@ -54,23 +46,23 @@ pyright: ##@ Run Pyright type checker
 
 .PHONY: component
 component: ##@ Create a new component
-	copier copy templates/component_class .
+	uv run copier copy templates/component_class .
 
 .PHONY: base
 base: ##@ Create a new base
-	copier copy templates/base .
+	uv run copier copy templates/base .
 
 ##@
-##@ Dependency choirs
+##@ Dependency chores
 ##@
 
 .PHONY: outdated
-outdated: ##@ Check for outdated Poetry dependencies
-	poetry show --outdated --top-level
+outdated: ##@ Check for outdated dependencies
+	uv tree --outdated
 
 .PHONY: update
-update: ##@ Update Poetry and pre-commit dependencies
-	poetry update
+update: ##@ Update uv and pre-commit dependencies
+	uv lock --upgrade
 	pre-commit autoupdate
 
 

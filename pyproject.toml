@@ -1,52 +1,55 @@
-[tool.poetry]
-authors = ["Orbit Team <admin@orbit.is>"]
-description = ""
-license = "MIT"
-name = "orbitcloud_graviton"
-packages = [
-    { include = "orbitcloud_graviton/acme_ssl", from = "bases" },
-    { include = "orbitcloud_graviton/app_workload", from = "bases" },
-    { include = "orbitcloud_graviton/app_zone", from = "bases" },
-    { include = "orbitcloud_graviton/appservice_suite", from = "bases" },
-    { include = "orbitcloud_graviton/az_acr", from = "components" },
-    { include = "orbitcloud_graviton/az_ai", from = "components" },
-    { include = "orbitcloud_graviton/az_app", from = "components" },
-    { include = "orbitcloud_graviton/az_appconfig", from = "components" },
-    { include = "orbitcloud_graviton/az_appservice", from = "components" },
-    { include = "orbitcloud_graviton/az_backup", from = "components" },
-    { include = "orbitcloud_graviton/az_compute", from = "components" },
-    { include = "orbitcloud_graviton/az_eventgrid", from = "components" },
-    { include = "orbitcloud_graviton/az_eventhub", from = "components" },
-    { include = "orbitcloud_graviton/az_iam", from = "components" },
-    { include = "orbitcloud_graviton/az_keyvault", from = "components" },
-    { include = "orbitcloud_graviton/az_lib", from = "components" },
-    { include = "orbitcloud_graviton/az_monitor", from = "components" },
-    { include = "orbitcloud_graviton/az_network", from = "components" },
-    { include = "orbitcloud_graviton/az_postgres", from = "components" },
-    { include = "orbitcloud_graviton/az_resources", from = "components" },
-    { include = "orbitcloud_graviton/az_servicebus", from = "components" },
-    { include = "orbitcloud_graviton/az_sql", from = "components" },
-    { include = "orbitcloud_graviton/az_storage", from = "components" },
-    { include = "orbitcloud_graviton/azure_environment", from = "bases" },
-    { include = "orbitcloud_graviton/azure_tenant", from = "bases" },
-    { include = "orbitcloud_graviton/azuresql", from = "bases" },
-    { include = "orbitcloud_graviton/cloud_init", from = "components" },
-    { include = "orbitcloud_graviton/entra", from = "components" },
-    { include = "orbitcloud_graviton/entra_external_id", from = "bases" },
-    { include = "orbitcloud_graviton/hubspoke", from = "bases" },
-    { include = "orbitcloud_graviton/landing_zone", from = "bases" },
-    { include = "orbitcloud_graviton/oauth_apps", from = "bases" },
-    { include = "orbitcloud_graviton/ora_queue", from = "components" },
-    { include = "orbitcloud_graviton/oracledb", from = "bases" },
-    { include = "orbitcloud_graviton/pulumi", from = "components" },
-    { include = "orbitcloud_graviton/pulumi_jinja", from = "components" },
-    { include = "orbitcloud_graviton/pulumi_jinja", from = "components" },
-    { include = "orbitcloud_graviton/pulumi_lib", from = "components" },
-    { include = "orbitcloud_graviton/pulumi_mocks", from = "components" },
-    { include = "orbitcloud_graviton/workload_identities", from = "bases" },
-]
+[project]
+name = "orbitcloud-graviton"
+version = "0.89.0"
+description = "Python Infrastructure-as-Code development kit for Azure, built on Pulumi"
 readme = "README.md"
-version = "0.70.0"
+license = "MIT"
+requires-python = ">=3.12,<4.0"
+authors = [{ name = "Orbit Team", email = "admin@orbit.is" }]
+dependencies = [
+    "aiohttp>=3.11,<4",
+    "azure-mgmt-authorization>=4,<5",
+    "azure-mgmt-network>=30,<31",
+    "cryptography>=46,<47",
+    "jinja2>=3.1.4,<4",
+    "pulumi>=3.138,<4",
+    "pulumi-azure-native>=3.7,<4",
+    "pulumi-azuread>=6.0.1,<7",
+    "pulumi-cloudinit>=1.4.7,<2",
+    "pulumi-command>=1.0.1,<2",
+    "pulumi-postgresql>=3.12,<4",
+    "pulumi-random>=4.16,<5",
+    "pulumi-std>=2.1,<3",
+    "pulumi-tls>=5.0.1,<6",
+    "pulumiverse-acme>=0.14,<0.15",
+    "pulumiverse-time>=0.1,<0.2",
+    "pydantic[email]>=2.10,<3",
+    "pydantic-settings>=2.4,<3",
+]
+
+[dependency-groups]
+dev = [
+    "commitizen>=4,<5",
+    "copier>=9.1.1,<10",
+    "debugpy>=1.8.6,<2",
+    "ipykernel>=7.1,<8",
+    "pre-commit>=4,<5",
+    "pyright>=1.1,<2",
+    "pytest>=9.0.1,<10",
+    "pytest-cov>=7,<8",
+    "pytest-sugar>=1,<2",
+    "ruff>=0.15,<1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "bases/orbitcloud_graviton",
+    "components/orbitcloud_graviton",
+]
 
 [tool.polylith]
 namespace = "orbitcloud_graviton"
@@ -63,39 +66,6 @@ brick_docs_enabled = false
 
 [tool.polylith.test]
 enabled = false
-
-[tool.poetry.dependencies]
-aiohttp = "^3.11"
-azure-mgmt-authorization = "^4.0.0"
-azure-mgmt-network = "^30.0"
-cryptography = "^46.0.0"
-jinja2 = "^3.1.4"
-pulumi = "^3.138"
-pulumi-azure-native = "^3.7"
-pulumi-azuread = "^6.0.1"
-pulumi-cloudinit = "^1.4.7"
-pulumi-command = "^1.0.1"
-pulumi-postgresql = "^3.12.0"
-pulumi-random = "^4.16"
-pulumi-std = "^2.1.0"
-pulumi-tls = "^5.0.1"
-pulumiverse-acme = "^0.14"
-pulumiverse-time = "^0.1"
-pydantic = { extras = ["email"], version = "^2.10" }
-pydantic-settings = "^2.4"
-python = ">=3.12,<4.0"
-
-[tool.poetry.group.dev.dependencies]
-commitizen = "^4.0"
-copier = "^9.1.1"
-debugpy = "^1.8.6"
-ipykernel = "^7.1.0"
-pre-commit = "^4.0"
-pyright = "^1.1"
-pytest = "^9.0.1"
-pytest-cov = "^7.0.0"
-pytest-sugar = "^1.0.0"
-ruff = "^0.15"
 
 [tool.pyright]
 include = ["bases", "components", "test"]
@@ -186,9 +156,5 @@ major_version_zero = true                              # Remove when we hit 1.0.
 name = "cz_conventional_commits"
 tag_format = "v$version"
 update_changelog_on_bump = true
-version = "0.89.0"
-version_files = ["VERSION", "pyproject.toml:^version"]
-
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core"]
+version_provider = "pep621"
+version_files = ["VERSION"]

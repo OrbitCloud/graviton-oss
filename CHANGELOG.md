@@ -1,3 +1,9 @@
+## v0.90.0 (2026-02-26)
+
+### Feat
+
+- **az_app**: Add managed storage and volume mount support
+
 ## v0.89.0 (2026-02-18)
 
 ### Feat

@@ -87,7 +87,7 @@ python = ">=3.12,<4.0"
 
 [tool.poetry.group.dev.dependencies]
 commitizen = "^4.0"
-copier = "^9.1.1"
+copier = "^9.12.0"
 debugpy = "^1.8.6"
 ipykernel = "^7.1.0"
 pre-commit = "^4.0"

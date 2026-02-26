@@ -1,4 +1,4 @@
-# [Alpha preview] Graviton CDK – "Infrastructure as Lego"
+# Graviton CDK -- Infrastructure as Lego
 
 ![Alt text](graviton.jpg)
 
@@ -9,74 +9,82 @@
 
 ## Overview
 
-Graviton CDK is a modular infrastructure as code (IaC) development kit that enables composing secure, reliable and manageable infrastructure stacks using reusable components akin to building Lego.
+Graviton CDK is a Python infrastructure-as-code library for Azure, built on
+[Pulumi](https://www.pulumi.com/). It provides a collection of opinionated,
+composable building blocks -- **components** and **bases** -- that snap together
+like Lego to form complete cloud environments.
 
-> :warning: **WARNING**: This project is an alpha preview (v0.x.x) and under development. Breaking changes should be expected.
+Instead of writing hundreds of lines of resource definitions, platform
+engineering teams compose pre-built components (networking, compute, storage,
+IAM, monitoring, and more) into higher-level bases (landing zones, hub-spoke
+networks, workload identities) that encode best practices out of the box.
 
-## Development
+## Features
 
-```ansi
-Usage: make <command>
+- **25+ Azure components** -- networking, compute, storage, container registry,
+  Key Vault, Event Hub, Service Bus, PostgreSQL, SQL, AI services, monitoring,
+  and more.
+- **14 composable bases** -- landing zones, hub-spoke networking, workload
+  identities, app workloads, firewall, Oracle DB, ACME SSL, and others.
+- **Pydantic-powered configuration** -- every resource is configured through
+  validated Pydantic models with sensible defaults.
+- **Built on Pulumi** -- full Python expressiveness, real programming constructs,
+  and access to the entire Pulumi ecosystem.
+- **Polylith architecture** -- components and bases are independently
+  developable, testable, and reusable.
 
-Initialize dev environment
-    install              Install Poetry dependencies
-    install-precommit    Install pre-commit hooks
-    install-poly         Install polylith plugins
-    install-lego         Install lego acme cli
+## Quick Start
 
-Local development
-    stacks               Check for changes in stacks
-    test                 Run tests
-    fmt                  Ruff formatter and linter (autofix)
-    lint                 Ruff formatter and linter (check mode)
-    pyright              Run Pyright type checker
+Deploy a landing zone with a single function call. Graviton reads its
+configuration from your Pulumi stack config:
 
-Scaffolding
-    component            Create a new component
-    base                 Create a new base
+```python
+from orbitcloud_graviton.landing_zone import deploy_landing_zone
 
-Dependency choirs
-    outdated             Check for outdated Poetry dependencies
-    update               Update Poetry and pre-commit dependencies
-
-Help
-    help                 (Default) Print listing of key targets with their descriptions
+deploy_landing_zone()
 ```
 
-## Adding components & bases
+The landing zone is driven by your `Pulumi.<stack>.yaml` configuration:
 
-- Structure based on [Polylith](https://polylith.gitbook.io/polylith/) & [python-polylith](https://github.com/DavidVujic/python-polylith).
+```yaml
+config:
+  # The namespace (before the colon) is your Pulumi project name
+  landing_zone:has_keyvault: true
+  landing_zone:has_container_registry: true
+```
+
+Run `pulumi up` and your entire environment is provisioned.
+
+## Installation
 
 ```bash
-# Create a new component
-poetry poly create component --name <component_name>
-
-# Create a new base
-poetry poly create base --name <base_name>
-
+pip install orbitcloud-graviton
 ```
 
-## Versioning & Commit messages
+Or with Poetry:
 
-Releases are automatically created by commitizen in the build workflow when a
-commit is pushed to the `main` branch. To communicate the intent of your changes
-to the release process, please use the following prefixes:
+```bash
+poetry add orbitcloud-graviton
+```
 
-- `feat:` New feature - will trigger a minor version bump
-- `fix:` Bug fix - will trigger a patch version bump
-- `test:` Adding or updating tests
-- `refactor:` Code refactor
-- `style:` Code style update
-- `chore:` Maintenance task (e.g. bumping dependencies)
-- `docs:` Documentation update
-- `ci`: CI/CD related changes
+## Project Structure
 
-### Breaking changes
+Graviton follows the [Polylith](https://polylith.gitbook.io/polylith/)
+architecture. **Components** (`components/`) wrap individual Azure services with
+opinionated defaults. **Bases** (`bases/`) compose components into higher-level
+deployment patterns.
 
-When commitizen sees `BREAKING CHANGE` in the commit message, it will trigger a
-major version bump – `cz commit` is your friend here and will automatically
-include the breaking changes in the changelog and release message.
+## Versioning
 
-Right now we've set `major_version_zero = true` in `pyproject.toml` which means
-that we're still in v0.x.x and breaking changes will not trigger a major version
-as all versions are considered unstable.
+Graviton follows [semver](https://semver.org/). See the
+[releases](https://github.com/OrbitCloud/graviton-oss/releases) page for the
+latest version and changelog.
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for
+development setup, coding conventions, and commit message guidelines.
+
+## License
+
+MIT -- see the [LICENSE](LICENSE) file for details.

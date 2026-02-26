@@ -16,9 +16,7 @@ def test_postgres_create_mode_default() -> None:
 
 def test_postgres_create_mode_point_in_time_restore_requires_source() -> None:
     with pytest.raises(ValueError, match="source_server_id is required when mode is"):
-        PostgresCreateMode.model_validate(
-            {"mode": postgres.CreateMode.POINT_IN_TIME_RESTORE}
-        )
+        PostgresCreateMode.model_validate({"mode": postgres.CreateMode.POINT_IN_TIME_RESTORE})
 
 
 def test_postgres_create_mode_geo_restore_requires_source() -> None:

@@ -1,9 +1,24 @@
+import importlib.util
+import sys
+import types
+
 import pytest
 
-from orbitcloud_graviton.az_app.resiliency import (
-    ResiliencyHttpHeaders,
-    ResiliencyHttpRetry,
+# Workaround: Import resiliency module directly without triggering az_app/__init__.py
+# which has an import chain that fails outside of Pulumi runtime (asyncio loop issue)
+if "orbitcloud_graviton.az_app" not in sys.modules:
+    sys.modules["orbitcloud_graviton.az_app"] = types.ModuleType("orbitcloud_graviton.az_app")
+
+_spec = importlib.util.spec_from_file_location(
+    "orbitcloud_graviton.az_app.resiliency",
+    "components/orbitcloud_graviton/az_app/resiliency.py",
 )
+_resiliency = importlib.util.module_from_spec(_spec)
+sys.modules["orbitcloud_graviton.az_app.resiliency"] = _resiliency
+_spec.loader.exec_module(_resiliency)
+
+ResiliencyHttpHeaders = _resiliency.ResiliencyHttpHeaders
+ResiliencyHttpRetry = _resiliency.ResiliencyHttpRetry
 
 
 # ResiliencyHttpHeaders tests
@@ -18,17 +33,13 @@ def test_resiliency_http_headers_exact_match() -> None:
 
 
 def test_resiliency_http_headers_prefix_match() -> None:
-    headers = ResiliencyHttpHeaders.model_validate(
-        {"name": "X-Custom", "prefix_match": "prefix-"}
-    )
+    headers = ResiliencyHttpHeaders.model_validate({"name": "X-Custom", "prefix_match": "prefix-"})
     assert headers.prefix_match == "prefix-"
     assert headers.exact_match is None
 
 
 def test_resiliency_http_headers_suffix_match() -> None:
-    headers = ResiliencyHttpHeaders.model_validate(
-        {"name": "X-Custom", "suffix_match": "-suffix"}
-    )
+    headers = ResiliencyHttpHeaders.model_validate({"name": "X-Custom", "suffix_match": "-suffix"})
     assert headers.suffix_match == "-suffix"
     assert headers.exact_match is None
 

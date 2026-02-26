@@ -1,15 +1,10 @@
-from ipaddress import IPv4Network
-
 import pytest
-from pydantic import ValidationError
 
 from orbitcloud_graviton.az_network.firewall import (
     ApplicationRule,
     FirewallConfig,
     NetworkRule,
     ProtocolPort,
-    RuleCollection,
-    RuleCollectionGroup,
 )
 
 
@@ -286,9 +281,7 @@ def test_firewall_config_destination_urls_require_premium() -> None:
 
 
 def test_firewall_config_duplicate_group_priorities() -> None:
-    with pytest.raises(
-        ValueError, match="Duplicate priority .* found in Rule Collection Groups"
-    ):
+    with pytest.raises(ValueError, match="Duplicate priority .* found in Rule Collection Groups"):
         FirewallConfig.model_validate(
             {
                 "sku": "Standard",
@@ -327,7 +320,8 @@ def test_firewall_config_duplicate_group_priorities() -> None:
 
 def test_firewall_config_duplicate_collection_priorities() -> None:
     with pytest.raises(
-        ValueError, match="Duplicate priority .* found in RuleCollections within RuleCollectionGroup"
+        ValueError,
+        match="Duplicate priority .* found in RuleCollections within RuleCollectionGroup",
     ):
         FirewallConfig.model_validate(
             {

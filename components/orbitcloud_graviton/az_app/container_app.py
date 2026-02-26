@@ -27,6 +27,27 @@ from .scaling import ContainerAppScaleConfig
 from .secrets import InlineSecret, Secret
 
 
+class VolumeMountConfig(BaseModel):
+    """Volume mount configuration for a container."""
+
+    volume_name: str
+    mount_path: str
+    sub_path: str | None = None
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class VolumeConfig(BaseModel):
+    """Volume definition for an app template."""
+
+    name: str
+    storage_name: str
+    storage_type: app.StorageType = app.StorageType.AZURE_FILE
+    mount_options: str | None = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+
 class ContainerConfig(BaseModel):
     name: str
     image: str
@@ -42,6 +63,8 @@ class ContainerConfig(BaseModel):
     env_vars: dict[str, StrRef | str] | None = None
     env_secrets: dict[str, str] | None = None
 
+    volume_mounts: list[VolumeMountConfig] | None = None
+
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
@@ -52,6 +75,7 @@ class ContainerAppBaseConfig(BaseModel):
     containers: list[ContainerConfig]
     secret_mount_path: Path = Path("/secrets")
     secrets: list[Secret] | None = None
+    volumes: list[VolumeConfig] | None = None
     scaling: ContainerAppScaleConfig | None = ContainerAppScaleConfig()
     resiliency: AppResiliencyConfig | None = None
     log_workspace_id: AzureIdRef | None = None
@@ -272,24 +296,45 @@ class ContainerApp(pulumi.ComponentResource):
                     probes=[probe.args() for probe in container.probes]
                     if container.probes
                     else None,
-                    volume_mounts=[
-                        app.VolumeMountArgs(
-                            volume_name="secrets",
-                            mount_path=self.config.secret_mount_path.as_posix(),
-                        )
-                    ]
-                    if any(s.filename for s in (self.secrets or []))
-                    else None,
+                    volume_mounts=self._volume_mounts(container) or None,
                 )
             )
 
         return container_args
 
-    def _app_template(self) -> app.TemplateArgs:
-        return app.TemplateArgs(
-            containers=self._containers(),
-            scale=self.config.scaling.args() if self.config.scaling else None,
-            volumes=[
+    def _volume_mounts(self, container: ContainerConfig) -> list[app.VolumeMountArgs]:
+        """Build combined volume mount list: secret mount + per-container Azure File mounts."""
+        mounts: list[app.VolumeMountArgs] = []
+
+        # Secret volume mount (if any secret has a filename)
+        if any(s.filename for s in (self.secrets or [])):
+            mounts.append(
+                app.VolumeMountArgs(
+                    volume_name="secrets",
+                    mount_path=self.config.secret_mount_path.as_posix(),
+                )
+            )
+
+        # Per-container Azure File volume mounts
+        if container.volume_mounts:
+            mounts.extend(
+                app.VolumeMountArgs(
+                    volume_name=vm.volume_name,
+                    mount_path=vm.mount_path,
+                    sub_path=vm.sub_path,
+                )
+                for vm in container.volume_mounts
+            )
+
+        return mounts
+
+    def _volumes(self) -> list[app.VolumeArgs]:
+        """Build combined volume list: secret volume + Azure File volumes."""
+        volumes: list[app.VolumeArgs] = []
+
+        # Secret volume (if any secret has a filename)
+        if any(s.filename for s in (self.secrets or [])):
+            volumes.append(
                 app.VolumeArgs(
                     name="secrets",
                     storage_type=app.StorageType.SECRET,
@@ -301,9 +346,27 @@ class ContainerApp(pulumi.ComponentResource):
                         for secret in self.secrets
                     ],
                 )
-            ]
-            if any(s.filename for s in (self.secrets or []))
-            else None,
+            )
+
+        # Azure File volumes from config
+        if self.config.volumes:
+            volumes.extend(
+                app.VolumeArgs(
+                    name=v.name,
+                    storage_name=v.storage_name,
+                    storage_type=v.storage_type,
+                    mount_options=v.mount_options,
+                )
+                for v in self.config.volumes
+            )
+
+        return volumes
+
+    def _app_template(self) -> app.TemplateArgs:
+        return app.TemplateArgs(
+            containers=self._containers(),
+            scale=self.config.scaling.args() if self.config.scaling else None,
+            volumes=self._volumes() or None,
         )
 
     def _job_template(self) -> app.JobTemplateArgs:

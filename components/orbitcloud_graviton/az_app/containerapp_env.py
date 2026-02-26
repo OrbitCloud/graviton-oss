@@ -1,7 +1,7 @@
-from typing import Any
+from typing import Any, Literal
 
 import pulumi
-from pulumi_azure_native import app, dns, monitor
+from pulumi_azure_native import app, dns, monitor, storage
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -14,10 +14,33 @@ from orbitcloud_graviton.az_lib.types import AzureIdRef, DictRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
 from orbitcloud_graviton.az_network import DnsZone, DnsZoneConfig
 from orbitcloud_graviton.az_network.types import ARecord, TxtRecord
+from orbitcloud_graviton.az_storage import (
+    StorageAccount,
+    StorageAccountConfig,
+    StorageAccountFileShareConfig,
+)
 from orbitcloud_graviton.pulumi_lib import AzureStack, DomainName, fmt_name
 
 from ._env_schema import ConsumptionProfile, DedicatedProfile, WorkloadProfile
 from .certificate import CertificateConfig, certificate
+
+
+class ManagedStorageFileShare(BaseModel):
+    name: str
+    nfs_v3: bool | None = None
+    access_mode: Literal["ReadOnly", "ReadWrite"] | None = None
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class ManagedStorage(BaseModel):
+    name: str
+    file_shares: list[ManagedStorageFileShare]
+    type: Literal["SMB", "NFS"] | None = None
+    sku: storage.SkuName = storage.SkuName.STANDARD_ZRS
+    allowed_private_subnets: list[AzureIdRef] | None = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
 class CustomDomainConfig(BaseModel):
@@ -62,6 +85,9 @@ class ContainerAppEnvConfig(BaseModel):
 
     log_workspace_id: AzureIdRef | None = None
 
+    storage: list[ManagedStorage] | None = None
+    tags: dict[str, StrRef | str] | None = None
+
     @model_validator(mode="after")
     def zone_redundancy_requires_subnet(m: "ContainerAppEnvConfig") -> "ContainerAppEnvConfig":
         if m.zone_redundant and not m.subnet_id:
@@ -96,6 +122,10 @@ class ContainerAppEnv(pulumi.ComponentResource):
         self.environment: app.ManagedEnvironment = self._environment()
         self.dns_records: list[dns.RecordSet] | None = self._dns_records()
         self.certificates: dict[str, app.Certificate] = self._certificates()
+        self.storage_accounts: list[StorageAccount] | None = self._storage_accounts()
+        self.environment_storages: list[app.ManagedEnvironmentsStorage] | None = (
+            self._environment_storage()
+        )
         self._diagnostic_settings()
 
         self._outputs()
@@ -122,6 +152,7 @@ class ContainerAppEnv(pulumi.ComponentResource):
                 if self.config.subnet_id
                 else None
             ),  # When VNET integrated, a separate resource group is automatically created for the LB
+            tags=self.config.tags,
             opts=self._opts,
         )
 
@@ -243,6 +274,93 @@ class ContainerAppEnv(pulumi.ComponentResource):
             else {}
         )
 
+    def _storage_accounts(self) -> list[StorageAccount] | None:
+        if not self.config.storage:
+            return None
+
+        accounts: list[StorageAccount] = []
+        for managed in self.config.storage:
+            # Combine CAE subnet with any additional storage subnets, deduplicating
+            subnets: list[AzureIdRef] | None = None
+            if self.config.subnet_id or managed.allowed_private_subnets:
+                seen: set[str] = set()
+                subnets = []
+                for sid in [
+                    *(([self.config.subnet_id]) if self.config.subnet_id else []),
+                    *(managed.allowed_private_subnets or []),
+                ]:
+                    if isinstance(sid, str):
+                        if sid not in seen:
+                            seen.add(sid)
+                            subnets.append(sid)
+                    else:
+                        subnets.append(sid)  # Output[str] can't be deduped at plan time
+
+            # Sanitize: lowercase, strip non-alphanumeric characters for valid Azure storage account names
+            sanitized_name = "".join(c for c in managed.name if c.isalnum()).lower()
+            sa_name = f"stcae{sanitized_name[:8]}{self.stack.env}001"
+
+            sa = StorageAccount(
+                stack=self.stack,
+                config=StorageAccountConfig(
+                    name=sa_name,
+                    kind=storage.Kind.STORAGE_V2,
+                    sku=managed.sku,
+                    hierarchical_namespace=True,
+                    allow_shared_key_access=True,
+                    public_network_access=storage.PublicNetworkAccess.ENABLED,
+                    allowed_private_subnets=subnets,
+                    file_shares=[
+                        StorageAccountFileShareConfig(name=share.name)
+                        for share in managed.file_shares
+                    ],
+                    exports_prefix=f"cae_storage_{managed.name}",
+                ),
+                opts=pulumi.ResourceOptions(parent=self.environment),
+            )
+            accounts.append(sa)
+
+        return accounts
+
+    def _environment_storage(self) -> list[app.ManagedEnvironmentsStorage] | None:
+        if not self.config.storage or not self.storage_accounts:
+            return None
+
+        env_storages: list[app.ManagedEnvironmentsStorage] = []
+
+        for managed, sa in zip(self.config.storage, self.storage_accounts, strict=True):
+            for share in managed.file_shares:
+                # Build storage name: {storage_name}-{share_name}, lowercase, underscores to hyphens, max 50 chars
+                storage_name = f"{managed.name}-{share.name}".lower().replace("_", "-")[:50]
+
+                # Retrieve storage account keys as a secret (use _output variant for Output[str] args)
+                account_key = storage.list_storage_account_keys_output(
+                    account_name=sa.storage_account.name,
+                    resource_group_name=self.stack.resource_group.name,
+                ).apply(lambda keys: pulumi.Output.secret(keys.keys[0].value))
+
+                env_storage = app.ManagedEnvironmentsStorage(
+                    resource_name=f"caest-{storage_name}",
+                    environment_name=self.environment.name,
+                    storage_name=storage_name,
+                    resource_group_name=self.stack.resource_group.name,
+                    properties=app.ManagedEnvironmentStoragePropertiesArgs(
+                        azure_file=app.AzureFilePropertiesArgs(
+                            account_name=sa.storage_account.name,
+                            account_key=account_key,
+                            share_name=share.name,
+                            access_mode=share.access_mode,
+                        ),
+                    ),
+                    opts=pulumi.ResourceOptions(
+                        parent=self.environment,
+                        depends_on=[sa],
+                    ),
+                )
+                env_storages.append(env_storage)
+
+        return env_storages
+
     def _outputs(self) -> None:
         self.register_outputs(
             outputs={
@@ -275,5 +393,5 @@ class ContainerAppEnv(pulumi.ComponentResource):
                     "dns_suffix": self.environment.custom_domain_configuration.dns_suffix,
                     "certificates": _cert_exports(),
                 }
-            },
+            }
         )

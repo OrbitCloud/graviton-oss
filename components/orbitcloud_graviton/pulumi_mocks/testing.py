@@ -19,7 +19,9 @@ def test_something():
 
 """
 
+import asyncio
 import json
+import sys
 from os import environ
 from typing import Any
 
@@ -56,6 +58,19 @@ def set_mocks(settings: dict | None = None) -> None:
     """
     if settings:
         mock_pulumi_settings(settings)
+
+    # Python 3.14+ requires explicit event loop creation
+    if sys.version_info >= (3, 14):
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            # No running loop, need to create one for the main thread
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                # No event loop at all, create a new one
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
 
     pulumi.runtime.set_mocks(
         MyPulumiMocks(), project="mock-project", preview=False, organization="mock-org"

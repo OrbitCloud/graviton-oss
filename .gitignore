@@ -121,3 +121,6 @@ projects/**
 
 # Pulumi
 sdk/
+
+# Temporary PR/documentation files
+PR_UPDATE.md

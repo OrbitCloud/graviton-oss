@@ -1,0 +1,5 @@
+azure_namespace: Microsoft.Insights
+resources:
+  Component:
+    naming:
+      prefix: appi

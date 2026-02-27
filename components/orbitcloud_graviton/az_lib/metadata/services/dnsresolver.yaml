@@ -1,0 +1,14 @@
+azure_namespace: Microsoft.Network
+resources:
+  DnsResolver:
+    naming:
+      prefix: dnspr
+  InboundEndpoint:
+    naming:
+      prefix: in
+  OutboundEndpoint:
+    naming:
+      prefix: out
+  DnsForwardingRuleset:
+    naming:
+      prefix: dnsfrs

@@ -1,0 +1,5 @@
+azure_namespace: Microsoft.ManagedIdentity
+resources:
+  UserAssignedIdentity:
+    naming:
+      prefix: id

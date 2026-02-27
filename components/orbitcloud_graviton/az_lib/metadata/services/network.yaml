@@ -1,0 +1,60 @@
+azure_namespace: Microsoft.Network
+resources:
+  VirtualNetwork:
+    naming:
+      prefix: vnet
+    namespace: Microsoft.Network/virtualNetworks
+  PrivateDnsZoneGroup:
+    naming:
+      prefix: pdzg
+    namespace: Microsoft.Network/privateDnsZoneGroups
+  Subnet:
+    naming:
+      prefix: snet
+    namespace: Microsoft.Network/virtualNetworks/subnets
+    sub_resource_name: subnet
+  VirtualWan:
+    naming:
+      prefix: vwan
+  VirtualHub:
+    naming:
+      prefix: vhub
+  VpnServerConfiguration:
+    naming:
+      prefix: vpnconf
+  P2sVpnGateway:
+    naming:
+      prefix: vpng
+  HubVirtualNetworkConnection:
+    naming:
+      prefix: vhubc
+  VpnGateway:
+    naming:
+      prefix: vpng
+  VirtualNetworkGateway:
+    naming:
+      prefix: vgw
+  VirtualNetworkGatewayConnection:
+    naming:
+      prefix: con
+  LocalNetworkGateway:
+    naming:
+      prefix: lgw
+  PrivateEndpoint:
+    naming:
+      prefix: pep
+  RouteTable:
+    naming:
+      prefix: rt
+  NetworkInterface:
+    naming:
+      prefix: nic
+  AzureFirewall:
+    naming:
+      prefix: azfw
+  FirewallPolicy:
+    naming:
+      prefix: azfwp
+  DnssecConfig:
+    naming:
+      prefix: dnssec

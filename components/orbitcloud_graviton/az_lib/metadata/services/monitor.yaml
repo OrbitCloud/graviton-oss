@@ -1,0 +1,5 @@
+azure_namespace: Microsoft.Insights
+resources:
+  DiagnosticSetting:
+    naming:
+      prefix: diag

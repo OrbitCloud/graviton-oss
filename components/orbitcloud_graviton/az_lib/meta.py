@@ -6,7 +6,7 @@ from orbitcloud_graviton.pulumi_lib.azure_base import AzureStack
 from orbitcloud_graviton.pulumi_lib.types import DomainName
 
 from .helpers import fmt_name, location_abbr
-from .metadata.azure import _azure_resource_meta
+from .metadata.loader import _azure_resource_meta
 from .naming import ResourceNameRule
 
 

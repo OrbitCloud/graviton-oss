@@ -4,7 +4,7 @@ from typing import Literal
 
 import pulumi
 
-from .metadata.azure import _azure_regions
+from .metadata.loader import _azure_regions
 
 
 def fmt_name(

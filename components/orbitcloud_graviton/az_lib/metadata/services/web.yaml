@@ -1,0 +1,12 @@
+azure_namespace: Microsoft.Web
+resources:
+  AppServicePlan:
+    naming:
+      prefix: asp
+  WebApp:
+    naming:
+      prefix: app
+    namespace: Microsoft.Web/sites
+    sub_resource_name: site
+    public_dns_zone: azurewebsites.net
+    private_dns_zone: privatelink.azurewebsites.net

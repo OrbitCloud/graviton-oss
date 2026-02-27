@@ -1,0 +1,4 @@
+resources:
+  RandomPassword:
+    naming:
+      prefix: rand

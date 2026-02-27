@@ -1,0 +1,5 @@
+azure_namespace: Microsoft.Network
+resources:
+  PrivateRecordSet:
+    naming:
+      prefix: dnsr

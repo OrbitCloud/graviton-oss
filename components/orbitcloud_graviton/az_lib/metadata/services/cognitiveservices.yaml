@@ -1,0 +1,7 @@
+azure_namespace: Microsoft.CognitiveServices
+resources:
+  Account:
+    naming:
+      prefix: oai
+    sub_resource_name: account
+    private_dns_zone: privatelink.openai.azure.com

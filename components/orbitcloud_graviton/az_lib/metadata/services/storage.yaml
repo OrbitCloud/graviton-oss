@@ -1,0 +1,40 @@
+azure_namespace: Microsoft.Storage
+resources:
+  StorageAccount:
+    naming:
+      prefix: st
+      alphanumeric: true
+      lowercase: true
+    namespace: Microsoft.Storage/storageAccounts
+    resource_type: Microsoft.Storage/storageAccounts/storageAccount
+  Table:
+    naming:
+      prefix: sttbl
+    namespace: Microsoft.Storage/storageAccounts/tableServices
+    resource_type: storageAccounts/tableServices/tables
+    sub_resource_name: table
+    private_dns_zone: privatelink.table.core.windows.net
+  Queue:
+    naming:
+      prefix: stq
+    namespace: Microsoft.Storage/storageAccounts/queueServices
+    resource_type: storageAccounts/queueServices/queues
+    sub_resource_name: queue
+    private_dns_zone: privatelink.queue.core.windows.net
+  BlobContainer:
+    naming:
+      prefix: stctr
+    namespace: Microsoft.Storage/storageAccounts/blobServices
+    resource_type: storageAccounts/blobServices/containers
+    sub_resource_name: blob
+    private_dns_zone: privatelink.blob.core.windows.net
+  FileShare:
+    naming:
+      prefix: stfs
+    namespace: Microsoft.Storage/storageAccounts/fileServices
+    resource_type: storageAccounts/fileServices/shares
+    sub_resource_name: file
+    private_dns_zone: privatelink.file.core.windows.net
+  FileServiceProperties:
+    naming:
+      prefix: stfsp

@@ -1,0 +1,12 @@
+azure_namespace: Microsoft.AppConfiguration
+resources:
+  ConfigurationStore:
+    naming:
+      prefix: appcs
+    namespace: Microsoft.AppConfiguration/configurationStores
+    sub_resource_name: configurationStore
+    public_dns_zone: azconfig.io
+    private_dns_zone: privatelink.azconfig.io
+  KeyValue:
+    naming:
+      prefix: appcsk

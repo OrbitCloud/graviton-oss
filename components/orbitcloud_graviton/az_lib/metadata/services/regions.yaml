@@ -1,0 +1,16 @@
+regions:
+  northeurope:
+    name: North Europe
+    abbr: neu
+  westeurope:
+    name: West Europe
+    abbr: weu
+  swedencentral:
+    name: Sweden Central
+    abbr: swe
+  norwayeast:
+    name: Norway East
+    abbr: noe
+  norwaywest:
+    name: Norway West
+    abbr: now

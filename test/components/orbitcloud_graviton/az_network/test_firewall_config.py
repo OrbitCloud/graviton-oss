@@ -267,7 +267,7 @@ def test_firewall_config_destination_urls_require_premium() -> None:
                                 "rules": [
                                     {
                                         "name": "rule1",
-                                        "source_ip_addresses": "10.0.0.0/24",
+                                        "source_ip_addresses": "10.0.0.0/24",  # NOSONAR - Test data using RFC 1918 private address
                                         "destination_urls": ["https://example.com/*"],
                                         "protocols": [{"protocol": "Https"}],
                                     }

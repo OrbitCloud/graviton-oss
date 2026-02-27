@@ -3,8 +3,8 @@
 import re
 from typing import Any
 
-from ._prefixes import RESOURCE_PREFIXES
 from .helpers import location_abbr
+from .metadata.loader import RESOURCE_PREFIXES
 
 
 def get_prefix(resource_type) -> dict[str, Any]:

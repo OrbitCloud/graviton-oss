@@ -1,0 +1,5 @@
+azure_namespace: Microsoft.Authorization
+resources:
+  RoleAssignment:
+    naming:
+      prefix: iam

@@ -1,0 +1,14 @@
+azure_namespace: Microsoft.EventGrid
+resources:
+  Domain:
+    naming:
+      prefix: evgd
+    namespace: Microsoft.EventGrid/domains
+    sub_resource_name: domain
+    private_dns_zone: privatelink.eventgrid.azure.net
+  DomainTopic:
+    naming:
+      prefix: evgt
+    namespace: Microsoft.EventGrid/topics
+    sub_resource_name: topic
+    private_dns_zone: privatelink.eventgrid.azure.net

@@ -13,6 +13,7 @@ _spec = importlib.util.spec_from_file_location(
     "orbitcloud_graviton.az_app.resiliency",
     "components/orbitcloud_graviton/az_app/resiliency.py",
 )
+assert _spec is not None and _spec.loader is not None
 _resiliency = importlib.util.module_from_spec(_spec)
 sys.modules["orbitcloud_graviton.az_app.resiliency"] = _resiliency
 _spec.loader.exec_module(_resiliency)

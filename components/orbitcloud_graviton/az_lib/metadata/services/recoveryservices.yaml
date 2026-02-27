@@ -1,0 +1,8 @@
+azure_namespace: Microsoft.RecoveryServices
+resources:
+  Vault:
+    naming:
+      prefix: rsv
+  ProtectionPolicy:
+    naming:
+      prefix: rsvpp

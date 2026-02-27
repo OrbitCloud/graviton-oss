@@ -1,0 +1,14 @@
+azure_namespace: Microsoft.KeyVault
+resources:
+  Vault:
+    naming:
+      prefix: kv
+      alphanumeric: true
+      max_length: 24
+    namespace: Microsoft.KeyVault/vaults
+    sub_resource_name: vault
+    public_dns_zone: vault.azure.net
+    private_dns_zone: privatelink.vaultcore.azure.net
+  Secret:
+    naming:
+      prefix: kvs

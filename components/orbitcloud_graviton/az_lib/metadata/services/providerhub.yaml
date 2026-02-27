@@ -1,0 +1,7 @@
+resources:
+  ProviderRegistration:
+    naming:
+      prefix: proreg
+  ResourceTypeRegistration:
+    naming:
+      prefix: prov

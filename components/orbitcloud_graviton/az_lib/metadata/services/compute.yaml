@@ -1,0 +1,8 @@
+azure_namespace: Microsoft.Compute
+resources:
+  VirtualMachine:
+    naming:
+      prefix: vm
+  Disk:
+    naming:
+      prefix: disk

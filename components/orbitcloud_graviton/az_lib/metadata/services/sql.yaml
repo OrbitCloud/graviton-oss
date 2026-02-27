@@ -1,0 +1,37 @@
+azure_namespace: Microsoft.Sql
+resources:
+  Database:
+    naming:
+      prefix: sqldb
+    namespace: Microsoft.Sql/servers/databases
+    resource_type: servers/databases
+    private_dns_zone: privatelink.database.windows.net
+    public_dns_zone: database.windows.net
+  Server:
+    naming:
+      prefix: sql
+    namespace: Microsoft.Sql/servers
+    sub_resource_name: sqlServer
+    private_dns_zone: privatelink.database.windows.net
+    public_dns_zone: database.windows.net
+  FirewallRule:
+    naming:
+      prefix: sqlfw
+  ServerDnsAlias:
+    naming:
+      prefix: sqldns
+  ElasticPool:
+    naming:
+      prefix: sqlep
+  JobAgent:
+    naming:
+      prefix: sqlja
+  JobTargetGroup:
+    naming:
+      prefix: sqljtg
+  Job:
+    naming:
+      prefix: sqljob
+  JobStep:
+    naming:
+      prefix: sqljs

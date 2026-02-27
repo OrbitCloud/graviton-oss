@@ -1,0 +1,11 @@
+azure_namespace: Microsoft.Insights
+resources:
+  Component:
+    naming:
+      prefix: appi
+  Diagnosticsetting:
+    naming:
+      prefix: diag
+  DiagnosticSetting:
+    naming:
+      prefix: diag

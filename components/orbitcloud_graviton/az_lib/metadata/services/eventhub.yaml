@@ -1,0 +1,20 @@
+azure_namespace: Microsoft.EventHub
+resources:
+  Namespace:
+    naming:
+      prefix: evhns
+    namespace: Microsoft.EventHub/namespaces
+    sub_resource_name: namespace
+    private_dns_zone: privatelink.servicebus.windows.net
+  Eventhub:
+    naming:
+      prefix: evh
+  EventHub:
+    naming:
+      prefix: evh
+  NamespaceAuthorizationRule:
+    naming:
+      prefix: evhns-key
+  NamespaceNetworkRuleSet:
+    naming:
+      prefix: evhns-nwrule

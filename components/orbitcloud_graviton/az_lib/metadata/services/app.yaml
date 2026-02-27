@@ -1,0 +1,18 @@
+azure_namespace: Microsoft.App
+resources:
+  ContainerApp:
+    naming:
+      prefix: app
+  Certificate:
+    naming:
+      prefix: "caecert-"
+  ManagedCertificate:
+    naming:
+      prefix: cert
+  ManagedEnvironment:
+    naming:
+      prefix: cae
+      max_length: 60
+  AppResiliency:
+    naming:
+      prefix: appres

@@ -1,0 +1,8 @@
+azure_namespace: Microsoft.Network
+resources:
+  Zone:
+    naming:
+      prefix: dns
+  RecordSet:
+    naming:
+      prefix: dnsr

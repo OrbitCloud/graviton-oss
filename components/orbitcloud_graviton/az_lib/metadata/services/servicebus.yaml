@@ -1,0 +1,20 @@
+azure_namespace: Microsoft.ServiceBus
+resources:
+  Namespace:
+    naming:
+      prefix: sbns
+    namespace: Microsoft.ServiceBus/namespaces
+    sub_resource_name: namespace
+    private_dns_zone: privatelink.servicebus.windows.net
+  Queue:
+    naming:
+      prefix: sbq
+  Topic:
+    naming:
+      prefix: sbt
+  NamespaceNetworkRuleSet:
+    naming:
+      prefix: sbns-nwrule
+  NamespaceIpFilterRule:
+    naming:
+      prefix: sbns-iprule

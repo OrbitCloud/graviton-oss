@@ -1,0 +1,5 @@
+azure_namespace: Microsoft.OperationalInsights
+resources:
+  Workspace:
+    naming:
+      prefix: log

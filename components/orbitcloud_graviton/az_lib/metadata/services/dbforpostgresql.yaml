@@ -1,0 +1,11 @@
+azure_namespace: Microsoft.DBforPostgreSQL
+resources:
+  Server:
+    naming:
+      prefix: psql
+  Administrator:
+    naming:
+      prefix: psql-admin
+  Configuration:
+    naming:
+      prefix: psql-conf

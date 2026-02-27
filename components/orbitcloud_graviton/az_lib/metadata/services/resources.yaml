@@ -1,0 +1,7 @@
+azure_namespace: Microsoft.Resources
+resources:
+  ResourceGroup:
+    naming:
+      prefix: rg
+    namespace: Microsoft.Resources/resourceGroups
+    resource_type: resourceGroup

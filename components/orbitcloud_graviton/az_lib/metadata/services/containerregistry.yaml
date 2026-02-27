@@ -1,0 +1,10 @@
+azure_namespace: Microsoft.ContainerRegistry
+resources:
+  Registry:
+    naming:
+      prefix: cr
+      alphanumeric: true
+    sub_resource_name: registry
+    namespace: Microsoft.ContainerRegistry/registries
+    public_dns_zone: azurecr.io
+    private_dns_zone: privatelink.azurecr.io

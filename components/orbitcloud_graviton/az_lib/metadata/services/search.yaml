@@ -1,0 +1,10 @@
+azure_namespace: Microsoft.Search
+resources:
+  Service:
+    naming:
+      prefix: srch
+    namespace: Microsoft.Search/searchServices
+    resource_type: searchServices
+    sub_resource_name: searchService
+    public_dns_zone: search.windows.net
+    private_dns_zone: privatelink.search.windows.net

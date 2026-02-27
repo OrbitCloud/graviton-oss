@@ -1,3 +1,9 @@
+## v0.91.0 (2026-02-27)
+
+### Feat
+
+- **az_lib**: replace Python dict metadata with YAML service files (#244)
+
 ## v0.90.0 (2026-02-26)
 
 ### Feat

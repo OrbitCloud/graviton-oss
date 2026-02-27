@@ -87,10 +87,10 @@ def _pascal_to_snake(name: str) -> str:
         P2sVpnGateway -> p2s_vpn_gateway
         StorageAccount -> storage_account
     """
-    # Insert underscore before uppercase letters that follow lowercase/digits
-    s = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", name)
-    # Insert underscore between consecutive uppercase when followed by lowercase
-    s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
+    # Insert underscore at each word boundary: before an uppercase letter that follows
+    # a lowercase/digit, or between an uppercase letter and an uppercase-then-lowercase pair.
+    # Uses a single lookahead/lookbehind pattern to avoid backtracking.
+    s = re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", name)
     return s.lower()
 
 

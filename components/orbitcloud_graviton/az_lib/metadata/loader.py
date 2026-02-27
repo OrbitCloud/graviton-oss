@@ -227,52 +227,58 @@ def _naming_to_v1_dict(naming: NamingRuleSchema) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
+def _build_v2_namespace(service: ServiceFileSchema) -> dict[str, Any]:
+    """Build a v2 hierarchical namespace entry from a loaded service file."""
+    ns_data: dict[str, Any] = {}
+    if service.azure_namespace is not None:
+        ns_data["namespace"] = service.azure_namespace
+    ns_data["resources"] = {
+        class_name: _resource_to_dict(resource)
+        for class_name, resource in service.resources.items()
+    }
+    return ns_data
+
+
+def _build_v1_prefixes(stem: str, service: ServiceFileSchema, out: dict[str, Any]) -> None:
+    """Populate the flat v1 RESOURCE_PREFIXES lookup from a loaded service file."""
+    for class_name, resource in service.resources.items():
+        if (stem, class_name) in _V1_EXCLUDE_ENTRIES:
+            continue
+
+        override_key = (stem, class_name)
+        if override_key in _V1_MODULE_PATH_OVERRIDES:
+            module_path = _V1_MODULE_PATH_OVERRIDES[override_key]
+        else:
+            module_path = f"pulumi_azure_native.{stem}.{_pascal_to_snake(class_name)}"
+
+        out[module_path] = _naming_to_v1_dict(resource.naming)
+
+
 def _load_all() -> tuple[dict[str, Any], dict[str, Any], dict[str, dict[str, str]]]:
     """Load all YAML files and build both data structures.
 
     Returns:
         (azure_resource_meta, resource_prefixes, azure_regions)
     """
-    azure_resource_meta: dict[str, Any] = {"pulumi_azure_native": {}}
-    resource_prefixes: dict[str, Any] = {}
-
     regions_path = _SERVICES_DIR / "regions.yaml"
     if not regions_path.exists():
         raise FileNotFoundError(f"Missing regions file: {regions_path}")
     azure_regions = _load_regions_file(regions_path)
 
-    # Load all service YAML files
+    azure_resource_meta: dict[str, Any] = {"pulumi_azure_native": {}}
+    resource_prefixes: dict[str, Any] = {}
+
     for yaml_path in sorted(_SERVICES_DIR.glob("*.yaml")):
         if yaml_path.name == "regions.yaml":
             continue
 
-        stem = yaml_path.stem  # e.g., "keyvault", "dns", "random"
+        stem = yaml_path.stem
         service = _load_service_file(yaml_path)
 
-        # Build v2 hierarchical structure only for the original v2 namespaces
         if stem in _V2_SERVICE_FILES:
-            ns_data: dict[str, Any] = {}
-            if service.azure_namespace is not None:
-                ns_data["namespace"] = service.azure_namespace
-            ns_data["resources"] = {}
-            for class_name, resource in service.resources.items():
-                ns_data["resources"][class_name] = _resource_to_dict(resource)
-            azure_resource_meta["pulumi_azure_native"][stem] = ns_data
+            azure_resource_meta["pulumi_azure_native"][stem] = _build_v2_namespace(service)
 
-        # Build v1 flat lookup for ALL files
-        for class_name, resource in service.resources.items():
-            # Skip entries that are v2-only aliases
-            if (stem, class_name) in _V1_EXCLUDE_ENTRIES:
-                continue
-
-            override_key = (stem, class_name)
-            if override_key in _V1_MODULE_PATH_OVERRIDES:
-                module_path = _V1_MODULE_PATH_OVERRIDES[override_key]
-            else:
-                snake_name = _pascal_to_snake(class_name)
-                module_path = f"pulumi_azure_native.{stem}.{snake_name}"
-
-            resource_prefixes[module_path] = _naming_to_v1_dict(resource.naming)
+        _build_v1_prefixes(stem, service, resource_prefixes)
 
     return azure_resource_meta, resource_prefixes, azure_regions
 

@@ -1,3 +1,5 @@
+import asyncio
+import sys
 from typing import Any
 
 import pulumi
@@ -47,6 +49,19 @@ class StorageMocks(pulumi.runtime.Mocks):
 _STORAGE_MOCKS = StorageMocks()
 
 # Set mocks at module level for module-level imports during collection
+# Python 3.14+ requires explicit event loop creation
+if sys.version_info >= (3, 14):
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        # No running loop, need to create one for the main thread
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            # No event loop at all, create a new one
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
 pulumi.runtime.set_mocks(
     _STORAGE_MOCKS, project="mock-project", preview=False, organization="mock-org"
 )

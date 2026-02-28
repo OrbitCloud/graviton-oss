@@ -1,15 +1,82 @@
 {
   "permissions": {
     "allow": [
-      "Bash(make fmt)",
-      "Bash(make lint)",
-      "Bash(make test)",
-      "Bash(make pyright)",
-      "Bash(git checkout -b *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(grep *)",
+      "Bash(echo *)",
+      "Bash(pwd)",
+      "Bash(pwd *)",
+      "Bash(which *)",
+      "Bash(test *)",
+      "Bash(sort *)",
+      "Bash(uniq *)",
+      "Bash(diff *)",
+      "Bash(tr *)",
+      "Bash(cut *)",
+      "Bash(basename *)",
+      "Bash(dirname *)",
+      "Bash(realpath *)",
+
+      "Bash(* --version)",
+      "Bash(* --help)",
+
+      "Bash(git status)",
+      "Bash(git status *)",
       "Bash(git diff *)",
       "Bash(git log *)",
       "Bash(git merge-base *)",
-      "Bash(git status)"
+      "Bash(git show *)",
+      "Bash(git rev-parse *)",
+
+      "Bash(git checkout *)",
+      "Bash(git checkout -b *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git stash *)",
+      "Bash(git branch *)",
+      "Bash(git fetch *)",
+      "Bash(git switch *)",
+      "Bash(git push *)",
+
+      "Bash(make *)",
+      "Bash(poetry run *)",
+
+      "Bash(gh pr *)",
+      "Bash(gh issue *)",
+      "Bash(gh gist *)",
+      "Bash(gh api *)",
+      "Bash(gh run *)",
+
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:gist.githubusercontent.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:learn.microsoft.com)",
+      "WebFetch(domain:pulumi.com)",
+      "WebFetch(domain:www.pulumi.com)",
+
+      "mcp__context7__*",
+      "mcp__fetch__*"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/post-push.sh",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

@@ -59,7 +59,7 @@ class SftpUserConfig(BaseModel):
 
 
 class StorageAccountConfig(BaseModel):
-    name: str | None = None
+    name: str
     kind: storage.Kind = storage.Kind.STORAGE_V2
     sku: storage.SkuName = storage.SkuName.PREMIUM_LRS
     tier: storage.AccessTier = storage.AccessTier.HOT
@@ -109,7 +109,7 @@ class StorageAccount(pulumi.ComponentResource):
 
         super().__init__(
             "Graviton:az_storage:StorageAccount",
-            name=f"st-{self.stack.workload_name}",
+            name=f"st-{self.config.name}",
             props=None,
             opts=opts,
         )

@@ -1,6 +1,6 @@
 import pulumi
 from pulumi_azure_native import applicationinsights, operationalinsights
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from orbitcloud_graviton.az_acr.registry import ContainerRegistryConfig, container_registry
 from orbitcloud_graviton.az_app import ContainerAppEnv, ContainerAppEnvConfig
@@ -40,6 +40,17 @@ class AppZoneBaseConfig(PulumiConfig):
     storage_accounts: list[StorageAccountConfig] | None = None
 
     workload_identities: list[WorkloadIdentityConfig] | None = None
+
+    @model_validator(mode="after")
+    def _reject_duplicate_storage_account_names(self) -> "AppZoneBaseConfig":
+        if self.storage_accounts:
+            names = [sa.name for sa in self.storage_accounts]
+            duplicates = {n for n in names if names.count(n) > 1}
+            if duplicates:
+                raise ValueError(
+                    f"storage_accounts contains duplicate name values: {sorted(duplicates)}"
+                )
+        return self
 
 
 def deploy() -> None:

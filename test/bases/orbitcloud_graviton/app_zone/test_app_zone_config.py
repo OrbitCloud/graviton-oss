@@ -28,7 +28,7 @@ if "orbitcloud_graviton.az_iam" not in sys.modules:
         pass
 
     def _stub_iam_assignment(*args, **kwargs):
-        pass
+        """No-op replacement for iam_assignment during testing."""
 
     _iam_pkg.IamAssignmentConfig = _StubIamAssignmentConfig  # type: ignore[attr-defined]
     _iam_pkg.iam_assignment = _stub_iam_assignment  # type: ignore[attr-defined]

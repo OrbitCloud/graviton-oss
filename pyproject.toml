@@ -21,6 +21,7 @@ packages = [
     { include = "orbitcloud_graviton/az_keyvault", from = "components" },
     { include = "orbitcloud_graviton/az_lib", from = "components" },
     { include = "orbitcloud_graviton/az_monitor", from = "components" },
+    { include = "orbitcloud_graviton/az_mysql", from = "components" },
     { include = "orbitcloud_graviton/az_network", from = "components" },
     { include = "orbitcloud_graviton/az_postgres", from = "components" },
     { include = "orbitcloud_graviton/az_resources", from = "components" },

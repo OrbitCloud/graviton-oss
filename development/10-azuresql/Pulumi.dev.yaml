@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: sqldb
+
+  server:
+    # Entra-only authentication (no SQL admin password needed)
+    azure_ad_only_authentication: true
+    entra_admin:
+      # Replace with a real Entra group or user object ID
+      principal_type: Group
+      sid: "22222222-2222-2222-2222-222222222222"
+      login_name: sql-admins
+
+    # Network access — restrict to private subnet for production
+    public_network_access: Enabled
+    allow_azure_services: true
+
+  databases:
+    - name: appdb
+      max_size_mb: 2048
+      backup_redundancy: Local

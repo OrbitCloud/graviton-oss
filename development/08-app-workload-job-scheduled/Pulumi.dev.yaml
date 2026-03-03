@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: job-scheduled
+
+  jobs:
+    - environment_output_ref: stack://app_zone/dev/containerapp_env
+      workload_profile_name: Consumption
+
+      trigger:
+        trigger_type: Schedule
+        replica_timeout_seconds: 60
+        cron: "0 */1 * * *" # Execute every hour
+
+      containers:
+        - name: scheduled-task
+          image: mcr.microsoft.com/k8se/quickstart-jobs:latest

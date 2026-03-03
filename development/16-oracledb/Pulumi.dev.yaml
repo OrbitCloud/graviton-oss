@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: oradb
+  env: dev
+
+  vm:
+    sku: Standard_E4ds_v6
+    zone: "1"
+
+    os:
+      image:
+        publisher: Oracle
+        offer: Oracle-Linux
+        sku: ol94-lvm-gen2
+        version: latest
+      disk:
+        size_gb: 100
+      admin:
+        authorized_ssh_keys:
+          - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExample000000000000000000000000000000 example@graviton"
+      hostname: oradb-dev
+
+    # Data disks for Oracle tablespaces
+    storage:
+      - name: oracle-base
+        size_gb: 100
+        lun: 0
+        mount_point: /opt/oracle/
+
+      - name: oradata
+        size_gb: 500
+        lun: 1
+        mount_point: /oradata/main
+
+      - name: oraredo1
+        size_gb: 64
+        lun: 2
+        mount_point: /oradata/redo1
+
+    # Subnet for the VM NIC
+    networking:
+      subnet_id: stack://networking/dev/subnets.reserved.id
+
+  cloud_init:
+    mount_point_base: /mnt
+    timezone: UTC
+
+  # Backup storage account with file shares for RMAN backups
+  backup:
+    storage:
+      name: gvtnorabackupdev
+      file_shares:
+        - name: orabackups
+      public_network_access: Enabled
+      allowed_private_subnets:
+        - stack://networking/dev/subnets.reserved.id

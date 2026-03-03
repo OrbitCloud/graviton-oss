@@ -1,0 +1,6 @@
+name: acme_ssl
+description: Let's Encrypt ACME wildcard certificate with Azure DNS validation
+runtime:
+  name: python
+options:
+  refresh: always

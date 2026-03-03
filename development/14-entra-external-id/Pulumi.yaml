@@ -1,0 +1,6 @@
+name: entra_external_id
+description: Entra External ID (B2C) tenant for customer-facing authentication
+runtime:
+  name: python
+options:
+  refresh: always

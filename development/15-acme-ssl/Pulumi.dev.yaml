@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: cert
+
+  cert_request:
+    # DNS zone must exist (see 03-landing-zone or 04-networking)
+    dns_zone_name: example.graviton.dev
+    acme_account_email: admin@example.com
+    # Optional: store the certificate in Key Vault
+    # keyvault_id: stack://landing_zone/dev/keyvault.id

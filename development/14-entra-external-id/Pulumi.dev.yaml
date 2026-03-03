@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=.stack_schema.json
+# NOTE: The CIAM Azure API does not support service principal auth.
+# You must run this stack with interactive (az login) credentials.
+config:
+  azure-native:location: northeurope
+  azure-native:subscriptionId: "11111111-1111-1111-1111-111111111111"
+  azure-native:tenantId: "00000000-0000-0000-0000-000000000000"
+  azuread:tenantId: "00000000-0000-0000-0000-000000000000"
+  workload_name: externalusers
+  env: dev
+
+  tenant:
+    location: Europe
+    country_code: IS
+    display_name: Graviton Users (dev)
+    # Prefix only — Azure appends .onmicrosoft.com automatically
+    initial_domain_prefix: gravitonusersdev

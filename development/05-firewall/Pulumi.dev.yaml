@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: fw
+
+  firewall:
+    sku: Basic
+    # Firewall subnet from the networking stack
+    subnet: stack://networking/dev/subnets.AzureFirewallSubnet.id
+    # Management subnet required for Basic SKU
+    management_subnet: stack://networking/dev/subnets.AzureFirewallManagementSubnet.id
+
+  # Enable Log Analytics workspace for firewall diagnostics
+  log: true

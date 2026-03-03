@@ -1,0 +1,6 @@
+name: app_workload_job_event
+description: App Workload — Event-driven Container App Job (queue/blob trigger)
+runtime:
+  name: python
+options:
+  refresh: always

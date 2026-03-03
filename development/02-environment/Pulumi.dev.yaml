@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=.stack_schema.json
+config:
+  azure-native:location: northeurope
+  azure-native:subscriptionId: "11111111-1111-1111-1111-111111111111"
+  azure-native:tenantId: "00000000-0000-0000-0000-000000000000"
+  azuread:tenantId: "00000000-0000-0000-0000-000000000000"
+  workload_name: gvtn
+  env: dev
+
+  # ESC environment name (defaults to env if not set)
+  esc_env_name: graviton-dev
+
+  # Import the tenant-level ESC environment
+  imports:
+    - graviton-dev

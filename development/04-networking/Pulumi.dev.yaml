@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: base
+
+  vnet:
+    address_space:
+      - 10.200.0.0/16
+
+    subnets:
+      # General-purpose subnet
+      - name: reserved
+        address_prefix: 10.200.1.0/24
+        service_endpoints:
+          - Microsoft.Storage
+
+      # Container Apps subnet (requires delegation)
+      - name: apps
+        address_prefix: 10.200.2.0/24
+        delegation: Microsoft.App/environments
+        service_endpoints:
+          - Microsoft.Storage
+          - Microsoft.KeyVault
+
+      # PostgreSQL Flexible Server subnet
+      - name: psql
+        address_prefix: 10.200.3.0/24
+        delegation: Microsoft.DBforPostgreSQL/flexibleServers
+        service_endpoints:
+          - Microsoft.Storage
+
+      # Azure Firewall subnet (must be named AzureFirewallSubnet)
+      - name: AzureFirewallSubnet
+        address_prefix: 10.200.128.0/26
+
+      # Azure Firewall management subnet (required for Basic SKU)
+      - name: AzureFirewallManagementSubnet
+        address_prefix: 10.200.128.64/26
+
+      # VPN Gateway subnet
+      - name: GatewaySubnet
+        address_prefix: 10.200.241.0/27
+
+  # Public DNS zone
+  dns_zone:
+    name: example.graviton.dev
+
+  # Private DNS zones for private endpoints
+  # NOTE: linked_vnets is optional. When specified, it links the private DNS
+  # zone to remote VNets (e.g., spoke networks). The hub VNet created by this
+  # stack is linked automatically by the base — no self-reference needed.
+  private_dns_zones:
+    - name: privatelink.postgres.database.azure.com

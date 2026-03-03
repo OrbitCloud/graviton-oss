@@ -1,3 +1,9 @@
+## v0.92.0 (2026-03-03)
+
+### Feat
+
+- **development**: add example stacks for all 14 Graviton CDK base types (#250)
+
 ## v0.91.0 (2026-02-27)
 
 ### Feat

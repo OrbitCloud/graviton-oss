@@ -1,0 +1,6 @@
+name: oauth_apps
+description: OAuth/OIDC app registrations in Entra ID
+runtime:
+  name: python
+options:
+  refresh: always

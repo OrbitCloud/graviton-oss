@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: wlid
+
+  identities:
+    # GitHub Actions OIDC federation
+    - workload:
+        credential_type: github
+        github_org: example-org
+        repo: example-app
+        environments:
+          - dev
+          - staging
+
+      # Azure permissions granted to this workload identity
+      azure_permissions:
+        - name_prefix: acr-push
+          role: AcrPush
+          scope: stack://landing_zone/dev/container_registry.id
+
+        - name_prefix: app-deploy
+          role: Container Apps Contributor
+          scope: "/subscriptions/11111111-1111-1111-1111-111111111111"

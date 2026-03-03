@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: job-event
+
+  jobs:
+    - environment_output_ref: stack://app_zone/dev/containerapp_env
+      workload_profile_name: Consumption
+
+      trigger:
+        trigger_type: Event
+        replica_timeout_seconds: 60
+        scale:
+          rules:
+            queuetrigger:
+              rule_type: azure-queue
+              metadata:
+                # IMPORTANT: accountName must match the actual deployed storage
+                # account name. The CDK applies naming conventions (prefix, env,
+                # location) so this will differ from the config `name` below.
+                # Run `pulumi stack output` on this stack after deploying to get
+                # the real name, e.g. "steventdevneu01".
+                accountName: steventdevneu01
+                queueName: tasks
+                queueLength: 5
+                queueLengthStrategy: visibleonly
+
+      containers:
+        - name: queue-processor
+          image: mcr.microsoft.com/k8se/quickstart-jobs:latest
+
+  # Storage account providing the queue trigger source
+  storage_accounts:
+    - name: event
+      sku: Standard_LRS
+      public_network_access: Enabled
+      allowed_private_subnets:
+        - stack://networking/dev/subnets.apps.id
+      allowed_public_ips:
+        - 203.0.113.1 # RFC 5737 — replace with your office IP
+      storage_containers:
+        - eventdata
+      storage_queues:
+        - tasks
+      app_permissions:
+        blobs:
+          contributor: true
+        queues:
+          contributor: true

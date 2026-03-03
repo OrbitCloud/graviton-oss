@@ -1,0 +1,6 @@
+name: oracledb
+description: Oracle Database VM with cloud-init, data disks, and backup storage
+runtime:
+  name: python
+options:
+  refresh: always

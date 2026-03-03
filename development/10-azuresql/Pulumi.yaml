@@ -1,0 +1,6 @@
+name: azuresql
+description: Azure SQL Server with Entra-only auth and sample database
+runtime:
+  name: python
+options:
+  refresh: always

@@ -17,6 +17,9 @@ resources:
   FirewallRule:
     naming:
       prefix: sqlfw
+  VirtualNetworkRule:
+    naming:
+      prefix: sqlvnr
   ServerDnsAlias:
     naming:
       prefix: sqldns

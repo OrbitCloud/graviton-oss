@@ -109,5 +109,4 @@ jobs:
         with:
           body_path: "body.md"
           tag_name: ${{ steps.commitizen.outputs.version }}
-        env:
-          GITHUB_TOKEN: ${{ steps.bot-token.outputs.token }}
+          token: ${{ steps.bot-token.outputs.token }}

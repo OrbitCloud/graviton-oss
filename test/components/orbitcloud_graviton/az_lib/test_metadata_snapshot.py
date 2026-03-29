@@ -131,6 +131,7 @@ V1_PREFIX_SNAPSHOT: dict[str, dict[str, Any]] = {
     "pulumi_azure_native.sql.server": {"prefix": "sql"},
     "pulumi_azure_native.sql.elastic_pool": {"prefix": "sqlep"},
     "pulumi_azure_native.sql.firewall_rule": {"prefix": "sqlfw"},
+    "pulumi_azure_native.sql.virtual_network_rule": {"prefix": "sqlvnr"},
     "pulumi_azure_native.sql.server_dns_alias": {"prefix": "sqldns"},
     "pulumi_azure_native.sql.job_agent": {"prefix": "sqlja"},
     "pulumi_azure_native.sql.job_target_group": {"prefix": "sqljtg"},
@@ -457,6 +458,9 @@ V2_METADATA_SNAPSHOT: dict[str, Any] = {
             "FirewallRule": {
                 "naming": {"prefix": "sqlfw"},
             },
+            "VirtualNetworkRule": {
+                "naming": {"prefix": "sqlvnr"},
+            },
             "ServerDnsAlias": {
                 "naming": {"prefix": "sqldns"},
             },
@@ -745,6 +749,7 @@ V1_NAMING_EXPECTED: dict[str, str] = {
     "pulumi_azure_native.sql.server": "sql-workload-test-neu-01",
     "pulumi_azure_native.sql.elastic_pool": "sqlep-workload-test-neu-01",
     "pulumi_azure_native.sql.firewall_rule": "sqlfw-workload-test-neu-01",
+    "pulumi_azure_native.sql.virtual_network_rule": "sqlvnr-workload-test-neu-01",
     "pulumi_azure_native.sql.server_dns_alias": "sqldns-workload-test-neu-01",
     "pulumi_azure_native.sql.job_agent": "sqlja-workload-test-neu-01",
     "pulumi_azure_native.sql.job_target_group": "sqljtg-workload-test-neu-01",
@@ -1068,6 +1073,7 @@ V1_TO_V2_MAPPING: dict[str, tuple[str, str]] = {
     "pulumi_azure_native.sql.database": ("sql", "Database"),
     "pulumi_azure_native.sql.server": ("sql", "Server"),
     "pulumi_azure_native.sql.firewall_rule": ("sql", "FirewallRule"),
+    "pulumi_azure_native.sql.virtual_network_rule": ("sql", "VirtualNetworkRule"),
     "pulumi_azure_native.sql.server_dns_alias": ("sql", "ServerDnsAlias"),
     "pulumi_azure_native.sql.elastic_pool": ("sql", "ElasticPool"),
     "pulumi_azure_native.sql.job_agent": ("sql", "JobAgent"),

@@ -61,7 +61,7 @@ jobs:
       - run: poetry run make test
 
       - name: Pytest coverage comment
-        uses: MishaKav/pytest-coverage-comment@v1.4.0
+        uses: MishaKav/pytest-coverage-comment@v1.7.2
         if: github.event_name == 'pull_request'
         with:
           pytest-coverage-path: ./pytest-coverage.txt
@@ -73,7 +73,7 @@ jobs:
     name: Release
     environment: release
     steps:
-      - uses: actions/create-github-app-token@v2.2.1
+      - uses: actions/create-github-app-token@v3.2.0
         id: bot-token
         with:
           app-id: ${{ vars.GRAVITON_BOT_CLIENT_ID }}
@@ -104,7 +104,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.bot-token.outputs.token }}
           RELEASE_TAG: ${{ steps.commitizen.outputs.version }}
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         if: ${{ steps.check-tag.outputs.IS_NEW_TAG == 'true' }}
         with:
           body_path: "body.md"

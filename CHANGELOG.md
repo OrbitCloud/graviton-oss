@@ -1,3 +1,20 @@
+## v0.93.1 (2026-03-29)
+
+### Fix
+
+- **ci**: pass bot token via input to action-gh-release
+
+## v0.93.0 (2026-03-29)
+
+### Feat
+
+- **SqlServer**: Support VirtualNetworkRules
+
+### Fix
+
+- **tests**: update metadata snapshot for VirtualNetworkRule
+- **PostgresFlexibleServer**: Remove unneeded encryption parameter
+
 ## v0.92.0 (2026-03-03)
 
 ### Feat

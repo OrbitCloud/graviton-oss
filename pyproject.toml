@@ -32,6 +32,7 @@ packages = [
     { include = "orbitcloud_graviton/azure_tenant", from = "bases" },
     { include = "orbitcloud_graviton/azuresql", from = "bases" },
     { include = "orbitcloud_graviton/cloud_init", from = "components" },
+    { include = "orbitcloud_graviton/datazone", from = "bases" },
     { include = "orbitcloud_graviton/entra", from = "components" },
     { include = "orbitcloud_graviton/entra_external_id", from = "bases" },
     { include = "orbitcloud_graviton/hubspoke", from = "bases" },

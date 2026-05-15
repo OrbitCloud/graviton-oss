@@ -1,3 +1,10 @@
+## v0.94.0 (2026-05-15)
+
+### Feat
+
+- **datazone**: add datazone base orchestrating psql, mysql, sql, storage
+- **az_mysql**: add MySQL Flexible Server component
+
 ## v0.93.1 (2026-03-29)
 
 ### Fix

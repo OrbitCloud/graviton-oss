@@ -189,7 +189,7 @@ major_version_zero = true                              # Remove when we hit 1.0.
 name = "cz_conventional_commits"
 tag_format = "v$version"
 update_changelog_on_bump = true
-version = "0.93.1"
+version = "0.94.0"
 version_files = ["VERSION", "pyproject.toml:^version"]
 
 [build-system]

@@ -1,3 +1,9 @@
+## v0.95.0 (2026-05-19)
+
+### Feat
+
+- **az_ai**: add Microsoft AI Foundry support via CognitiveAccount
+
 ## v0.94.0 (2026-05-15)
 
 ### Feat

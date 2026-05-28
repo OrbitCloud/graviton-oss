@@ -61,7 +61,9 @@ jobs:
 
       - name: Save PR number
         if: github.event_name == 'pull_request'
-        run: echo "${{ github.event.number }}" > pr_number.txt
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: echo "$PR_NUMBER" > pr_number.txt
 
       - name: Upload coverage artifacts
         if: github.event_name == 'pull_request'

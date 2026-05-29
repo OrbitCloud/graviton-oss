@@ -1,3 +1,9 @@
+## v0.96.0 (2026-05-29)
+
+### Feat
+
+- **claude**: improve AI workflow with allowlist, MCP servers, and post-push hook (#248)
+
 ## v0.95.1 (2026-05-29)
 
 ### Fix

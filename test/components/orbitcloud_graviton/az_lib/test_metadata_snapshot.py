@@ -220,7 +220,7 @@ V2_METADATA_SNAPSHOT: dict[str, Any] = {
             "ConfigurationStore": {
                 "naming": {"prefix": "appcs"},
                 "namespace": "Microsoft.AppConfiguration/configurationStores",
-                "sub_resource_name": "configurationStore",
+                "sub_resource_name": "configurationStores",
                 "public_dns_zone": "azconfig.io",
                 "private_dns_zone": "privatelink.azconfig.io",
             },

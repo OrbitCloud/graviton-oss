@@ -1,3 +1,9 @@
+## v0.95.1 (2026-05-29)
+
+### Fix
+
+- **az_lib**: use configurationStores for App Configuration private link groupId (#284)
+
 ## v0.95.0 (2026-05-19)
 
 ### Feat

@@ -83,7 +83,10 @@ class HttpRouteRuleConfig(BaseModel):
 class HttpRouteConfigModel(BaseModel):
     """Top-level HTTP route configuration model."""
 
-    name: str
+    # Azure requires httpRouteName to match ^[a-z][a-z0-9]*$ (lowercase
+    # alphanumeric, starting with a letter — no hyphens). Validating here
+    # surfaces the error at config load instead of at deploy time.
+    name: str = Field(..., pattern=r"^[a-z][a-z0-9]*$")
     custom_domains: list[CustomDomainConfig] | None = None
     rules: list[HttpRouteRuleConfig] = Field(..., min_length=1)
 

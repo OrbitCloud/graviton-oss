@@ -299,7 +299,7 @@ class TestHttpRouteConfigModel:
     def test_minimal_config(self) -> None:
         config = HttpRouteConfigModel.model_validate(
             {
-                "name": "api-routes",
+                "name": "apiroutes",
                 "rules": [
                     {
                         "targets": [{"container_app": "backend"}],
@@ -307,7 +307,7 @@ class TestHttpRouteConfigModel:
                 ],
             }
         )
-        assert config.name == "api-routes"
+        assert config.name == "apiroutes"
         assert len(config.rules) == 1
         assert config.custom_domains is None
 
@@ -315,7 +315,7 @@ class TestHttpRouteConfigModel:
         with pytest.raises(ValueError, match="at least 1"):
             HttpRouteConfigModel.model_validate(
                 {
-                    "name": "empty-routes",
+                    "name": "emptyroutes",
                     "rules": [],
                 }
             )
@@ -323,7 +323,7 @@ class TestHttpRouteConfigModel:
     def test_full_config_with_custom_domains(self) -> None:
         config = HttpRouteConfigModel.model_validate(
             {
-                "name": "api-gateway",
+                "name": "apigateway",
                 "custom_domains": [
                     {
                         "name": "api.example.com",
@@ -352,14 +352,14 @@ class TestHttpRouteConfigModel:
                 ],
             }
         )
-        assert config.name == "api-gateway"
+        assert config.name == "apigateway"
         assert len(config.rules) == 2
         assert len(config.custom_domains) == 1
 
     def test_multiple_rules_valid(self) -> None:
         config = HttpRouteConfigModel.model_validate(
             {
-                "name": "multi-rule",
+                "name": "multirule",
                 "rules": [
                     {"targets": [{"container_app": "app-a"}]},
                     {"targets": [{"container_app": "app-b"}]},
@@ -367,6 +367,43 @@ class TestHttpRouteConfigModel:
             }
         )
         assert len(config.rules) == 2
+
+    def test_name_with_hyphen_rejected(self) -> None:
+        """Azure requires httpRouteName to match ^[a-z][a-z0-9]*$ (no hyphens)."""
+        with pytest.raises(ValueError, match="string_pattern_mismatch"):
+            HttpRouteConfigModel.model_validate(
+                {
+                    "name": "route-demo",
+                    "rules": [{"targets": [{"container_app": "backend"}]}],
+                }
+            )
+
+    def test_name_with_uppercase_rejected(self) -> None:
+        with pytest.raises(ValueError, match="string_pattern_mismatch"):
+            HttpRouteConfigModel.model_validate(
+                {
+                    "name": "RouteDemo",
+                    "rules": [{"targets": [{"container_app": "backend"}]}],
+                }
+            )
+
+    def test_name_starting_with_digit_rejected(self) -> None:
+        with pytest.raises(ValueError, match="string_pattern_mismatch"):
+            HttpRouteConfigModel.model_validate(
+                {
+                    "name": "1routes",
+                    "rules": [{"targets": [{"container_app": "backend"}]}],
+                }
+            )
+
+    def test_lowercase_alphanumeric_name_accepted(self) -> None:
+        config = HttpRouteConfigModel.model_validate(
+            {
+                "name": "routedemo01",
+                "rules": [{"targets": [{"container_app": "backend"}]}],
+            }
+        )
+        assert config.name == "routedemo01"
 
 
 # ============================================================
@@ -406,11 +443,11 @@ class TestDuplicateRouteConfigNames:
                 {
                     "http_routes": [
                         {
-                            "name": "same-name",
+                            "name": "samename",
                             "rules": [{"targets": [{"container_app": "app-a"}]}],
                         },
                         {
-                            "name": "same-name",
+                            "name": "samename",
                             "rules": [{"targets": [{"container_app": "app-b"}]}],
                         },
                     ]
@@ -422,11 +459,11 @@ class TestDuplicateRouteConfigNames:
             {
                 "http_routes": [
                     {
-                        "name": "route-a",
+                        "name": "routea",
                         "rules": [{"targets": [{"container_app": "app-a"}]}],
                     },
                     {
-                        "name": "route-b",
+                        "name": "routeb",
                         "rules": [{"targets": [{"container_app": "app-b"}]}],
                     },
                 ]
@@ -441,7 +478,7 @@ class TestDuplicateRouteConfigNames:
             {
                 "http_routes": [
                     {
-                        "name": "only-route",
+                        "name": "onlyroute",
                         "rules": [{"targets": [{"container_app": "app-a"}]}],
                     },
                 ]
@@ -467,7 +504,7 @@ class TestBuildHttpRouteConfig:
     def minimal_config(self) -> HttpRouteConfigModel:
         return HttpRouteConfigModel.model_validate(
             {
-                "name": "test-route",
+                "name": "testroute",
                 "rules": [
                     {
                         "targets": [{"container_app": "backend"}],
@@ -480,7 +517,7 @@ class TestBuildHttpRouteConfig:
     def full_config(self) -> HttpRouteConfigModel:
         return HttpRouteConfigModel.model_validate(
             {
-                "name": "api-gateway",
+                "name": "apigateway",
                 "custom_domains": [
                     {
                         "name": "api.example.com",
@@ -550,7 +587,7 @@ class TestBuildHttpRouteConfig:
         )
 
         def check_urn(urn: str) -> None:
-            assert "test-route" in urn
+            assert "testroute" in urn
 
         resource.urn.apply(check_urn)
 
@@ -566,7 +603,7 @@ class TestBuildHttpRouteConfig:
         )
 
         def check_urn(urn: str) -> None:
-            assert "test-route" in urn
+            assert "testroute" in urn
 
         resource.urn.apply(check_urn)
 

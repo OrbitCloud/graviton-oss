@@ -8,7 +8,6 @@ jobs:
   test:
     permissions:
       contents: read
-      pull-requests: write
     name: Test & lint
     runs-on: ubuntu-latest
     steps:
@@ -60,12 +59,22 @@ jobs:
       - run: poetry run make lint
       - run: poetry run make test
 
-      - name: Pytest coverage comment
-        uses: MishaKav/pytest-coverage-comment@v1.7.2
+      - name: Save PR number
         if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: echo "$PR_NUMBER" > pr_number.txt
+
+      - name: Upload coverage artifacts
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
         with:
-          pytest-coverage-path: ./pytest-coverage.txt
-          junitxml-path: ./pytest.xml
+          name: coverage-report
+          path: |
+            pytest-coverage.txt
+            pytest.xml
+            pr_number.txt
+          retention-days: 1
   release:
     if: ${{ !startsWith(github.event.head_commit.message, 'bump:') && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest

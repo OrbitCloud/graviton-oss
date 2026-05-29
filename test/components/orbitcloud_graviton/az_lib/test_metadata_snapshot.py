@@ -131,6 +131,7 @@ V1_PREFIX_SNAPSHOT: dict[str, dict[str, Any]] = {
     "pulumi_azure_native.sql.server": {"prefix": "sql"},
     "pulumi_azure_native.sql.elastic_pool": {"prefix": "sqlep"},
     "pulumi_azure_native.sql.firewall_rule": {"prefix": "sqlfw"},
+    "pulumi_azure_native.sql.virtual_network_rule": {"prefix": "sqlvnr"},
     "pulumi_azure_native.sql.server_dns_alias": {"prefix": "sqldns"},
     "pulumi_azure_native.sql.job_agent": {"prefix": "sqlja"},
     "pulumi_azure_native.sql.job_target_group": {"prefix": "sqljtg"},
@@ -145,6 +146,11 @@ V1_PREFIX_SNAPSHOT: dict[str, dict[str, Any]] = {
     "pulumi_azure_native.network.dnssec_config": {"prefix": "dnssec"},
     "pulumi_azure_native.recoveryservices.vault": {"prefix": "rsv"},
     "pulumi_azure_native.recoveryservices.protection_policy": {"prefix": "rsvpp"},
+    "pulumi_azure_native.dbformysql.server": {"prefix": "mysql"},
+    "pulumi_azure_native.dbformysql.azure_ad_administrator": {"prefix": "mysql-admin"},
+    "pulumi_azure_native.dbformysql.configuration": {"prefix": "mysql-conf"},
+    "pulumi_azure_native.dbformysql.database": {"prefix": "mysql-db"},
+    "pulumi_azure_native.dbformysql.firewall_rule": {"prefix": "mysql-fw"},
 }
 
 
@@ -214,7 +220,7 @@ V2_METADATA_SNAPSHOT: dict[str, Any] = {
             "ConfigurationStore": {
                 "naming": {"prefix": "appcs"},
                 "namespace": "Microsoft.AppConfiguration/configurationStores",
-                "sub_resource_name": "configurationStore",
+                "sub_resource_name": "configurationStores",
                 "public_dns_zone": "azconfig.io",
                 "private_dns_zone": "privatelink.azconfig.io",
             },
@@ -456,6 +462,9 @@ V2_METADATA_SNAPSHOT: dict[str, Any] = {
             },
             "FirewallRule": {
                 "naming": {"prefix": "sqlfw"},
+            },
+            "VirtualNetworkRule": {
+                "naming": {"prefix": "sqlvnr"},
             },
             "ServerDnsAlias": {
                 "naming": {"prefix": "sqldns"},
@@ -745,6 +754,7 @@ V1_NAMING_EXPECTED: dict[str, str] = {
     "pulumi_azure_native.sql.server": "sql-workload-test-neu-01",
     "pulumi_azure_native.sql.elastic_pool": "sqlep-workload-test-neu-01",
     "pulumi_azure_native.sql.firewall_rule": "sqlfw-workload-test-neu-01",
+    "pulumi_azure_native.sql.virtual_network_rule": "sqlvnr-workload-test-neu-01",
     "pulumi_azure_native.sql.server_dns_alias": "sqldns-workload-test-neu-01",
     "pulumi_azure_native.sql.job_agent": "sqlja-workload-test-neu-01",
     "pulumi_azure_native.sql.job_target_group": "sqljtg-workload-test-neu-01",
@@ -759,6 +769,11 @@ V1_NAMING_EXPECTED: dict[str, str] = {
     "pulumi_azure_native.network.dnssec_config": "dnssec-workload-test-neu-01",
     "pulumi_azure_native.recoveryservices.vault": "rsv-workload-test-neu-01",
     "pulumi_azure_native.recoveryservices.protection_policy": "rsvpp-workload-test-neu-01",
+    "pulumi_azure_native.dbformysql.server": "mysql-workload-test-neu-01",
+    "pulumi_azure_native.dbformysql.azure_ad_administrator": "mysql-admin-workload-test-neu-01",
+    "pulumi_azure_native.dbformysql.configuration": "mysql-conf-workload-test-neu-01",
+    "pulumi_azure_native.dbformysql.database": "mysql-db-workload-test-neu-01",
+    "pulumi_azure_native.dbformysql.firewall_rule": "mysql-fw-workload-test-neu-01",
 }
 
 
@@ -1068,6 +1083,7 @@ V1_TO_V2_MAPPING: dict[str, tuple[str, str]] = {
     "pulumi_azure_native.sql.database": ("sql", "Database"),
     "pulumi_azure_native.sql.server": ("sql", "Server"),
     "pulumi_azure_native.sql.firewall_rule": ("sql", "FirewallRule"),
+    "pulumi_azure_native.sql.virtual_network_rule": ("sql", "VirtualNetworkRule"),
     "pulumi_azure_native.sql.server_dns_alias": ("sql", "ServerDnsAlias"),
     "pulumi_azure_native.sql.elastic_pool": ("sql", "ElasticPool"),
     "pulumi_azure_native.sql.job_agent": ("sql", "JobAgent"),
@@ -1173,6 +1189,11 @@ def test_cross_system_v1_only_resources() -> None:
         "pulumi_azure_native.dbforpostgresql.server",
         "pulumi_azure_native.dbforpostgresql.administrator",
         "pulumi_azure_native.dbforpostgresql.configuration",
+        "pulumi_azure_native.dbformysql.server",
+        "pulumi_azure_native.dbformysql.azure_ad_administrator",
+        "pulumi_azure_native.dbformysql.configuration",
+        "pulumi_azure_native.dbformysql.database",
+        "pulumi_azure_native.dbformysql.firewall_rule",
         "pulumi_random.random_password",
         "pulumi_azure_native.compute.virtual_machine",
         "pulumi_azure_native.compute.disk",

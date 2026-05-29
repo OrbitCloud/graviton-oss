@@ -1,0 +1,6 @@
+name: environments
+description: Azure Environment — Pulumi ESC OIDC credentials and subscription config
+runtime:
+  name: python
+options:
+  refresh: always

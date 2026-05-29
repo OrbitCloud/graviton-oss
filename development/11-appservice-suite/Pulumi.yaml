@@ -1,0 +1,6 @@
+name: appservice_suite
+description: App Service Plan for hosting web apps and function apps
+runtime:
+  name: python
+options:
+  refresh: always

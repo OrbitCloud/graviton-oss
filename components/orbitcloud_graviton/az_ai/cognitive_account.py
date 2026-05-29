@@ -1,4 +1,5 @@
 from ipaddress import IPv4Address
+from typing import Literal
 
 import pulumi
 
@@ -7,13 +8,24 @@ from pulumi_azure_native import cognitiveservices as ai
 from pulumi_azure_native import monitor
 from pydantic import BaseModel, ConfigDict
 
+from orbitcloud_graviton.az_lib import location_abbr
 from orbitcloud_graviton.az_lib.types import AzureIdRef, StrRef
 from orbitcloud_graviton.az_monitor import diagnostic_setting
 from orbitcloud_graviton.az_network import PrivateEndpoint, PrivateEndpointConfig
 from orbitcloud_graviton.pulumi_lib import AzureStack, EntraStack
 
+# Resource name prefix per `kind`. The metadata YAML carries `oai` for the
+# CognitiveServices Account resource type, which is OpenAI-flavoured; for
+# AIServices (Azure AI Foundry) we want `aif` instead.
+_PREFIX_BY_KIND: dict[str, str] = {
+    "OpenAI": "oai",
+    "AIServices": "aif",
+}
 
-class AzureOpenAiConfig(BaseModel):
+
+class CognitiveAccountConfig(BaseModel):
+    kind: Literal["OpenAI", "AIServices"] = "AIServices"
+    name: str | None = None
     allowed_public_ips: list[IPv4Address | StrRef] | None = None
     custom_domain_prefix: str | None = None
     private_endpoints: list[PrivateEndpointConfig] | None = None
@@ -23,16 +35,16 @@ class AzureOpenAiConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
 
-class AzureOpenAi(pulumi.ComponentResource):
+class CognitiveAccount(pulumi.ComponentResource):
     def __init__(
         self,
         stack: AzureStack,
         entra_config: EntraStack,
-        config: AzureOpenAiConfig,
+        config: CognitiveAccountConfig,
         opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         self.stack: AzureStack = stack
-        self.config: AzureOpenAiConfig = config
+        self.config: CognitiveAccountConfig = config
         self.entra_config: EntraStack = entra_config
 
         super().__init__(
@@ -52,13 +64,24 @@ class AzureOpenAi(pulumi.ComponentResource):
 
         self._outputs()
 
+    def _account_name(self) -> str:
+        if self.config.name:
+            return self.config.name
+        prefix = _PREFIX_BY_KIND[self.config.kind]
+        return (
+            f"{prefix}-{self.stack.workload_name}-{self.stack.env}-"
+            f"{location_abbr(location=self.stack.location)}-01"
+        )
+
     def _account(self) -> ai.Account:
+        name: str = self._account_name()
         return ai.Account(
-            resource_name=self.stack.name_for(resource_type=ai.Account),
+            resource_name=name,
             args=ai.AccountArgs(
+                account_name=name,
                 resource_group_name=self.stack.resource_group.name,
                 location=self.stack.location,
-                kind="OpenAI",
+                kind=self.config.kind,
                 sku=ai.SkuArgs(name="S0"),
                 identity=ai.IdentityArgs(
                     type=ai.ResourceIdentityType.SYSTEM_ASSIGNED,

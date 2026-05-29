@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: apps
+
+  # Container App Environment — runs on the apps subnet from networking
+  containerapp_env:
+    subnet_id: stack://networking/dev/subnets.apps.id
+    public_network_access: true
+
+  # Key Vault for application secrets
+  keyvault:
+    public_network_access: Enabled
+    allowed_public_networks:
+      - 203.0.113.0/24 # RFC 5737 — replace with your office IP range

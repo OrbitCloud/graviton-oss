@@ -1,3 +1,45 @@
+## v0.95.1 (2026-05-29)
+
+### Fix
+
+- **az_lib**: use configurationStores for App Configuration private link groupId (#284)
+
+## v0.95.0 (2026-05-19)
+
+### Feat
+
+- **az_ai**: add Microsoft AI Foundry support via CognitiveAccount
+
+## v0.94.0 (2026-05-15)
+
+### Feat
+
+- **datazone**: add datazone base orchestrating psql, mysql, sql, storage
+- **az_mysql**: add MySQL Flexible Server component
+
+## v0.93.1 (2026-03-29)
+
+### Fix
+
+- **ci**: pass bot token via input to action-gh-release
+
+## v0.93.0 (2026-03-29)
+
+### Feat
+
+- **SqlServer**: Support VirtualNetworkRules
+
+### Fix
+
+- **tests**: update metadata snapshot for VirtualNetworkRule
+- **PostgresFlexibleServer**: Remove unneeded encryption parameter
+
+## v0.92.0 (2026-03-03)
+
+### Feat
+
+- **development**: add example stacks for all 14 Graviton CDK base types (#250)
+
 ## v0.91.0 (2026-02-27)
 
 ### Feat

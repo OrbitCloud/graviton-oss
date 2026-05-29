@@ -1,0 +1,6 @@
+name: firewall
+description: Azure Firewall with rule collection groups
+runtime:
+  name: python
+options:
+  refresh: always

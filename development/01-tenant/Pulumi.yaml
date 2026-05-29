@@ -1,0 +1,6 @@
+name: tenant
+description: Azure Tenant configuration — global settings, ESC environment, tagging rules
+runtime:
+  name: python
+options:
+  refresh: always

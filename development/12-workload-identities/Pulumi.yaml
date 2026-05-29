@@ -1,0 +1,6 @@
+name: workload_identities
+description: Federated credentials for CI/CD pipelines (GitHub Actions, Azure DevOps)
+runtime:
+  name: python
+options:
+  refresh: always

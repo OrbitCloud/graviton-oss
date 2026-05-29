@@ -1,0 +1,6 @@
+name: app_workload_job_scheduled
+description: App Workload — Scheduled (cron) Container App Job
+runtime:
+  name: python
+options:
+  refresh: always

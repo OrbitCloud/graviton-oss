@@ -1,0 +1,14 @@
+[tool.poetry]
+authors = ["Graviton CDK <admin@example.com>"]
+description = "Graviton CDK example stacks for development and integration testing"
+name = "graviton-examples"
+package-mode = false
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+orbitcloud-graviton = { path = "..", develop = true }
+python = ">=3.12,<4.0"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]

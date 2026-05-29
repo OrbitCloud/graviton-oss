@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: oauth
+
+  oauth_apps:
+    # Example: SPA frontend application
+    - name: frontend-spa
+      authentication:
+        redirect_uris:
+          - https://example.graviton.dev/auth/callback
+          - http://localhost:3000/auth/callback
+        logout_url: https://example.graviton.dev/auth/logout
+
+    # Example: Backend API with client credentials
+    - name: backend-api
+      client_credentials:
+        - display_name: api-secret

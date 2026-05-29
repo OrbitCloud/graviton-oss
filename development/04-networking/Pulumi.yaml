@@ -1,0 +1,6 @@
+name: networking
+description: Hub-Spoke Virtual Network with subnets, DNS zones, and private DNS
+runtime:
+  name: python
+options:
+  refresh: always

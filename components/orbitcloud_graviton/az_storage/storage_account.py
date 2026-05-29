@@ -107,11 +107,15 @@ class StorageAccount(pulumi.ComponentResource):
         self.config: StorageAccountConfig = config
         self.stack: AzureStack = stack
 
+        # Alias keeps Pulumi state continuous for stacks deployed before the
+        # ComponentResource name was derived from `config.name`. Without it,
+        # the URN change cascades to every child resource and triggers replace.
+        legacy_alias = pulumi.Alias(name=f"st-{self.stack.workload_name}")
         super().__init__(
             "Graviton:az_storage:StorageAccount",
             name=f"st-{self.config.name}",
             props=None,
-            opts=opts,
+            opts=pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(aliases=[legacy_alias])),
         )
         self._opts: pulumi.ResourceOptions = pulumi.ResourceOptions.merge(
             opts1=opts, opts2=pulumi.ResourceOptions(parent=self)

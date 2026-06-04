@@ -1,4 +1,4 @@
-# [Alpha preview] Graviton CDK – "Infrastructure as Lego"
+# Graviton CDK – "Infrastructure as Lego"
 
 ![Alt text](graviton.jpg)
 
@@ -11,7 +11,7 @@
 
 Graviton CDK is a modular infrastructure as code (IaC) development kit that enables composing secure, reliable and manageable infrastructure stacks using reusable components akin to building Lego.
 
-> :warning: **WARNING**: This project is an alpha preview (v0.x.x) and under development. Breaking changes should be expected.
+> :information_source: **Versioning**: Pinning a specific version of Graviton is recommended for downstream use. The project is under active development, so capturing and validating any breaking changes or unexpected updates before upgrading is the consumer's responsibility.
 
 ## Development
 

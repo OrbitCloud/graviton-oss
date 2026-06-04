@@ -48,7 +48,7 @@ packages = [
     { include = "orbitcloud_graviton/workload_identities", from = "bases" },
 ]
 readme = "README.md"
-version = "0.70.0"
+version = "0.96.0"
 
 [tool.polylith]
 namespace = "orbitcloud_graviton"

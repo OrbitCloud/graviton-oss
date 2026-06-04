@@ -205,8 +205,8 @@ def deploy() -> None:
         )
         for route_config in config.http_routes:
             build_http_route_config(
-                environment_name=env_output.name,
-                resource_group_name=env_output.resource_group_name,
+                stack=stack,
+                env_output=env_output,
                 config=route_config,
                 opts=route_opts,
             )

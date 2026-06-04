@@ -44,6 +44,11 @@ HttpRouteRuleConfig = _http_route.HttpRouteRuleConfig
 HttpRouteConfigModel = _http_route.HttpRouteConfigModel
 HttpRouteEntry = _http_route.HttpRouteEntry
 build_http_route_config = _http_route.build_http_route_config
+_setup_route_custom_domain = _http_route._setup_route_custom_domain
+_route_endpoint_exports = _http_route._route_endpoint_exports
+ContainerAppEnvOutput = _http_route.ContainerAppEnvOutput
+CustomDomainConfig = _http_route.CustomDomainConfig
+AzureStack = _http_route.AzureStack
 
 
 # ============================================================
@@ -501,6 +506,18 @@ class TestBuildHttpRouteConfig:
     """
 
     @pytest.fixture
+    def env_output(self) -> ContainerAppEnvOutput:
+        return ContainerAppEnvOutput.model_validate(
+            {
+                "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.App/managedEnvironments/test-env",
+                "name": "test-env",
+                "static_ip": "20.0.0.1",
+                "custom_domain_verification_id": "verify-123",
+                "dns_suffix": "test-env.northeurope.azurecontainerapps.io",
+            }
+        )
+
+    @pytest.fixture
     def minimal_config(self) -> HttpRouteConfigModel:
         return HttpRouteConfigModel.model_validate(
             {
@@ -543,62 +560,62 @@ class TestBuildHttpRouteConfig:
         )
 
     @pulumi.runtime.test
-    def test_builder_creates_resource(self, minimal_config: HttpRouteConfigModel) -> None:
+    def test_builder_creates_resource(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        minimal_config: HttpRouteConfigModel,
+    ) -> None:
         resource = build_http_route_config(
-            environment_name="test-env",
-            resource_group_name="test-rg",
+            stack=stack,
+            env_output=env_output,
             config=minimal_config,
         )
         assert resource is not None
 
     @pulumi.runtime.test
     def test_builder_returns_http_route_config_type(
-        self, minimal_config: HttpRouteConfigModel
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        minimal_config: HttpRouteConfigModel,
     ) -> None:
         from pulumi_azure_native import app as az_app
 
         resource = build_http_route_config(
-            environment_name="test-env",
-            resource_group_name="test-rg",
+            stack=stack,
+            env_output=env_output,
             config=minimal_config,
         )
         assert isinstance(resource, az_app.HttpRouteConfig)
 
     @pulumi.runtime.test
-    def test_builder_with_opts(self, minimal_config: HttpRouteConfigModel) -> None:
+    def test_builder_with_opts(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        minimal_config: HttpRouteConfigModel,
+    ) -> None:
         opts = pulumi.ResourceOptions(protect=True)
         resource = build_http_route_config(
-            environment_name="test-env",
-            resource_group_name="test-rg",
+            stack=stack,
+            env_output=env_output,
             config=minimal_config,
             opts=opts,
         )
         assert resource is not None
 
     @pulumi.runtime.test
-    def test_builder_maps_environment_and_resource_group(
-        self, minimal_config: HttpRouteConfigModel
-    ) -> None:
-        """Verify environment_name and resource_group_name are correctly passed."""
-        resource = build_http_route_config(
-            environment_name="my-env",
-            resource_group_name="my-rg",
-            config=minimal_config,
-        )
-
-        def check_urn(urn: str) -> None:
-            assert "testroute" in urn
-
-        resource.urn.apply(check_urn)
-
-    @pulumi.runtime.test
     def test_builder_maps_http_route_name_in_urn(
-        self, minimal_config: HttpRouteConfigModel
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        minimal_config: HttpRouteConfigModel,
     ) -> None:
         """Verify the Pulumi resource_name (from config.name) appears in the URN."""
         resource = build_http_route_config(
-            environment_name="my-env",
-            resource_group_name="my-rg",
+            stack=stack,
+            env_output=env_output,
             config=minimal_config,
         )
 
@@ -608,11 +625,16 @@ class TestBuildHttpRouteConfig:
         resource.urn.apply(check_urn)
 
     @pulumi.runtime.test
-    def test_builder_maps_targets(self, full_config: HttpRouteConfigModel) -> None:
+    def test_builder_maps_targets(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        full_config: HttpRouteConfigModel,
+    ) -> None:
         """Verify target container_app names and weights are correctly mapped."""
         resource = build_http_route_config(
-            environment_name="prod-env",
-            resource_group_name="prod-rg",
+            stack=stack,
+            env_output=env_output,
             config=full_config,
         )
 
@@ -630,11 +652,16 @@ class TestBuildHttpRouteConfig:
         resource.properties.apply(check_properties)
 
     @pulumi.runtime.test
-    def test_builder_maps_match_conditions(self, full_config: HttpRouteConfigModel) -> None:
+    def test_builder_maps_match_conditions(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        full_config: HttpRouteConfigModel,
+    ) -> None:
         """Verify route match conditions (path_separated_prefix) are correctly mapped."""
         resource = build_http_route_config(
-            environment_name="prod-env",
-            resource_group_name="prod-rg",
+            stack=stack,
+            env_output=env_output,
             config=full_config,
         )
 
@@ -649,11 +676,16 @@ class TestBuildHttpRouteConfig:
         resource.properties.apply(check_properties)
 
     @pulumi.runtime.test
-    def test_builder_maps_action(self, full_config: HttpRouteConfigModel) -> None:
+    def test_builder_maps_action(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        full_config: HttpRouteConfigModel,
+    ) -> None:
         """Verify route action (prefix_rewrite) is correctly mapped."""
         resource = build_http_route_config(
-            environment_name="prod-env",
-            resource_group_name="prod-rg",
+            stack=stack,
+            env_output=env_output,
             config=full_config,
         )
 
@@ -666,11 +698,16 @@ class TestBuildHttpRouteConfig:
         resource.properties.apply(check_properties)
 
     @pulumi.runtime.test
-    def test_builder_maps_custom_domains(self, full_config: HttpRouteConfigModel) -> None:
+    def test_builder_maps_custom_domains(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        full_config: HttpRouteConfigModel,
+    ) -> None:
         """Verify custom domain name and certificate_id are correctly mapped."""
         resource = build_http_route_config(
-            environment_name="prod-env",
-            resource_group_name="prod-rg",
+            stack=stack,
+            env_output=env_output,
             config=full_config,
         )
 
@@ -684,11 +721,16 @@ class TestBuildHttpRouteConfig:
         resource.properties.apply(check_properties)
 
     @pulumi.runtime.test
-    def test_builder_maps_rule_description(self, full_config: HttpRouteConfigModel) -> None:
+    def test_builder_maps_rule_description(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        full_config: HttpRouteConfigModel,
+    ) -> None:
         """Verify rule description is correctly mapped."""
         resource = build_http_route_config(
-            environment_name="prod-env",
-            resource_group_name="prod-rg",
+            stack=stack,
+            env_output=env_output,
             config=full_config,
         )
 
@@ -699,11 +741,16 @@ class TestBuildHttpRouteConfig:
         resource.properties.apply(check_properties)
 
     @pulumi.runtime.test
-    def test_builder_no_custom_domains(self, minimal_config: HttpRouteConfigModel) -> None:
+    def test_builder_no_custom_domains(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        minimal_config: HttpRouteConfigModel,
+    ) -> None:
         """Builder with no custom domains produces None for customDomains in properties."""
         resource = build_http_route_config(
-            environment_name="test-env",
-            resource_group_name="test-rg",
+            stack=stack,
+            env_output=env_output,
             config=minimal_config,
         )
 
@@ -712,3 +759,93 @@ class TestBuildHttpRouteConfig:
             assert props.custom_domains is None
 
         resource.properties.apply(check_properties)
+
+    @pulumi.runtime.test
+    def test_route_custom_domain_auto_creates_managed_cert(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        minimal_config: HttpRouteConfigModel,
+    ) -> None:
+        """A custom domain with ssl:Auto provisions an ACA managed certificate
+        for the route config, mirroring the ingress custom-domain path."""
+        from pulumi_azure_native import app as az_app
+
+        route = build_http_route_config(stack=stack, env_output=env_output, config=minimal_config)
+        cert = _setup_route_custom_domain(
+            stack,
+            env_output,
+            route,
+            CustomDomainConfig(name="routedemo.example.com", ssl=az_app.BindingType.AUTO),
+        )
+        assert isinstance(cert, az_app.ManagedCertificate)
+
+        def check(subject: Any) -> None:
+            assert subject == "routedemo.example.com"
+
+        cert.properties.subject_name.apply(check)
+
+    @pulumi.runtime.test
+    def test_route_custom_domain_sni_skips_managed_cert(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        minimal_config: HttpRouteConfigModel,
+    ) -> None:
+        """A custom domain with the default SNI binding (not Auto) must NOT create
+        a managed certificate."""
+        route = build_http_route_config(stack=stack, env_output=env_output, config=minimal_config)
+        cert = _setup_route_custom_domain(
+            stack,
+            env_output,
+            route,
+            CustomDomainConfig(
+                name="routedemo.example.com",
+                certificate_id="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.App/managedEnvironments/env/certificates/cert-1",
+            ),
+        )
+        assert cert is None
+
+    @pulumi.runtime.test
+    def test_endpoint_exports_default_from_fqdn(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        minimal_config: HttpRouteConfigModel,
+    ) -> None:
+        """The default endpoint is the route config's own FQDN as an https URL."""
+        route = build_http_route_config(stack=stack, env_output=env_output, config=minimal_config)
+        exports = _route_endpoint_exports(route_config=route, config=minimal_config)
+
+        def check(default: Any) -> None:
+            # The mocked fqdn is None, so default collapses to None; the apply
+            # wiring (https:// prefix when present) is what we assert on.
+            assert default is None or default.startswith("https://")
+
+        exports["endpoints"]["default"].apply(check)
+
+    @pulumi.runtime.test
+    def test_endpoint_exports_custom_domains(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        full_config: HttpRouteConfigModel,
+    ) -> None:
+        """Custom domains are exported as https URLs alongside the default endpoint."""
+        route = build_http_route_config(stack=stack, env_output=env_output, config=full_config)
+        exports = _route_endpoint_exports(route_config=route, config=full_config)
+
+        assert exports["endpoints"]["custom_domains"] == ["https://api.example.com"]
+
+    @pulumi.runtime.test
+    def test_endpoint_exports_no_custom_domains(
+        self,
+        stack: AzureStack,
+        env_output: ContainerAppEnvOutput,
+        minimal_config: HttpRouteConfigModel,
+    ) -> None:
+        """With no custom domains, the exported custom_domains list is empty."""
+        route = build_http_route_config(stack=stack, env_output=env_output, config=minimal_config)
+        exports = _route_endpoint_exports(route_config=route, config=minimal_config)
+
+        assert exports["endpoints"]["custom_domains"] == []

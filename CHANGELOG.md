@@ -1,3 +1,16 @@
+## v0.97.0 (2026-06-04)
+
+### Feat
+
+- **az_app**: path-based routing support for Container Apps
+- **az_app**: add HttpRouteConfig for path-based traffic routing
+
+### Fix
+
+- re-sync stuck poetry package version to 0.96.0
+- **az_network**: accept default service tags in NSG rules
+- **az_app**: validate HttpRouteConfig name against Azure naming pattern
+
 ## v0.96.0 (2026-05-29)
 
 ### Feat

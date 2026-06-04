@@ -5,6 +5,7 @@
       "Bash(make lint)",
       "Bash(make test)",
       "Bash(make pyright)",
+      "Bash(python -m pytest:*)",
       "Bash(git checkout -b *)",
       "Bash(git diff *)",
       "Bash(git log *)",

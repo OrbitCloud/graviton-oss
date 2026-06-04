@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=.stack_schema.json
+config:
+  azuread:tenantId: "00000000-0000-0000-0000-000000000000"
+  workload_name: tenant
+  env: graviton-dev
+
+  # Pulumi ESC environment configuration
+  esc:
+    env_name: graviton-dev
+
+  # Customer information
+  customer:
+    name: Graviton Example
+    active: true
+
+  # Global settings inherited by all downstream environments
+  globals:
+    location: northeurope
+    ip_allow_list:
+      - 203.0.113.0/24 # RFC 5737 documentation range — replace with your office IP
+    tags:
+      Env: dev
+      WorkloadName: graviton-example
+      ProvisionType: IaC
+      Owner: admin@example.com

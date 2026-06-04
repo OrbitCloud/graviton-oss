@@ -1,0 +1,17 @@
+azure_namespace: Microsoft.DBforMySQL
+resources:
+  Server:
+    naming:
+      prefix: mysql
+  AzureADAdministrator:
+    naming:
+      prefix: mysql-admin
+  Configuration:
+    naming:
+      prefix: mysql-conf
+  Database:
+    naming:
+      prefix: mysql-db
+  FirewallRule:
+    naming:
+      prefix: mysql-fw

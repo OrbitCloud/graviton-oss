@@ -1,0 +1,6 @@
+name: app_workload_http
+description: App Workload — HTTP-triggered Container App with ingress and scaling
+runtime:
+  name: python
+options:
+  refresh: always

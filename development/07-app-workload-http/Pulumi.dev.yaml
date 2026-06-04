@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: web-api
+
+  apps:
+    - # Reference the Container App Environment from the app-zone stack
+      environment_output_ref: stack://app_zone/dev/containerapp_env
+      workload_profile_name: Consumption
+
+      containers:
+        - name: web-api
+          image: mcr.microsoft.com/k8se/quickstart:latest
+
+      ingress:
+        external: true
+        protocol: http
+        target_port: 80
+        ip_allow_list:
+          - 203.0.113.0/24 # RFC 5737 — replace with your office IP range
+
+      scaling:
+        min_replicas: 1
+        max_replicas: 5
+        rules:
+          http-trigger:
+            rule_type: http
+            concurrent_requests: 50

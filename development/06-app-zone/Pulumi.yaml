@@ -1,0 +1,6 @@
+name: app_zone
+description: Container App Environment — App Insights, Key Vault, optional Service Bus
+runtime:
+  name: python
+options:
+  refresh: always

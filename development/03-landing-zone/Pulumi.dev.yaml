@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: lz
+
+  # Key Vault with public access for development
+  keyvault:
+    public_network_access: Enabled
+    allowed_public_networks:
+      - 203.0.113.0/24 # RFC 5737 — replace with your office IP range
+
+  # Container Registry
+  container_registry:
+    public_network_access: Enabled
+    admin_user_enabled: true
+    retention_policy_days: 7
+
+  # DNS Zone — register a subdomain for this environment
+  dns_zone:
+    name: example.graviton.dev
+
+  # Request a wildcard ACME/Let's Encrypt certificate for the DNS zone
+  acme_ssl: true

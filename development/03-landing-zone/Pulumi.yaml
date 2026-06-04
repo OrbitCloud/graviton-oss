@@ -1,0 +1,6 @@
+name: landing_zone
+description: Landing Zone — Log Analytics, Key Vault, Container Registry, DNS
+runtime:
+  name: python
+options:
+  refresh: always

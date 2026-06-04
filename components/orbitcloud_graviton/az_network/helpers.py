@@ -29,7 +29,16 @@ def fetch_service_tags(location: str):
         raise RuntimeError("Failed to fetch service tags")
 
 
+# Default/system service tags represent dynamic scopes with no fixed IP
+# prefixes (the VNet address space, the platform load balancer, everything
+# outside the VNet). They are valid in NSG rules but are NOT returned by the
+# serviceTags.list API, so they must be allowed explicitly.
+DEFAULT_SERVICE_TAGS = frozenset({"VirtualNetwork", "AzureLoadBalancer", "Internet"})
+
+
 def is_service_tag(value: str) -> str:
+    if value in DEFAULT_SERVICE_TAGS:
+        return value
     valid_service_tags = fetch_service_tags(location="northeurope")
     if value not in valid_service_tags:
         raise ValueError(f"'{value}' is not a valid service tag")

@@ -45,6 +45,7 @@
 
       "Bash(make *)",
       "Bash(poetry run *)",
+      "Bash(python -m pytest *)",
 
       "Bash(gh pr view *)",
       "Bash(gh pr list *)",

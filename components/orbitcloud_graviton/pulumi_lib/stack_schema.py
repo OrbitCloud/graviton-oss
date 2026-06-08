@@ -61,6 +61,10 @@ def generate_stack_schema(model, output_file: str):
     # Representation of a Pulumi.stack.yaml file
     class PulumiStackConfig(BaseModel):
         environment: list[str] | None = None
+        # Root-level stack settings for Pulumi-managed secrets. Optional so
+        # stacks that set them don't fail the extra="forbid" schema check.
+        secretsprovider: str | None = None
+        encryptedkey: str | None = None
         config: ConfigObject
 
         model_config = ConfigDict(extra="forbid")

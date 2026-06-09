@@ -16,6 +16,10 @@ from orbitcloud_graviton.pulumi_lib.types import TimeFromNow
 
 from .roles import get_entra_role_id_by_name
 
+# Marks Pulumi-managed Entra resources so they are recognisable in the portal /
+# Graph as infrastructure-as-code, not hand-created.
+MANAGED_BY_NOTE = "Managed by Pulumi"
+
 
 class ClientCredentialsConfig(BaseModel):
     display_name: str
@@ -222,6 +226,7 @@ class EntraApp(ComponentResource):
                 display_name=self.config.display_name
                 or f"{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
                 sign_in_audience=self.config.authentication.audience,
+                notes=MANAGED_BY_NOTE,
                 owners=self.config.owners,
                 identifier_uris=self.config.authentication.identifier_uris,
                 logo_image=filebase64(
@@ -311,7 +316,7 @@ class EntraApp(ComponentResource):
                     issuer=cred.issuer,
                     audiences=cred.audiences,
                     subject=cred.subject,
-                    description=cred.description,
+                    description=cred.description or MANAGED_BY_NOTE,
                     opts=self._opts,
                 )
                 for cred in self.config.federated_credentials

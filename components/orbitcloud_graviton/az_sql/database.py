@@ -16,6 +16,39 @@ class SqlDatabaseSku(BaseModel):
     tier: Literal["Basic", "Standard", "Premium", "GeneralPurpose", "Hyperscale"] = "Standard"
 
 
+class SqlElasticPoolSku(BaseModel):
+    """SKU for a SQL elastic pool, mapping to azure-native ``sql.SkuArgs``.
+
+    Elastic pools are sized differently from standalone databases, so they need
+    their own SKU shape (``SqlDatabaseSku`` only carries name and tier). For
+    DTU-based pools ``name`` is e.g. ``StandardPool``/``PremiumPool`` and
+    ``capacity`` is the pool eDTUs; for vCore-based pools ``name`` is e.g.
+    ``GP_Gen5``, ``family`` is the hardware generation (e.g. ``Gen5``) and
+    ``capacity`` is the number of vCores. Only ``name`` is required; the valid
+    SKU list varies by region (see Capabilities_ListByLocation).
+    """
+
+    name: str
+    tier: (
+        Literal["Basic", "Standard", "Premium", "GeneralPurpose", "BusinessCritical", "Hyperscale"]
+        | None
+    ) = None
+    capacity: int | None = None
+    family: str | None = None
+    size: str | None = None
+
+    def to_sku_args(self) -> sql.SkuArgs:
+        return sql.SkuArgs(
+            name=self.name,
+            tier=self.tier,
+            capacity=self.capacity,
+            family=self.family,
+            size=self.size,
+        )
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class SqlDatabaseConfig(BaseModel):
     name: str | None = None
     elastic_pool_id: AzureIdRef | None = None

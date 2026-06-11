@@ -16,9 +16,9 @@ from orbitcloud_graviton.pulumi_lib.types import TimeFromNow
 
 from .roles import get_entra_role_id_by_name
 
-# Marks Pulumi-managed Entra resources so they are recognisable in the portal /
+# Marks IaC-managed Entra resources so they are recognisable in the portal /
 # Graph as infrastructure-as-code, not hand-created.
-MANAGED_BY_NOTE = "Managed by Pulumi"
+MANAGED_BY_NOTE = "Managed by IaC"
 
 
 class ClientCredentialsConfig(BaseModel):
@@ -62,7 +62,7 @@ class EntraAppBranding(BaseModel):
     homepage_url: str | None = None
     logo_file: FilePath | None = None
     # Free-text "Internal notes" shown under Branding & properties in the portal.
-    # Defaults to the Pulumi-managed marker when not supplied.
+    # Defaults to the IaC-managed marker when not supplied.
     internal_notes: str | None = None
 
     @field_validator("logo_file")

@@ -170,5 +170,8 @@ class WorkloadIdentityConfig(BaseModel):
         default=..., discriminator="credential_type"
     )
     azure_permissions: list[IamAssignmentConfig] | None = None
+    # Free-text "Internal notes" for the generated app registration. Defaults to
+    # the IaC-managed marker when not supplied.
+    internal_notes: str | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")

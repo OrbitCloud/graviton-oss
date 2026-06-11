@@ -1,4 +1,11 @@
-from .entra_app import ClientCredentialsConfig, EntraApp, EntraAppConfig, FederatedCredentialsConfig
+from .entra_app import (
+    ClientCredentialsConfig,
+    EntraApp,
+    EntraAppAuthentication,
+    EntraAppBranding,
+    EntraAppConfig,
+    FederatedCredentialsConfig,
+)
 from .external_id_tenant import ExternalIdTenant, ExternalIdTenantConfig
 from .oidc_providers import (
     AzureDevOpsOIDCCredentials,
@@ -9,6 +16,8 @@ from .oidc_providers import (
 
 __all__ = [
     "EntraApp",
+    "EntraAppAuthentication",
+    "EntraAppBranding",
     "EntraAppConfig",
     "PulumiEscOidcProvider",
     "GitHubOIDCCredentials",

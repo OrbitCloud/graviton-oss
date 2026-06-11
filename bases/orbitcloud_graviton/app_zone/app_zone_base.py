@@ -15,7 +15,12 @@ from orbitcloud_graviton.az_monitor import (
 )
 from orbitcloud_graviton.az_servicebus import ServiceBus, ServiceBusNamespaceConfig
 from orbitcloud_graviton.az_storage import StorageAccountConfig, storage_account
-from orbitcloud_graviton.entra.entra_app import EntraApp, EntraAppConfig
+from orbitcloud_graviton.entra.entra_app import (
+    EntraApp,
+    EntraAppAuthentication,
+    EntraAppBranding,
+    EntraAppConfig,
+)
 from orbitcloud_graviton.entra.oidc_providers import WorkloadIdentityConfig
 from orbitcloud_graviton.pulumi_lib import AzureStack, PulumiConfig, get_azure_stack
 from orbitcloud_graviton.pulumi_lib.azure_base import EntraStack, get_entra_stack
@@ -152,6 +157,9 @@ def deploy() -> None:
                 config=EntraAppConfig(
                     name=f"{cred.workload.credential_type}",
                     federated_credentials=cred.workload.credentials(),
+                    authentication=EntraAppAuthentication(
+                        branding=EntraAppBranding(internal_notes=cred.internal_notes)
+                    ),
                 ),
             )
 

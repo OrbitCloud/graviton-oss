@@ -61,6 +61,9 @@ class EntraAppBranding(BaseModel):
     terms_of_service_url: str | None = None
     homepage_url: str | None = None
     logo_file: FilePath | None = None
+    # Free-text "Internal notes" shown under Branding & properties in the portal.
+    # Defaults to the Pulumi-managed marker when not supplied.
+    internal_notes: str | None = None
 
     @field_validator("logo_file")
     def validate_logo_file(cls, value: PosixPath) -> PosixPath | None:
@@ -226,7 +229,7 @@ class EntraApp(ComponentResource):
                 display_name=self.config.display_name
                 or f"{self.config.name}-{self.stack.workload_name}-{self.stack.env}",
                 sign_in_audience=self.config.authentication.audience,
-                notes=MANAGED_BY_NOTE,
+                notes=self.config.authentication.branding.internal_notes or MANAGED_BY_NOTE,
                 owners=self.config.owners,
                 identifier_uris=self.config.authentication.identifier_uris,
                 logo_image=filebase64(

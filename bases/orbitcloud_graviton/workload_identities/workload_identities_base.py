@@ -1,7 +1,13 @@
 import pulumi
 
 from orbitcloud_graviton.az_iam import iam_assignment
-from orbitcloud_graviton.entra import EntraApp, EntraAppConfig, WorkloadIdentityConfig
+from orbitcloud_graviton.entra import (
+    EntraApp,
+    EntraAppAuthentication,
+    EntraAppBranding,
+    EntraAppConfig,
+    WorkloadIdentityConfig,
+)
 from orbitcloud_graviton.pulumi_lib import (
     AzureStack,
     EntraStack,
@@ -37,6 +43,9 @@ def deploy() -> None:
                 config=EntraAppConfig(
                     name=f"{cred.workload.credential_type}",
                     federated_credentials=cred.workload.credentials(),
+                    authentication=EntraAppAuthentication(
+                        branding=EntraAppBranding(internal_notes=cred.internal_notes)
+                    ),
                 ),
             )
 

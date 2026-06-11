@@ -25,7 +25,7 @@ from orbitcloud_graviton.az_network import PrivateEndpoint, PrivateEndpointConfi
 from orbitcloud_graviton.az_network.types import PublicIpv4FirewallRule
 from orbitcloud_graviton.pulumi_lib import AzureStack
 
-from .database import SqlDatabase, SqlDatabaseConfig, SqlDatabaseSku
+from .database import SqlDatabase, SqlDatabaseConfig, SqlElasticPoolSku
 
 
 class SqlServerEntraAdmin(BaseModel):
@@ -61,7 +61,7 @@ class SqlServerAdmin(BaseModel):
 class SqlServerElasticPool(BaseModel):
     enabled: bool | None = False
     max_size_gb: int = 32
-    sku: SqlDatabaseSku | None = None
+    sku: SqlElasticPoolSku | None = None
 
 
 class SqlServerConfig(BaseModel):
@@ -167,6 +167,9 @@ class SqlServer(pulumi.ComponentResource):
                 elastic_pool_name=self.stack.name_for(
                     resource_type=sql.ElasticPool, workload_name=self.config.name
                 ),
+                sku=self.config.elastic_pool.sku.to_sku_args()
+                if self.config.elastic_pool.sku
+                else None,
             ),
             opts=pulumi.ResourceOptions.merge(
                 opts1=self._opts,

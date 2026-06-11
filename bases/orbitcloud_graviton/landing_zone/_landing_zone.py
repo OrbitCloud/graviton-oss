@@ -15,6 +15,8 @@ from orbitcloud_graviton.az_monitor import LogWorkspaceConfig, log_workspace
 from orbitcloud_graviton.az_network.dns_zone import DnsZone, DnsZoneConfig
 from orbitcloud_graviton.entra import (
     EntraApp,
+    EntraAppAuthentication,
+    EntraAppBranding,
     EntraAppConfig,
 )
 from orbitcloud_graviton.entra.oidc_providers import WorkloadIdentityConfig
@@ -146,6 +148,9 @@ def deploy_landing_zone() -> None:
                 config=EntraAppConfig(
                     name=f"{cred.workload.credential_type}",
                     federated_credentials=cred.workload.credentials(),
+                    authentication=EntraAppAuthentication(
+                        branding=EntraAppBranding(internal_notes=cred.internal_notes)
+                    ),
                 ),
             )
 

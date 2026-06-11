@@ -60,7 +60,10 @@ class SqlServerAdmin(BaseModel):
 
 class SqlServerElasticPool(BaseModel):
     enabled: bool | None = False
-    max_size_gb: int = 32
+    # Optional. Omit to let Azure apply the tier's default pool storage. Some
+    # tiers (e.g. Basic) fix the size per eDTU and reject an explicit value, so
+    # max_size_bytes is only sent when this is set.
+    max_size_gb: int | None = None
     sku: SqlElasticPoolSku | None = None
 
 
@@ -163,7 +166,9 @@ class SqlServer(pulumi.ComponentResource):
             args=sql.ElasticPoolArgs(
                 resource_group_name=self.stack.resource_group.name,
                 server_name=self.server.name,
-                max_size_bytes=self.config.elastic_pool.max_size_gb * 1024 * 1024 * 1024,
+                max_size_bytes=self.config.elastic_pool.max_size_gb * 1024 * 1024 * 1024
+                if self.config.elastic_pool.max_size_gb is not None
+                else None,
                 elastic_pool_name=self.stack.name_for(
                     resource_type=sql.ElasticPool, workload_name=self.config.name
                 ),

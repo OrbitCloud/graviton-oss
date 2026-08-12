@@ -45,6 +45,13 @@ class VnetPeeringConfig(BaseModel):
     allow_virtual_network_access: bool | None = True
     use_remote_gateways: bool | None = False
     remote_virtual_network: AzureIdRef
+    # Gateway-transit flags for the reverse (remote -> this) peering direction.
+    # The two flags are inverse roles between peers: the VNet that shares its
+    # gateway (allow_gateway_transit) is the one whose peer borrows it
+    # (use_remote_gateways). When left unset these mirror this side accordingly
+    # -- correct for a hub/spoke pair -- but can be set explicitly to override.
+    remote_allow_gateway_transit: bool | None = None
+    remote_use_remote_gateways: bool | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
@@ -290,39 +297,60 @@ class Vnet(ComponentResource):
             else None
         )
 
-    def _vnet_peerings(self) -> None:
+    def _vnet_peerings(self) -> list[network.VirtualNetworkPeering]:
+        peerings: list[network.VirtualNetworkPeering] = []
         if self.config.peered_vnets:
             for peering in self.config.peered_vnets:
                 target_vnet = AzureResourceId(str(peering.remote_virtual_network))
                 provider = get_provider(str(target_vnet.subscription_id))
                 vnet_name = self.stack.name_for(network.VirtualNetwork)
                 # Peer source VNET to target VNET
-                network.VirtualNetworkPeering(
-                    resource_name=f"{vnet_name}-to-{target_vnet.resource_name}_peering",
-                    resource_group_name=self.stack.resource_group.name,
-                    virtual_network_name=self.vnet.name,
-                    remote_virtual_network=network.SubResourceArgs(id=target_vnet.id),
-                    allow_forwarded_traffic=peering.allow_forwarded_traffic,
-                    allow_gateway_transit=peering.allow_gateway_transit,
-                    allow_virtual_network_access=peering.allow_virtual_network_access,
-                    use_remote_gateways=peering.use_remote_gateways,
-                    opts=pulumi.ResourceOptions(
-                        parent=self.vnet,
-                    ),
+                peerings.append(
+                    network.VirtualNetworkPeering(
+                        resource_name=f"{vnet_name}-to-{target_vnet.resource_name}_peering",
+                        resource_group_name=self.stack.resource_group.name,
+                        virtual_network_name=self.vnet.name,
+                        remote_virtual_network=network.SubResourceArgs(id=target_vnet.id),
+                        allow_forwarded_traffic=peering.allow_forwarded_traffic,
+                        allow_gateway_transit=peering.allow_gateway_transit,
+                        allow_virtual_network_access=peering.allow_virtual_network_access,
+                        use_remote_gateways=peering.use_remote_gateways,
+                        opts=pulumi.ResourceOptions(
+                            parent=self.vnet,
+                        ),
+                    )
                 )
 
-                # Peer target VNET to source VNET
-                network.VirtualNetworkPeering(
-                    resource_name=f"{target_vnet.resource_name}-to-{vnet_name}_peering",
-                    resource_group_name=target_vnet.resource_group_name,
-                    virtual_network_name=target_vnet.resource_name,
-                    remote_virtual_network=network.SubResourceArgs(id=self.vnet.id),
-                    allow_forwarded_traffic=peering.allow_forwarded_traffic,
-                    allow_gateway_transit=peering.allow_gateway_transit,
-                    allow_virtual_network_access=peering.allow_virtual_network_access,
-                    use_remote_gateways=peering.use_remote_gateways,
-                    opts=pulumi.ResourceOptions(parent=self.vnet, provider=provider),
+                # Peer target VNET to source VNET.
+                # The gateway-transit flags are per-direction: use the explicit
+                # remote_* values when supplied, otherwise mirror this side (the
+                # peer shares its gateway iff this VNet borrows it, and vice
+                # versa). Passing them symmetrically would produce an illegal
+                # peering (e.g. use_remote_gateways=True on a gateway-owning hub).
+                remote_allow_gateway_transit = (
+                    peering.remote_allow_gateway_transit
+                    if peering.remote_allow_gateway_transit is not None
+                    else peering.use_remote_gateways
                 )
+                remote_use_remote_gateways = (
+                    peering.remote_use_remote_gateways
+                    if peering.remote_use_remote_gateways is not None
+                    else peering.allow_gateway_transit
+                )
+                peerings.append(
+                    network.VirtualNetworkPeering(
+                        resource_name=f"{target_vnet.resource_name}-to-{vnet_name}_peering",
+                        resource_group_name=target_vnet.resource_group_name,
+                        virtual_network_name=target_vnet.resource_name,
+                        remote_virtual_network=network.SubResourceArgs(id=self.vnet.id),
+                        allow_forwarded_traffic=peering.allow_forwarded_traffic,
+                        allow_gateway_transit=remote_allow_gateway_transit,
+                        allow_virtual_network_access=peering.allow_virtual_network_access,
+                        use_remote_gateways=remote_use_remote_gateways,
+                        opts=pulumi.ResourceOptions(parent=self.vnet, provider=provider),
+                    )
+                )
+        return peerings
 
     def _outputs(self) -> None:
         self.register_outputs(

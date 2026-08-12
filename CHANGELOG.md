@@ -1,3 +1,26 @@
+## v0.98.0 (2026-08-12)
+
+### BREAKING CHANGE
+
+- max_size_gb no longer defaults to 32 GB. Pools that relied on
+the implicit default will omit the size and pick up the tier default on the
+next up (a resize diff); set max_size_gb explicitly to keep the prior size.
+
+### Feat
+
+- **entra**: thread workload-identity internal_notes in app_zone and landing_zone
+- **entra**: rename marker to "Managed by IaC" and allow notes on workload identities
+- **entra**: configurable Internal notes for app registrations
+- **entra**: mark Pulumi-managed app registrations and federated credentials
+- **pulumi_lib**: allow secretsprovider and encryptedkey in stack schema
+
+### Fix
+
+- **entra**: fetch Entra role templates lazily
+- **az_network**: set gateway-transit flags per direction on VNet peerings
+- **az_sql**: make elastic pool max size optional
+- **az_sql**: use a proper SKU for elastic pools
+
 ## v0.97.0 (2026-06-04)
 
 ### Feat

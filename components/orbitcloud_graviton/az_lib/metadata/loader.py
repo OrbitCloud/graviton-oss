@@ -105,7 +105,7 @@ _V1_MODULE_PATH_OVERRIDES: dict[tuple[str, str], str] = {
     # pulumi_random uses "pulumi_random" not "pulumi_azure_native"
     ("random", "RandomPassword"): "pulumi_random.random_password",
     # Pulumi SDK module is "app_service" but class is "WebApp"
-    ("web", "WebApp"): "pulumi_azure_native.web.app_service",
+    ("web", "WebApp"): "pulumi_azure_native.web.web_app",
     # EventHub class in Pulumi SDK uses module "event_hub" not "eventhub"
     ("eventhub", "EventHub"): "pulumi_azure_native.eventhub.event_hub",
 }

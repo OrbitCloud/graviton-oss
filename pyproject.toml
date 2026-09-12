@@ -69,8 +69,8 @@ enabled = false
 [tool.poetry.dependencies]
 aiohttp = "^3.11"
 azure-mgmt-authorization = "^4.0.0"
-azure-mgmt-network = "^30.0"
-cryptography = ">=46,<49"
+azure-mgmt-network = "^31.0"
+cryptography = ">=46,<51"
 jinja2 = "^3.1.4"
 pulumi = "^3.138"
 pulumi-azure-native = "^3.7"
@@ -98,7 +98,7 @@ pyright = "^1.1"
 pytest = "^9.0.1"
 pytest-cov = "^7.0.0"
 pytest-sugar = "^1.0.0"
-ruff = "^0.15"
+ruff = "^0.16"
 
 [tool.pyright]
 include = ["bases", "components", "test"]

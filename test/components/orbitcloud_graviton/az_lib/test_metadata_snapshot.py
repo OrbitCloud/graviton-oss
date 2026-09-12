@@ -61,6 +61,7 @@ V1_PREFIX_SNAPSHOT: dict[str, dict[str, Any]] = {
     "pulumi_azure_native.containerregistry.registry": {"prefix": "cr", "alphanumeric": True},
     "pulumi_azure_native.monitor.diagnostic_setting": {"prefix": "diag"},
     "pulumi_azure_native.web.app_service_plan": {"prefix": "asp"},
+    "pulumi_azure_native.logic.workflow": {"prefix": "logic"},
     "pulumi_azure_native.web.web_app": {"prefix": "app"},
     "pulumi_azure_native.keyvault.vault": {
         "prefix": "kv",
@@ -692,6 +693,7 @@ V1_NAMING_EXPECTED: dict[str, str] = {
     "pulumi_azure_native.containerregistry.registry": "CrWorkloadTestNeu01",
     "pulumi_azure_native.monitor.diagnostic_setting": "diag-workload-test-neu-01",
     "pulumi_azure_native.web.app_service_plan": "asp-workload-test-neu-01",
+    "pulumi_azure_native.logic.workflow": "logic-workload-test-neu-01",
     "pulumi_azure_native.web.web_app": "app-workload-test-neu-01",
     "pulumi_azure_native.keyvault.vault": "KvWorkloadTestNeu01",
     "pulumi_azure_native.storage.storage_account": "stworkloadtestneu01",
@@ -1199,6 +1201,7 @@ def test_cross_system_v1_only_resources() -> None:
         "pulumi_azure_native.compute.disk",
         "pulumi_azure_native.recoveryservices.vault",
         "pulumi_azure_native.recoveryservices.protection_policy",
+        "pulumi_azure_native.logic.workflow",
     }
     assert v1_only == expected_v1_only, (
         f"V1-only resources changed.\n"

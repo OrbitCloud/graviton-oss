@@ -1,5 +1,6 @@
 import asyncio
 from collections.abc import AsyncIterable
+from functools import cache
 
 from azure.core.credentials import AccessToken
 from azure.core.credentials_async import AsyncTokenCredential
@@ -28,15 +29,22 @@ async def get_roles() -> AsyncIterable[RoleDefinition]:
     return client.role_definitions.list(scope="")
 
 
-loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
-get_roles_task: asyncio.Task[AsyncIterable[RoleDefinition]] = loop.create_task(get_roles())
+@cache
+def get_roles_task() -> asyncio.Task[AsyncIterable[RoleDefinition]]:
+    """Start the role-definition listing once per process.
+
+    Deliberately lazy. Creating the task at import time needs a running event
+    loop, which made `import orbitcloud_graviton.az_iam` fail outside a Pulumi
+    runtime -- and with it every component that wires up role assignments.
+    """
+    return asyncio.get_running_loop().create_task(get_roles())
 
 
 @async_output
 async def get_role_id_by_name(
-    role_name: str, get_role_task: asyncio.Task[AsyncIterable[RoleDefinition]] = get_roles_task
+    role_name: str, get_role_task: asyncio.Task[AsyncIterable[RoleDefinition]] | None = None
 ) -> str:
-    async for role in await get_role_task:
+    async for role in await (get_role_task or get_roles_task()):
         if (
             role.role_name == role_name
             and role.id is not None

@@ -20,7 +20,7 @@ def diagnostic_setting(
         resource_uri=resource.id,
         workspace_id=log_workspace_id,
         metrics=[
-            monitor.MetricSettingsArgs(
+            monitor.DiagnosticsMetricSettingsArgs(
                 category=category,
                 enabled=True,
             )
@@ -29,7 +29,7 @@ def diagnostic_setting(
         if metric_categories
         else None,
         logs=[
-            monitor.LogSettingsArgs(
+            monitor.DiagnosticsLogSettingsArgs(
                 category=category,
                 enabled=True,
             )

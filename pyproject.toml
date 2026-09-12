@@ -17,6 +17,7 @@ packages = [
     { include = "orbitcloud_graviton/az_compute", from = "components" },
     { include = "orbitcloud_graviton/az_eventgrid", from = "components" },
     { include = "orbitcloud_graviton/az_eventhub", from = "components" },
+    { include = "orbitcloud_graviton/az_frontdoor", from = "components" },
     { include = "orbitcloud_graviton/az_iam", from = "components" },
     { include = "orbitcloud_graviton/az_keyvault", from = "components" },
     { include = "orbitcloud_graviton/az_lib", from = "components" },

@@ -1,0 +1,29 @@
+azure_namespace: Microsoft.Cdn
+resources:
+  Profile:
+    naming:
+      prefix: afd
+    namespace: Microsoft.Cdn/profiles
+    sub_resource_name: afd
+    private_dns_zone: privatelink.azurefd.net
+  AFDEndpoint:
+    naming:
+      prefix: fde
+      lowercase: true
+    namespace: Microsoft.Cdn/profiles/afdEndpoints
+  AFDOriginGroup:
+    naming:
+      prefix: afdog
+  AFDOrigin:
+    naming:
+      prefix: afdo
+  Route:
+    naming:
+      prefix: afdrt
+  AFDCustomDomain:
+    naming:
+      prefix: afdcd
+  Policy:
+    naming:
+      prefix: fdfp
+      alphanumeric: true

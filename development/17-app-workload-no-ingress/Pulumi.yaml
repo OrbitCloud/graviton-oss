@@ -1,0 +1,6 @@
+name: app_workload_no_ingress
+description: App Workload — Container App without ingress (netshoot debug shell)
+runtime:
+  name: python
+options:
+  refresh: always

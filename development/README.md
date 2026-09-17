@@ -53,6 +53,7 @@ outputs from earlier ones via `stack://` references.
 14-entra-external-id # Entra External ID (B2C) tenant
 15-acme-ssl        # Let's Encrypt ACME wildcard certificates
 16-oracledb        # Oracle Database on Azure VM
+17-app-workload-no-ingress     # Container App without ingress (netshoot debug shell)
 ```
 
 ## Deploying a Single Stack

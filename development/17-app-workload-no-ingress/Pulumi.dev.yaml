@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=.stack_schema.json
+environment:
+  - graviton-dev
+config:
+  workload_name: netshoot
+
+  # Always-on netshoot replica for interactive debugging. Ingress is omitted,
+  # so the app gets no FQDN and no inbound listener -- it is only reachable
+  # from inside the Container App Environment. Exec into it with:
+  #   az containerapp exec -g <resource-group> -n <app-name> --command /bin/bash
+  apps:
+    - name: shell
+      # Reference the Container App Environment from the app-zone stack
+      environment_output_ref: stack://app_zone/dev/containerapp_env
+      workload_profile_name: Consumption
+
+      containers:
+        - name: netshoot
+          image: ghcr.io/nicolaka/netshoot:latest
+          from_public_registry: true
+          command: ["sleep"]
+          args: ["infinity"]
+          resources:
+            cpu: 0.5
+            memory_gb: 1.0
+
+      scaling:
+        min_replicas: 1
+        max_replicas: 1

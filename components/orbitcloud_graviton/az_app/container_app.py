@@ -96,7 +96,9 @@ class ContainerAppBaseConfig(BaseModel):
 
 
 class ContainerAppConfig(ContainerAppBaseConfig):
-    ingress: HttpIngressConfig | TcpIngressConfig = Field(..., discriminator="protocol")
+    ingress: HttpIngressConfig | TcpIngressConfig | None = Field(
+        default=None, discriminator="protocol"
+    )
     revision_mode: app.ActiveRevisionsMode | None = app.ActiveRevisionsMode.SINGLE
 
 
@@ -148,7 +150,11 @@ class ContainerApp(pulumi.ComponentResource):
             opts=pulumi.ResourceOptions(parent=self.app),
         )
 
-        if isinstance(self.config, ContainerAppConfig) and self.config.ingress.custom_domains:
+        if (
+            isinstance(self.config, ContainerAppConfig)
+            and self.config.ingress
+            and self.config.ingress.custom_domains
+        ):
             for domain in self.config.ingress.custom_domains:
                 self._setup_custom_domain(domain=domain)
 
@@ -380,7 +386,7 @@ class ContainerApp(pulumi.ComponentResource):
 
         return app.ConfigurationArgs(
             active_revisions_mode=self.config.revision_mode,
-            ingress=self.config.ingress.args(),
+            ingress=self.config.ingress.args() if self.config.ingress else None,
             registries=(
                 [
                     app.RegistryCredentialsArgs(
@@ -478,7 +484,11 @@ class ContainerApp(pulumi.ComponentResource):
             "name": self.app.name,
         }
 
-        if isinstance(self.app, app.ContainerApp) and isinstance(self.config, ContainerAppConfig):
+        if (
+            isinstance(self.app, app.ContainerApp)
+            and isinstance(self.config, ContainerAppConfig)
+            and self.config.ingress
+        ):
             app_exports["endpoints"] = {
                 "default": self.app.configuration.apply(
                     lambda x: (

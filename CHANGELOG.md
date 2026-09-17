@@ -1,3 +1,16 @@
+## v0.99.0 (2026-09-17)
+
+### Feat
+
+- **az_app**: allow container apps without ingress
+- **az_appservice**: add web app component
+- **az_frontdoor**: add Azure Front Door component
+- **az_logic**: add Logic Apps workflow component
+
+### Fix
+
+- **az_lib**: restore web app naming and diagnostics after the Azure SDK bump
+
 ## v0.98.0 (2026-08-12)
 
 ### BREAKING CHANGE
